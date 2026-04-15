@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atmospheric - แจ้งซ่อมแอร์</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#2d4c83",
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "on-primary-fixed": "#001a41",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary-container": "#c64f00",
+                        "secondary-container": "#a1befd",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-bright": "#f8f9fa",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "tertiary-fixed": "#ffdbcc",
+                        "outline": "#717786",
+                        "primary-container": "#0070eb",
+                        "surface-container-high": "#e7e8e9",
+                        "primary": "#0058bc",
+                        "inverse-primary": "#adc6ff",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "tertiary-fixed-dim": "#ffb595",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#adc6ff",
+                        "inverse-surface": "#2e3132",
+                        "surface-container": "#edeeef",
+                        "surface": "#f8f9fa",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-background": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "on-secondary-fixed": "#001a41",
+                        "on-surface": "#191c1d",
+                        "secondary": "#405e96",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary-fixed": "#351000",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#26467d",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#9e3d00",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface-variant": "#414755",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-200/50 transition-transform duration-200 active:scale-95 text-blue-700">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<span class="text-xl font-bold tracking-tight text-blue-700 dark:text-blue-400">Atmospheric</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden">
+<img alt="Technician Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a friendly Thai service professional in a clean blue uniform, bright indoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNHVfw5yQsOUf77crG2t5ypsmW-MftiRJ0Of3TFe3jVOAvU3sl8cSTEXPnEUFY2IP0gIjpS5PhIMpvR9yZv8ZFiu5Zj03heSIHWkQ-llbZbM7nQDXJP3LPxyZtRANnz8ICMeVqgo0len57-WNSNa7Yoo7-UsQh1Y2U2im8lIWCm6pxyxbZSXDK2l1nLp64FYNa5rfrbLqKEEcntYb9-HH8RHae8bQImW9kB8lxOkvNbPfK11t2Ca7BOQWiAZAZw4fEp0QiZzvPXDw"/>
+</div>
+</header>
+<main class="mt-24 px-6 max-w-lg mx-auto">
+<!-- Hero Editorial Section -->
+<section class="pt-8 mb-12">
+<h1 class="text-4xl font-extrabold text-on-surface leading-tight tracking-tight">
+                จองบริการ<br/><span class="text-primary">ดูแลความเย็น</span>
+</h1>
+<p class="mt-4 text-on-surface-variant font-medium opacity-80">เปลี่ยนบรรยากาศในบ้านให้สดชื่น ด้วยทีมช่างมืออาชีพที่ผ่านการรับรอง</p>
+</section>
+<form class="space-y-12">
+<!-- ข้อมูลผู้ติดต่อ -->
+<section class="space-y-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="person">person</span>
+<h2 class="text-xl font-bold text-on-surface">ข้อมูลผู้ติดต่อ</h2>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div class="space-y-1.5">
+<label class="text-[12px] font-semibold text-on-surface-variant uppercase tracking-wider px-1">ชื่อ-นามสกุล</label>
+<input class="w-full h-14 px-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary text-body-lg font-medium" placeholder="สมชาย มั่นใจ" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-[12px] font-semibold text-on-surface-variant uppercase tracking-wider px-1">เบอร์โทรศัพท์</label>
+<input class="w-full h-14 px-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary text-body-lg font-medium" placeholder="08x-xxx-xxxx" type="tel"/>
+</div>
+</div>
+</section>
+<!-- ข้อมูลแอร์ -->
+<section class="space-y-8">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="ac_unit">ac_unit</span>
+<h2 class="text-xl font-bold text-on-surface">รายละเอียดเครื่องปรับอากาศ</h2>
+</div>
+<div class="space-y-4">
+<label class="text-[12px] font-semibold text-on-surface-variant uppercase tracking-wider">ขนาดเครื่อง (BTU)</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-6 py-3 rounded-full bg-primary text-on-primary font-bold transition-all scale-95 shadow-lg shadow-primary/20" type="button">9,000</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-highest text-on-surface-variant font-semibold hover:bg-secondary-container transition-colors" type="button">12,000</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-highest text-on-surface-variant font-semibold hover:bg-secondary-container transition-colors" type="button">18,000</button>
+<button class="px-6 py-3 rounded-full bg-surface-container-highest text-on-surface-variant font-semibold hover:bg-secondary-container transition-colors" type="button">24,000+</button>
+</div>
+</div>
+<div class="space-y-4">
+<label class="text-[12px] font-semibold text-on-surface-variant uppercase tracking-wider">ประเภทแอร์</label>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-4 rounded-2xl bg-surface-container-lowest border-2 border-primary flex flex-col items-center gap-3 text-center">
+<span class="material-symbols-outlined text-3xl text-primary" data-icon="wall_lamp">wall_lamp</span>
+<span class="font-bold text-on-surface">ติดผนัง</span>
+</div>
+<div class="p-4 rounded-2xl bg-surface-container-low border-2 border-transparent flex flex-col items-center gap-3 text-center grayscale opacity-60">
+<span class="material-symbols-outlined text-3xl" data-icon="grid_view">grid_view</span>
+<span class="font-bold text-on-surface">แขวน/ฝังฝ้า</span>
+</div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[12px] font-semibold text-on-surface-variant uppercase tracking-wider px-1">ยี่ห้อ (ถ้าทราบ)</label>
+<input class="w-full h-14 px-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary text-body-lg font-medium" placeholder="ระบุยี่ห้อแอร์ เช่น Daikin, Mitsubishi" type="text"/>
+</div>
+</section>
+<!-- รายละเอียดงาน -->
+<section class="space-y-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="assignment">assignment</span>
+<h2 class="text-xl font-bold text-on-surface">อาการเบื้องต้น</h2>
+</div>
+<div class="space-y-4">
+<textarea class="w-full p-4 rounded-2xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary text-body-lg font-medium resize-none" placeholder="ระบุอาการ เช่น แอร์ไม่เย็น, มีเสียงดัง, น้ำหยด..." rows="4"></textarea>
+<div class="space-y-3">
+<label class="text-[12px] font-semibold text-on-surface-variant uppercase tracking-wider">แนบรูปภาพอาการ (ไม่บังคับ)</label>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<label class="flex-shrink-0 w-24 h-24 rounded-2xl bg-surface-container-high flex flex-col items-center justify-center border-2 border-dashed border-outline-variant text-outline cursor-pointer hover:bg-surface-container-highest transition-colors">
+<input class="hidden" type="file"/>
+<span class="material-symbols-outlined text-3xl" data-icon="add_a_photo">add_a_photo</span>
+<span class="text-[10px] font-bold mt-1">เพิ่มรูป</span>
+</label>
+<div class="flex-shrink-0 w-24 h-24 rounded-2xl bg-slate-200 overflow-hidden relative">
+<img alt="Preview" class="w-full h-full object-cover" data-alt="blurred close-up of an air conditioning unit with water droplets on the vents, indoor apartment setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOf98iu8FThe1DeyQ8h6zYbjBol-AZ4EIxrIUp8w_VeeJCKs29Rx9K4gSwKbrrV5Ug7Oy998S3S-jHfi5N00-Y8E4lBiz6tyn_770EUWv6wdHscfGE1moRZ47NdxRzuTdhHt2qJ31flDhqTRdnbymZ34GV9FcOzQNvxwkHlmFEvNHqOQ1u1pqBjZV7DA9TTp6XThKS_uUo1Gg4vIF4TQObQsPTZpdHTNT-Blcc0KpMVbTVvO2j3h_SgDxZOrSlP2rIxoO5GRjJtp8"/>
+<button class="absolute top-1 right-1 bg-on-background/50 text-white rounded-full p-1"><span class="material-symbols-outlined text-sm" data-icon="close">close</span></button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- นัดหมาย -->
+<section class="space-y-6 pb-12">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="calendar_month">calendar_month</span>
+<h2 class="text-xl font-bold text-on-surface">วันและเวลาที่สะดวก</h2>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div class="flex items-center gap-3 p-4 rounded-2xl bg-surface-container-lowest shadow-sm">
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+</div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">เลือกวันที่</p>
+<input class="w-full bg-transparent border-none p-0 font-bold text-on-surface focus:ring-0" type="date"/>
+</div>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-2xl bg-surface-container-lowest shadow-sm">
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+</div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">เลือกเวลา</p>
+<input class="w-full bg-transparent border-none p-0 font-bold text-on-surface focus:ring-0" type="time"/>
+</div>
+</div>
+</div>
+</section>
+</form>
+</main>
+<!-- Sticky Bottom CTA -->
+<div class="fixed bottom-0 left-0 w-full p-6 bg-surface/80 backdrop-blur-2xl z-40 border-none">
+<button class="w-full h-16 bg-gradient-to-tr from-primary to-primary-container text-on-primary font-bold text-lg rounded-2xl shadow-xl shadow-primary/30 flex items-center justify-center gap-2 transition-all active:scale-95">
+            ส่งคำขอใช้บริการ
+            <span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+<!-- Map/Background Atmospheric Element (Decorative) -->
+<div class="fixed -bottom-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none"></div>
+<div class="fixed -top-12 -left-12 w-48 h-48 bg-secondary-container/10 rounded-full blur-[60px] pointer-events-none"></div>
+</body></html>

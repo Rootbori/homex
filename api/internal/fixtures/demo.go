@@ -1,0 +1,165 @@
+package fixtures
+
+type Store struct{}
+
+func NewStore() *Store {
+	return &Store{}
+}
+
+func (s *Store) Technicians() []map[string]any {
+	return []map[string]any{
+		{
+			"id":             "tech-01",
+			"slug":           "cool-care-bangkok",
+			"name":           "Cool Care Bangkok",
+			"rating":         4.9,
+			"reviews":        128,
+			"experience":     12,
+			"area":           "ลาดพร้าว, บางกะปิ, วังทองหลาง",
+			"services":       []string{"ล้างแอร์", "ซ่อมแอร์", "เติมน้ำยา"},
+			"starting_price": 650,
+			"availability":   "available",
+			"line_url":       "https://line.me/R/ti/p/@coolcare",
+		},
+		{
+			"id":             "tech-02",
+			"slug":           "bluewind-service",
+			"name":           "Bluewind Service",
+			"rating":         4.8,
+			"reviews":        91,
+			"experience":     8,
+			"area":           "บางนา, พระโขนง, อ่อนนุช",
+			"services":       []string{"ล้างแอร์", "ติดตั้ง", "ซ่อม"},
+			"starting_price": 790,
+			"availability":   "busy",
+			"line_url":       "https://line.me/R/ti/p/@bluewind",
+		},
+	}
+}
+
+func (s *Store) Leads() []map[string]any {
+	return []map[string]any{
+		{
+			"id":                  "lead-1201",
+			"customer_name":       "คุณมุก",
+			"phone":               "089-000-1111",
+			"area":                "ลาดพร้าว 71",
+			"service_type":        "ล้างแอร์",
+			"units":               2,
+			"symptom":             "แอร์ไม่ค่อยเย็น มีน้ำหยด",
+			"source":              "line_oa",
+			"status":              "new",
+			"created_at":          "2026-04-16T09:15:00+07:00",
+			"assigned_technician": "tech-01",
+		},
+		{
+			"id":                  "lead-1202",
+			"customer_name":       "คุณต้น",
+			"phone":               "081-555-2323",
+			"area":                "บางนา",
+			"service_type":        "ซ่อมแอร์",
+			"units":               1,
+			"symptom":             "เปิดไม่ติด",
+			"source":              "find_technician",
+			"status":              "quoted",
+			"created_at":          "2026-04-16T10:10:00+07:00",
+			"assigned_technician": "tech-02",
+		},
+	}
+}
+
+func (s *Store) Jobs() []map[string]any {
+	return []map[string]any{
+		{
+			"id":                      "job-2048",
+			"job_code":                "JOB-2048",
+			"customer_id":             "cust-101",
+			"customer_name":           "คุณแพร",
+			"customer_phone":          "095-232-4444",
+			"area":                    "รามคำแหง",
+			"service_type":            "ล้างแอร์",
+			"status":                  "scheduled",
+			"scheduled_date":          "2026-04-17",
+			"scheduled_time":          "13:00 - 15:00",
+			"assigned_technician":     "tech-01",
+			"assigned_technician_name": "ช่างบอย",
+			"quotation_total":         1800,
+			"payment_status":          "pending",
+			"timeline": []map[string]string{
+				{"type": "lead_created", "label": "รับคำขอแล้ว"},
+				{"type": "quoted", "label": "ส่งใบเสนอราคา"},
+				{"type": "confirmed", "label": "ลูกค้ายืนยัน"},
+				{"type": "scheduled", "label": "นัดหมายแล้ว"},
+			},
+		},
+		{
+			"id":                      "job-2049",
+			"job_code":                "JOB-2049",
+			"customer_id":             "cust-102",
+			"customer_name":           "คุณนนท์",
+			"customer_phone":          "098-555-8888",
+			"area":                    "อ่อนนุช",
+			"service_type":            "เติมน้ำยา",
+			"status":                  "on_the_way",
+			"scheduled_date":          "2026-04-16",
+			"scheduled_time":          "16:00 - 17:00",
+			"assigned_technician":     "tech-02",
+			"assigned_technician_name": "ช่างเจ",
+			"quotation_total":         1500,
+			"payment_status":          "pending",
+			"timeline": []map[string]string{
+				{"type": "lead_created", "label": "รับคำขอแล้ว"},
+				{"type": "quoted", "label": "ส่งใบเสนอราคา"},
+				{"type": "confirmed", "label": "ลูกค้ายืนยัน"},
+				{"type": "scheduled", "label": "นัดหมายแล้ว"},
+				{"type": "on_the_way", "label": "ช่างกำลังเดินทาง"},
+			},
+		},
+	}
+}
+
+func (s *Store) Customers() []map[string]any {
+	return []map[string]any{
+		{
+			"id":          "cust-101",
+			"name":        "คุณแพร",
+			"phone":       "095-232-4444",
+			"area":        "รามคำแหง",
+			"total_spend": 4200,
+			"jobs_count":  3,
+			"note":        "คอนโด ชั้น 9 ติดต่อผ่าน LINE สะดวกกว่าโทร",
+		},
+		{
+			"id":          "cust-102",
+			"name":        "คุณนนท์",
+			"phone":       "098-555-8888",
+			"area":        "อ่อนนุช",
+			"total_spend": 1500,
+			"jobs_count":  1,
+			"note":        "บ้านเดี่ยว มีที่จอดรถหน้าบ้าน",
+		},
+	}
+}
+
+func (s *Store) Dashboard() map[string]any {
+	return map[string]any{
+		"kpis": map[string]int{
+			"new_leads_today":   7,
+			"jobs_in_progress":  5,
+			"pending_quotes":    3,
+			"completed_jobs":    18,
+			"revenue_this_month": 84200,
+		},
+		"urgent_jobs": []map[string]any{
+			{
+				"job_code":             "JOB-2049",
+				"customer":             "คุณนนท์",
+				"status":               "on_the_way",
+				"time":                 "16:00",
+				"assigned_technician":  "tech-02",
+			},
+		},
+		"today_jobs": s.Jobs(),
+		"latest_leads": s.Leads(),
+	}
+}

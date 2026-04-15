@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8f9fa;
+  --surface: #f8f9fa;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f4f5;
+  --surface-container: #edeeef;
+  --surface-container-high: #e7e8e9;
+  --surface-container-highest: #e1e3e4;
+  --primary: #0058bc;
+  --primary-container: #0070eb;
+  --on-primary: #ffffff;
+  --primary-fixed: #d8e2ff;
+  --primary-fixed-dim: #adc6ff;
+  --on-primary-fixed-variant: #004493;
+  --secondary: #405e96;
+  --on-secondary: #ffffff;
+  --secondary-container: #a1befd;
+  --on-secondary-container: #2d4c83;
+  --tertiary: #9e3d00;
+  --tertiary-container: #c64f00;
+  --tertiary-fixed: #ffdbcc;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #fffbff;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+  --on-surface: #191c1d;
+  --on-surface-variant: #414755;
+  --outline-variant: #c1c6d7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: max(884px, 100dvh);
+  background: var(--surface);
+  color: var(--on-surface);
+  font-family: var(--font-body), Inter, "Noto Sans Thai", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  @apply text-inherit no-underline;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+.headline-font {
+  font-family: var(--font-headline), "Plus Jakarta Sans", "Noto Sans Thai", system-ui, sans-serif;
+}
+
+.app-gradient {
+  background: linear-gradient(135deg, var(--primary-container) 0%, var(--primary) 100%);
+}
+
+.glass-bar {
+  background: rgba(248, 249, 250, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.surface-card {
+  background: var(--surface-container-lowest);
+}
+
+.surface-sheet {
+  background: var(--surface-container-low);
+}
+
+.atmospheric-glow {
+  box-shadow: 0 8px 32px rgba(0, 88, 188, 0.16);
+}
+
+.ambient-shadow {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

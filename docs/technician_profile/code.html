@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Technician Profile - Atmospheric</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#2d4c83",
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "on-primary-fixed": "#001a41",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary-container": "#c64f00",
+                        "secondary-container": "#a1befd",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-bright": "#f8f9fa",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "tertiary-fixed": "#ffdbcc",
+                        "outline": "#717786",
+                        "primary-container": "#0070eb",
+                        "surface-container-high": "#e7e8e9",
+                        "primary": "#0058bc",
+                        "inverse-primary": "#adc6ff",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "tertiary-fixed-dim": "#ffb595",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#adc6ff",
+                        "inverse-surface": "#2e3132",
+                        "surface-container": "#edeeef",
+                        "surface": "#f8f9fa",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-background": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "on-secondary-fixed": "#001a41",
+                        "on-surface": "#191c1d",
+                        "secondary": "#405e96",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary-fixed": "#351000",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#26467d",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#9e3d00",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface-variant": "#414755",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-200/50 dark:hover:bg-slate-800/50 p-2 rounded-full transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<span class="text-xl font-bold tracking-tight text-blue-700 dark:text-blue-400 headline-font">Technician Profile</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="Technician Profile" class="w-full h-full object-cover" data-alt="Professional technician headshot with a friendly smile wearing a blue uniform in a clean office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCj_p478IHy9pLqCAIqeSLMdUIJ5cKBHDphsPSeFclWm328U53Idd8NuJ2MSP9oYNDw9AaPX4jt8IpOTBpyl3PxKEnm3g4MN5PQ_EsqgBl6rjskS0YXEVOlmR-FYxFCejFhVh3zIqnuQTJeV_9q5q_gjMzJfuSCnuXtoFPkHqjk7AwPTTLqWfFS5m04kwQqnE5ZPH_CpVlBC0_lAn8NXT0g6KFRc7aCAOkD_luFClplaYzvMzCOtnctfKpYF06ociPWr7dPojlFP6s"/>
+</div>
+</nav>
+<main class="mt-20 px-6">
+<!-- Header Section -->
+<section class="flex flex-col items-start gap-4 mb-8">
+<div class="relative w-full flex items-end gap-6 pt-6">
+<div class="w-28 h-28 rounded-2xl overflow-hidden shadow-xl shadow-primary/10">
+<img alt="Technician work" class="w-full h-full object-cover" data-alt="Close-up of a skilled technician working on an air conditioning unit with focus and precision" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLwL1xw98S4mat_6E3tZ6C261TwGDFKSrVYA7tcSPMkrCCTBUf8tgUSj7KWcM_HT54dliPBrkvpbwds0uHUagZ9efFhjAPhfhCt86SviZOnBqMShVHRcrt5pvSJqTWQTqHBGuzUyV_UWJc8Rfu5OmiI3c6dNX1ZFbMBSytkdyF9Rb4hsNL0BczpMGl9vEbshX82_-jJjMe_KiDHIgrDjKhfGI6y49aYZm9peH8BGwOvSCHrhiXYi6jLy92X55h3ZRs5-krIYb7Vhc"/>
+</div>
+<div class="flex-1">
+<h1 class="text-2xl font-extrabold text-on-surface headline-font leading-tight">คุณสมชาย ยอดช่าง</h1>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-500 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold text-on-surface">4.9</span>
+<span class="text-sm text-on-surface-variant">(128 รีวิว)</span>
+</div>
+<div class="mt-2 inline-flex items-center px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold">
+                        ประสบการณ์ 10 ปี
+                    </div>
+</div>
+</div>
+</section>
+<!-- Quick Contact Buttons -->
+<section class="grid grid-cols-3 gap-3 mb-8">
+<button class="flex flex-col items-center justify-center gap-2 py-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary">call</span>
+<span class="text-xs font-medium">โทร</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 py-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#06C755]">chat</span>
+<span class="text-xs font-medium">LINE</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 py-4 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary">forum</span>
+<span class="text-xs font-medium">แชท</span>
+</button>
+</section>
+<!-- About Section -->
+<section class="mb-10">
+<h2 class="text-lg font-bold headline-font mb-3">เกี่ยวกับช่าง</h2>
+<p class="text-on-surface-variant leading-relaxed text-sm">
+                ผู้เชี่ยวชาญด้านระบบปรับอากาศทุกชนิด ประสบการณ์ยาวนานกว่า 10 ปี เน้นงานละเอียด ตรงต่อเวลา และรับประกันหลังการซ่อม บริการด้วยใจในราคามิตรภาพ
+            </p>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-primary/5 text-primary text-xs font-semibold rounded-lg">งานด่วน 24 ชม.</span>
+<span class="px-4 py-2 bg-primary/5 text-primary text-xs font-semibold rounded-lg">รับประกัน 90 วัน</span>
+<span class="px-4 py-2 bg-primary/5 text-primary text-xs font-semibold rounded-lg">ใบประกอบวิชาชีพ</span>
+</div>
+</section>
+<!-- Service List -->
+<section class="mb-10">
+<h2 class="text-lg font-bold headline-font mb-4">บริการและราคา</h2>
+<div class="space-y-3">
+<div class="p-5 bg-surface-container-lowest rounded-2xl flex justify-between items-center">
+<div>
+<h3 class="font-bold text-on-surface">ล้างแอร์ติดผนัง</h3>
+<p class="text-xs text-on-surface-variant">เริ่มต้น 9,000 - 24,000 BTU</p>
+</div>
+<div class="text-right">
+<span class="text-lg font-extrabold text-primary">฿500</span>
+</div>
+</div>
+<div class="p-5 bg-surface-container-lowest rounded-2xl flex justify-between items-center">
+<div>
+<h3 class="font-bold text-on-surface">ล้างแอร์แขวน</h3>
+<p class="text-xs text-on-surface-variant">ล้างใหญ่ พร้อมตรวจเช็คน้ำยา</p>
+</div>
+<div class="text-right">
+<span class="text-lg font-extrabold text-primary">฿800</span>
+</div>
+</div>
+<div class="p-5 bg-surface-container-lowest rounded-2xl flex justify-between items-center">
+<div>
+<h3 class="font-bold text-on-surface">ซ่อมแอร์</h3>
+<p class="text-xs text-on-surface-variant">ตรวจเช็คอาการและเสนอราคา</p>
+</div>
+<div class="text-right">
+<span class="text-lg font-extrabold text-primary">฿300</span>
+</div>
+</div>
+<div class="p-5 bg-surface-container-lowest rounded-2xl flex justify-between items-center">
+<div>
+<h3 class="font-bold text-on-surface">ติดตั้งแอร์</h3>
+<p class="text-xs text-on-surface-variant">ฟรีอุปกรณ์ติดตั้งมาตรฐาน</p>
+</div>
+<div class="text-right">
+<span class="text-lg font-extrabold text-primary">฿2,500</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Service Areas -->
+<section class="mb-10">
+<h2 class="text-lg font-bold headline-font mb-3">พื้นที่ให้บริการ</h2>
+<div class="flex items-start gap-3 p-4 bg-surface-container-low rounded-xl">
+<span class="material-symbols-outlined text-primary mt-0.5">location_on</span>
+<div>
+<p class="text-sm font-medium text-on-surface">กรุงเทพฯ และปริมณฑล</p>
+<p class="text-xs text-on-surface-variant mt-1">ลาดพร้าว, รามคำแหง, บางกะปิ, สุขุมวิท, รังสิต</p>
+</div>
+</div>
+</section>
+<!-- Photo Gallery -->
+<section class="mb-10">
+<h2 class="text-lg font-bold headline-font mb-4">ผลงานที่ผ่านมา</h2>
+<div class="grid grid-cols-2 gap-3">
+<div class="aspect-square rounded-2xl overflow-hidden bg-surface-container-high">
+<img alt="Work gallery 1" class="w-full h-full object-cover" data-alt="Interior view of a modern living room with a perfectly installed white wall-mounted air conditioner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6-MpJT_WQm-zKMBo_VrOTkOokAzc8UJ9cTQL6nnTPyAtFsNMmFixl2YPD5nBRWn8Foz9lKu0LB5I7tU7HBKxzXalQOiqZpmRDiNwFYXroyZUhTmIwWGaI7ljpN3KV02c1ZNjCBLKd6_uqxofMlGUeyCDZMU91r9W8N-7f7OlJGKSwN6DOX-0mBVn3eaPCI3sx4YttLAQFkgf9V1s96eDM9dyP4EiMQyBKxa10s9s8plrtcsNM9K74Ov48iRH7UhfxSrbwn9ebnGs"/>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden bg-surface-container-high">
+<img alt="Work gallery 2" class="w-full h-full object-cover" data-alt="Macro shot of a technician using professional tools to measure voltage on an HVAC unit electrical panel" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo09j89cQxhtdoyKzG7upnUwkHF_qbaYkLBgC7t6BFusMKt6RKv6iqFRyYAppze_bYi4FDtAzWMw8JqO-qywAL1S16-47VgeHWVtPWRdZsxZ9HjeDYcDT9EnOmZe4-8Y-OFob8pxxUq9munymOfcfm3V-l5TercAlhDqN6pFxYqvdHBoLgqyIWfql0b80-rrFiohgmRTHOYA28om2a6tHcy6nNZJlzwbYzP0T7vgaLt7AvaxRfkN2HEkhH8QBcjuI_CxBLPM9fqPY"/>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden bg-surface-container-high">
+<img alt="Work gallery 3" class="w-full h-full object-cover" data-alt="Outside view of multiple industrial AC condenser units installed neatly on a rooftop against a clear blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlzwmUTOEOU01RP_81kl9MnNLXU5gnRb4lxDA5Gt3D4DUwzUt4OU86s5C81hzZT-mfxUWII7jXA-7_pnvDDNiJYx5bzTmPVfChGwZyIhrRwoK9FKakLxjnZvS3h8lVBsZuyYe4NOHTBSKvudSykR9ElZ-2I32Ciqe76z5TiiHyv4q211NYz0nbIQuWQhL6lSaJYN1oNp6UVBum2okYsyPwu91riF5iA9twa5QjSej1LO0o7cTs3EryWb0UmZb-u2_SRSztU4Tpea0"/>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden bg-surface-container-high relative">
+<img alt="Work gallery 4" class="w-full h-full object-cover opacity-60" data-alt="Close-up of clean air filter mesh from an air conditioner, showing high hygiene standards" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9QnL_jsTubn9IshLQ0FMNUN7ok30mILJiemc917woCiRDfrjd6OT9qOTqPo9uhpgib4Wm1P7zfIvHg8SO5ujGK6S9XTUuu8t30Gl40PeoU37YKfLSeDpNxyLxuxPWLwjQ1LUDaATTLIVnfVB_u7rkXLfC-6UPjSEI8OfCUkMARdeFGtNFdNcFpZMH21Ry4HIpk-aMS3gWV16B16hN0HMKhBc9b08byIwNIUvooMCAUnHl6cQwGiLdAt-mgC2-nC2qmrg9tg8QBdI"/>
+<div class="absolute inset-0 flex items-center justify-center text-white font-bold bg-black/20">
+                        +15 รูป
+                    </div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom CTA -->
+<div class="fixed bottom-24 left-0 w-full px-6 z-40">
+<button class="w-full h-14 bg-gradient-to-tr from-primary to-primary-container text-on-primary font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span>จองบริการตอนนี้</span>
+<span class="material-symbols-outlined text-xl">calendar_today</span>
+</button>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.04)]">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-blue-600 dark:hover:text-blue-300">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-blue-600 dark:hover:text-blue-300">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">Leads</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 rounded-2xl px-5 py-2 active:scale-90 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="build" style="font-variation-settings: 'FILL' 1;">build</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">Jobs</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-blue-600 dark:hover:text-blue-300">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">More</span>
+</div>
+</nav>
+</body></html>

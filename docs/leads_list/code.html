@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atmospheric CRM - Leads</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#2d4c83",
+                    "on-tertiary-fixed-variant": "#7c2e00",
+                    "on-primary-fixed": "#001a41",
+                    "surface-variant": "#e1e3e4",
+                    "tertiary-container": "#c64f00",
+                    "secondary-container": "#a1befd",
+                    "secondary-fixed": "#d8e2ff",
+                    "surface-bright": "#f8f9fa",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "tertiary-fixed": "#ffdbcc",
+                    "outline": "#717786",
+                    "primary-container": "#0070eb",
+                    "surface-container-high": "#e7e8e9",
+                    "primary": "#0058bc",
+                    "inverse-primary": "#adc6ff",
+                    "outline-variant": "#c1c6d7",
+                    "surface-tint": "#005bc1",
+                    "tertiary-fixed-dim": "#ffb595",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#adc6ff",
+                    "inverse-surface": "#2e3132",
+                    "surface-container": "#edeeef",
+                    "surface": "#f8f9fa",
+                    "surface-container-low": "#f3f4f5",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-background": "#191c1d",
+                    "surface-dim": "#d9dadb",
+                    "on-secondary-fixed": "#001a41",
+                    "on-surface": "#191c1d",
+                    "secondary": "#405e96",
+                    "on-tertiary-container": "#fffbff",
+                    "on-tertiary-fixed": "#351000",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#26467d",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#9e3d00",
+                    "primary-fixed": "#d8e2ff",
+                    "on-surface-variant": "#414755",
+                    "on-primary-container": "#fefcff",
+                    "on-error": "#ffffff",
+                    "background": "#f8f9fa"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .atmospheric-gradient {
+            background: linear-gradient(135deg, #0070eb 0%, #0058bc 100%);
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface select-none">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-slate-200/50 p-2 rounded-full transition-transform active:scale-95" data-icon="menu">menu</span>
+<h1 class="text-xl font-bold tracking-tight text-blue-700 dark:text-blue-400">Atmospheric</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User Profile" data-alt="professional portrait of a service technician wearing a blue uniform smiling confidently in a clean environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjRU-MFtElGYSwGCy2WgoG0VoVihRfO_1pIc9d85o2aZDmuu4xZsOdoxEulu-1XwZnUc3wvAytvcNTUp1klsBXxUyCh8ook3doqwpReWWtzLM91LORH8yGp8uG2NLoz5DWq90hFY_POZGa4BMvArRc0j3JwQEPkNdjrpAORMjts0GsEns4EVqpUCZ-HUuYY0KfBvLTUKnSgqWv4VJG5NbckKxyjE-ZPFRYngv_wSwHx-Ic46Vm4mUjqFqV8r3mDfrfMi4GrktncAM"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 min-h-screen max-w-md mx-auto">
+<!-- Editorial Header -->
+<div class="mb-8 pt-4">
+<span class="text-primary font-bold text-sm tracking-widest uppercase mb-1 block">Sales Funnel</span>
+<h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Leads รายใหม่</h2>
+<p class="text-on-surface-variant text-sm mt-1">จัดการรายชื่อลูกค้าที่สนใจบริการของคุณ</p>
+</div>
+<!-- Search & Filters (Asymmetric Design) -->
+<section class="space-y-4 mb-8">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary-container text-body-lg" placeholder="ค้นหาชื่อลูกค้าหรือเบอร์โทร..." type="text"/>
+</div>
+<div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+<button class="flex items-center gap-2 px-4 py-2 bg-primary-container text-on-primary rounded-full text-sm font-semibold whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span>
+                    กรองข้อมูล
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-sm font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px]" data-icon="source">source</span>
+                    LINE/Web
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-sm font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+                    พื้นที่
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-sm font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px]" data-icon="calendar_today">calendar_today</span>
+                    วันที่
+                </button>
+</div>
+</section>
+<!-- Leads List -->
+<div class="space-y-4">
+<!-- Lead Card 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-transform active:scale-[0.98]">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[11px] font-bold rounded-full uppercase tracking-wider">ใหม่</span>
+<span class="text-on-surface-variant text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+                                10 นาทีที่แล้ว
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-on-surface">คุณสมชาย ใจดี</h3>
+<p class="text-primary font-medium text-sm">081-234-5678</p>
+</div>
+<div class="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full">
+<span class="material-symbols-outlined text-green-600" data-icon="chat">chat</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-4 border-t border-outline-variant/10">
+<div>
+<span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-widest block mb-0.5">Service</span>
+<span class="text-sm font-bold text-on-surface">ล้างแอร์ติดผนัง</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-widest block mb-0.5">AC Unit</span>
+<span class="text-sm font-bold text-on-surface">Daikin / 12,000 BTU</span>
+</div>
+</div>
+</div>
+<!-- Lead Card 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-transform active:scale-[0.98]">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[11px] font-bold rounded-full uppercase tracking-wider">รอติดต่อ</span>
+<span class="text-on-surface-variant text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+                                2 ชม. ที่แล้ว
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-on-surface">คุณวิภาวรรณ สุขสวัสดิ์</h3>
+<p class="text-primary font-medium text-sm">095-888-xxxx</p>
+</div>
+<div class="w-10 h-10 flex items-center justify-center bg-blue-50 rounded-full">
+<span class="material-symbols-outlined text-blue-600" data-icon="language">language</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-4 border-t border-outline-variant/10">
+<div>
+<span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-widest block mb-0.5">Service</span>
+<span class="text-sm font-bold text-on-surface">ซ่อมแอร์ไม่เย็น</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-widest block mb-0.5">AC Unit</span>
+<span class="text-sm font-bold text-on-surface">Mitsubishi / 18,000 BTU</span>
+</div>
+</div>
+</div>
+<!-- Lead Card 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-transform active:scale-[0.98]">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="px-3 py-1 bg-primary-fixed-dim text-on-primary-fixed-variant text-[11px] font-bold rounded-full uppercase tracking-wider text-center leading-tight">สร้างใบเสนอราคาแล้ว</span>
+<span class="text-on-surface-variant text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+                                วานนี้
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-on-surface">คุณธนากร เมืองดี</h3>
+<p class="text-primary font-medium text-sm">089-123-xxxx</p>
+</div>
+<div class="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full">
+<span class="material-symbols-outlined text-green-600" data-icon="chat">chat</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-4 border-t border-outline-variant/10">
+<div>
+<span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-widest block mb-0.5">Service</span>
+<span class="text-sm font-bold text-on-surface">ติดตั้งแอร์ใหม่</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-widest block mb-0.5">AC Unit</span>
+<span class="text-sm font-bold text-on-surface">Carrier / 24,000 BTU</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-28 right-6 w-16 h-16 atmospheric-gradient text-on-primary rounded-2xl shadow-xl flex items-center justify-center z-50 transition-transform active:scale-90 shadow-primary/20">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.04)]">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 transition-all hover:text-blue-600">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 rounded-2xl px-5 py-2 scale-90 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="search" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">Leads</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 transition-all hover:text-blue-600">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">Jobs</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 transition-all hover:text-blue-600">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">More</span>
+</div>
+</nav>
+</body></html>

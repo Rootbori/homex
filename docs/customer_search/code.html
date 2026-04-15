@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atmospheric - Air Service Thailand</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#2d4c83",
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "on-primary-fixed": "#001a41",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary-container": "#c64f00",
+                        "secondary-container": "#a1befd",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-bright": "#f8f9fa",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "tertiary-fixed": "#ffdbcc",
+                        "outline": "#717786",
+                        "primary-container": "#0070eb",
+                        "surface-container-high": "#e7e8e9",
+                        "primary": "#0058bc",
+                        "inverse-primary": "#adc6ff",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "tertiary-fixed-dim": "#ffb595",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#adc6ff",
+                        "inverse-surface": "#2e3132",
+                        "surface-container": "#edeeef",
+                        "surface": "#f8f9fa",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-background": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "on-secondary-fixed": "#001a41",
+                        "on-surface": "#191c1d",
+                        "secondary": "#405e96",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary-fixed": "#351000",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#26467d",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#9e3d00",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface-variant": "#414755",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-blue-700">menu</span>
+<span class="text-xl font-bold tracking-tight text-blue-700">Atmospheric</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border-2 border-primary-container">
+<img alt="Technician Profile" class="w-full h-full object-cover" data-alt="Professional portrait of a friendly Thai service technician in a clean blue uniform, bright studio lighting, confident smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO4WaJUhcWA1_tGd9tHr95R74PjaK5iMozDu5dILbMlZ3qR6I3yV7sPyLQ2W_ZEQcbxUtI26d1_-0gWdCyunQkvlmZm2VwgNZDBDOnLvAWpbJcuwVAAqzscLAdoaXH--nnBFH3c_8Zyps59gPQq9LzcEXZQWNwUMKNk3wi0UwKWiZPbm8OJ5sEiQmqMeR3a7jtNhsDUjKHyAm_KB26ThoJqykmMsbG7R9NdXeGsVB3x7Y9CoQZJbp_1qvdftipXXKPOdHmkGKS7kg"/>
+</div>
+</header>
+<main class="pt-24 px-6">
+<!-- Hero Editorial Section -->
+<section class="mb-8 pt-4">
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2 leading-tight">
+                Air Service
+            </h1>
+<p class="text-on-surface-variant text-lg">จัดการความเย็นให้สมบูรณ์แบบ</p>
+</section>
+<!-- Search & Filters -->
+<div class="sticky top-20 z-40 bg-surface/95 backdrop-blur-sm -mx-6 px-6 py-4">
+<div class="relative group transition-all duration-300">
+<input class="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-on-surface focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" placeholder="ค้นหาช่างแอร์ในพื้นที่ของคุณ" type="text"/>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-2 overflow-x-auto mt-4 pb-2 no-scrollbar">
+<button class="bg-primary text-on-primary whitespace-nowrap px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span> พื้นที่
+                </button>
+<button class="bg-surface-container-highest text-on-surface-variant whitespace-nowrap px-5 py-2 rounded-full text-sm font-semibold">ล้างแอร์</button>
+<button class="bg-surface-container-highest text-on-surface-variant whitespace-nowrap px-5 py-2 rounded-full text-sm font-semibold">ซ่อมแอร์</button>
+<button class="bg-secondary-container text-on-secondary-container whitespace-nowrap px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">bolt</span> ว่างตอนนี้
+                </button>
+</div>
+</div>
+<!-- Content Canvas (Technician Cards) -->
+<div class="space-y-6 mt-4">
+<!-- Technician Card 1 -->
+<div class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/10 active:scale-95 transition-transform duration-200">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-2xl overflow-hidden shadow-inner">
+<img alt="ช่างวิชัย" class="w-full h-full object-cover" data-alt="Close-up profile of a male technician with a friendly expression, outdoor lighting, wearing a professional navy polo shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf6O4eMHdYjfo6OuOSBwufTLAWgpm-OOcrBsUBqmh0QLWnA6aG6F4yBJVunW93XQNtC3WdkIvF-cMUiKfUW2_UGAsugbkfRL5uunvQLB1yoWObI25dATNUR_qwNTOYeWWqShlyrdzXfd9nnHdk9rogmD40asbWjJ5IyGqqZ8zTJ9MfXN60Sqey96-oVrI1sop8Jk1oqW5WGD-VvOaJkFK6SIjBXsXyGcYCRoylBu8jEmcdd_77ui8dMPKhIGkrtEQQH00HECEfwRo"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-xl font-bold text-on-surface">ช่างวิชัย บริการ</h3>
+<span class="bg-primary-fixed-dim/30 text-on-primary-fixed-variant px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">ว่าง</span>
+</div>
+<div class="flex items-center text-secondary gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-sm">4.9</span>
+<span class="text-on-surface-variant text-xs font-normal ml-1">(120+ รีวิว)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">location_on</span>
+<span class="text-sm font-medium">บางนา, กรุงเทพมหานคร</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="text-xs bg-surface-container-low px-3 py-1 rounded-lg text-on-surface-variant font-medium">ล้างแอร์ติดผนัง</span>
+<span class="text-xs bg-surface-container-low px-3 py-1 rounded-lg text-on-surface-variant font-medium">เติมน้ำยา</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">ราคาเริ่มต้น</span>
+<span class="text-2xl font-extrabold text-primary">500฿</span>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-3 rounded-xl font-bold text-sm text-on-secondary-container bg-secondary-container">ดูโปรไฟล์</button>
+<button class="px-6 py-3 rounded-xl font-bold text-sm text-on-primary bg-primary bg-gradient-to-br from-primary-container to-primary shadow-lg shadow-primary/20">ส่งคำขอ</button>
+</div>
+</div>
+</div>
+<!-- Technician Card 2 -->
+<div class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/10">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-2xl overflow-hidden shadow-inner">
+<img alt="สยาม แอร์ เซอร์วิส" class="w-full h-full object-cover" data-alt="Portrait of a smiling female technician in a grey workshop setting, clean professional attire, soft focused background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASTAuzOk0YxwObIqNu8j0klIwdiOIDrd_57CZoWJHaLRHwI7z-olP5K1hzz4PjLGUpUU_tLml1BZZIkLYH2EnvjFMEipbar5dK6W1u7QMd28GfsiNKGrLTbqQji9qGoBtRnZ810-YaP0vZ-SwlsWdEXGyDQr2zzj6fB-VPy2lTGD0y4RfqRcY183sPAaKH5r1R4sk1DC-AzWBzEn18QKkFNQLApGpcUwZ2hbroglifbpUA41i-Wk54gwAXhzw3tjAd9Nem2VNK7XQ"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-xl font-bold text-on-surface">สยาม แอร์ เซอร์วิส</h3>
+<span class="bg-primary-fixed-dim/30 text-on-primary-fixed-variant px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">ว่าง</span>
+</div>
+<div class="flex items-center text-secondary gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-sm">4.8</span>
+<span class="text-on-surface-variant text-xs font-normal ml-1">(85 รีวิว)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">location_on</span>
+<span class="text-sm font-medium">ศรีนครินทร์, สมุทรปราการ</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="text-xs bg-surface-container-low px-3 py-1 rounded-lg text-on-surface-variant font-medium">ล้างแอร์ 4 ทิศทาง</span>
+<span class="text-xs bg-surface-container-low px-3 py-1 rounded-lg text-on-surface-variant font-medium">ซ่อมบอร์ด</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">ราคาเริ่มต้น</span>
+<span class="text-2xl font-extrabold text-primary">750฿</span>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-3 rounded-xl font-bold text-sm text-on-secondary-container bg-secondary-container">ดูโปรไฟล์</button>
+<button class="px-6 py-3 rounded-xl font-bold text-sm text-on-primary bg-primary bg-gradient-to-br from-primary-container to-primary shadow-lg shadow-primary/20">ส่งคำขอ</button>
+</div>
+</div>
+</div>
+<!-- Promotion Card - Editorial Bento Style -->
+<div class="relative overflow-hidden rounded-[2.5rem] bg-on-primary-fixed p-8 text-on-primary h-64 flex flex-col justify-end">
+<div class="absolute top-0 right-0 w-48 h-48 bg-primary-container/20 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+<div class="relative z-10">
+<span class="bg-tertiary-container text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter mb-4 inline-block">Flash Deal</span>
+<h2 class="text-3xl font-bold leading-tight mb-2">ล้างแอร์ยกบ้าน<br/>รับส่วนลด 20%</h2>
+<p class="text-primary-fixed text-sm opacity-80">เฉพาะวันจันทร์-ศุกร์ ในเขตกรุงเทพฯ</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-slate-50/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.04)]">
+<a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:text-blue-600 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">หน้าแรก</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-blue-100 text-blue-800 rounded-2xl px-5 py-2 transition-all scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="search" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">ค้นหา</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:text-blue-600 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">งานของฉัน</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:text-blue-600 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+<span class="text-[11px] font-semibold Inter uppercase tracking-wider mt-1">โปรไฟล์</span>
+</a>
+</nav>
+</body></html>

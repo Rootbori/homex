@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Details - Atmospheric</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#2d4c83",
+                    "on-tertiary-fixed-variant": "#7c2e00",
+                    "on-primary-fixed": "#001a41",
+                    "surface-variant": "#e1e3e4",
+                    "tertiary-container": "#c64f00",
+                    "secondary-container": "#a1befd",
+                    "secondary-fixed": "#d8e2ff",
+                    "surface-bright": "#f8f9fa",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "tertiary-fixed": "#ffdbcc",
+                    "outline": "#717786",
+                    "primary-container": "#0070eb",
+                    "surface-container-high": "#e7e8e9",
+                    "primary": "#0058bc",
+                    "inverse-primary": "#adc6ff",
+                    "outline-variant": "#c1c6d7",
+                    "surface-tint": "#005bc1",
+                    "tertiary-fixed-dim": "#ffb595",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#adc6ff",
+                    "inverse-surface": "#2e3132",
+                    "surface-container": "#edeeef",
+                    "surface": "#f8f9fa",
+                    "surface-container-low": "#f3f4f5",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-background": "#191c1d",
+                    "surface-dim": "#d9dadb",
+                    "on-secondary-fixed": "#001a41",
+                    "on-surface": "#191c1d",
+                    "secondary": "#405e96",
+                    "on-tertiary-container": "#fffbff",
+                    "on-tertiary-fixed": "#351000",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#26467d",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#9e3d00",
+                    "primary-fixed": "#d8e2ff",
+                    "on-surface-variant": "#414755",
+                    "on-primary-container": "#fefcff",
+                    "on-error": "#ffffff",
+                    "background": "#f8f9fa"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar - Shared Component (Execution from JSON) -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-200/50 dark:hover:bg-slate-800/50 p-2 rounded-full transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined text-blue-700 dark:text-blue-400">arrow_back</span>
+</button>
+<div class="text-xl font-bold tracking-tight text-blue-700 dark:text-blue-400">
+                Job #AC-8829
+            </div>
+</div>
+<div class="flex items-center gap-2">
+<div class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[12px] font-bold uppercase tracking-wider">
+                In Progress
+            </div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-5 max-w-md mx-auto space-y-8">
+<!-- Hero: Customer & Quick Actions -->
+<section class="relative overflow-hidden rounded-[2rem] bg-surface-container-low p-6">
+<div class="relative z-10">
+<p class="text-on-surface-variant text-sm font-medium mb-1">Customer Details</p>
+<h1 class="text-3xl font-extrabold text-on-surface tracking-tight mb-6 leading-tight">
+                    คุณสมชาย <br/>วิจิตรพรรณ
+                </h1>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 bg-primary text-on-primary h-[56px] rounded-xl font-semibold transition-transform active:scale-95">
+<span class="material-symbols-outlined">call</span>
+                        โทรออก
+                    </button>
+<button class="flex items-center justify-center gap-2 bg-surface-container-lowest text-primary h-[56px] rounded-xl font-semibold shadow-sm transition-transform active:scale-95">
+<span class="material-symbols-outlined">directions</span>
+                        นำทาง
+                    </button>
+</div>
+</div>
+<!-- Atmospheric background detail -->
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
+</section>
+<!-- AC Details: Bento Style Layout -->
+<section>
+<h2 class="text-lg font-bold mb-4 px-1 text-on-surface">ข้อมูลเครื่องปรับอากาศ</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="col-span-2 bg-surface-container-lowest p-5 rounded-3xl border border-outline-variant/10">
+<p class="text-xs font-medium text-on-surface-variant uppercase tracking-widest mb-2">อาการเสีย / Symptoms</p>
+<p class="text-lg text-on-surface leading-relaxed font-medium">มีน้ำหยดจากตัวเครื่องด้านใน และแอร์ไม่เย็นเท่าที่ควร</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-3xl">
+<p class="text-xs font-medium text-on-surface-variant uppercase tracking-widest mb-1">แบรนด์</p>
+<p class="text-xl font-bold text-on-surface">DAIKIN</p>
+</div>
+<div class="bg-surface-container-low p-5 rounded-3xl">
+<p class="text-xs font-medium text-on-surface-variant uppercase tracking-widest mb-1">ขนาด</p>
+<p class="text-xl font-bold text-on-surface">18,000 BTU</p>
+</div>
+<div class="col-span-2 grid grid-cols-3 gap-2">
+<div class="aspect-square rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close up of modern wall mounted air conditioning unit white indoor evaporator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnOG-0jEEgRwf5nmRxppuM8ugt53s9-tnwTUBL3ledVET-FGVLiyvKI_mPVwCFezINDcCXFJenpOGMfvMA4fRBDFkuywsIa359XhkGqU-Fu7sNjseoIYT3Cf7KR-aU1WloPQ-wddmY-kO2qMfHN_rAdfNu5SKW_zC5NOUjUMloKIMPJ8552Gu24I3GK-0BxtaoNLRmSFlZLNcKu0jqr_5DMNJhU-mAvzmiH1ZIl8kbedeez8QRtuQpphBj90yupS95UveBa_uvqag"/>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="technician tools and gauges connected to air conditioner outdoor compressor unit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLLsX0TGlLh9anZLFk4yb5GGVu-PKSHTj2IYn0jP4sMfoj4fyRNxANZH7CTdLQbl-hprVs-Uw5ZrdxKdgXBBADw8uuHqIh47q51QgN2eVrzyiH0FgtSZRBrt_Y24jnyWPD0BQ8N3UknJb6lBMSsgolC6Nval9_TVeN25U8wneY6r3sbgVk4n6agx5ponAazkyNK3bl_u_o_DSKgA0Kvf-SQyCzM1UProp-hFBB6bVkuh5Tt8JHB6DX-XaAwmY7DF8gJCN-iXhXYG8"/>
+</div>
+<div class="relative aspect-square rounded-2xl overflow-hidden bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">add_a_photo</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Timeline & Internal Notes -->
+<section class="space-y-4">
+<h2 class="text-lg font-bold px-1 text-on-surface">บันทึกงาน &amp; ไทม์ไลน์</h2>
+<div class="bg-surface-container-low rounded-3xl p-6">
+<div class="space-y-8">
+<!-- Step 1 -->
+<div class="relative flex gap-4">
+<div class="absolute left-[11px] top-6 bottom-[-32px] w-[2px] bg-outline-variant/20"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] text-white">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">เดินทางถึงหน้างาน</p>
+<p class="text-xs text-on-surface-variant mt-1">10:45 น. • ช่างวิชัย</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative flex gap-4">
+<div class="z-10 w-6 h-6 rounded-full border-2 border-primary bg-surface flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">กำลังดำเนินการแก้ไข</p>
+<p class="text-xs text-on-surface-variant mt-1">เริ่มเมื่อ 11:05 น.</p>
+<div class="mt-4 p-4 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 italic text-sm text-on-surface-variant">
+                                "ตรวจสอบพบว่าท่อน้ำทิ้งอุดตันเนื่องจากมีเมือกสะสม เตรียมล้างด้วยปั๊มแรงดันสูง"
+                            </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom Action -->
+<div class="fixed bottom-0 left-0 w-full p-6 pb-10 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl z-50">
+<div class="max-w-md mx-auto">
+<button class="w-full h-[60px] bg-gradient-to-tr from-primary to-primary-container text-on-primary rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-[0_8px_32px_rgba(0,88,188,0.25)] transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+                ปิดงาน (Complete Job)
+            </button>
+</div>
+</div>
+<!-- Bottom Navigation Mockup - Hidden on Detail Focused Page per Rule -->
+<!-- Navigation shell suppressed for transactional/focused view -->
+</body></html>
