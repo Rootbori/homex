@@ -1,0 +1,8 @@
+services:
+  api:
+    build: .
+    container_name: homex-api
+    ports:
+      - "7772:7772"
+    env_file:
+      - .env

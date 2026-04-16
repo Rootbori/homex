@@ -11,7 +11,7 @@ type Config struct {
 func Load() Config {
 	return Config{
 		AppEnv:      getenv("APP_ENV", "development"),
-		Port:        getenv("PORT", "8080"),
+		Port:        getenv("PORT", "7772"),
 		DatabaseURL: getenv("DATABASE_URL", ""),
 	}
 }

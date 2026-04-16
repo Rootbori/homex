@@ -1,0 +1,16 @@
+services:
+  # Database Service only
+  db:
+    image: postgres:15-alpine
+    container_name: homex-db
+    environment:
+      - POSTGRES_USER=homex
+      - POSTGRES_PASSWORD=homex
+      - POSTGRES_DB=homex
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

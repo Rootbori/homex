@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    container_name: homex-web
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:7772
+      - NODE_ENV=production
+    ports:
+      - "7771:7771"

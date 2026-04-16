@@ -1,9 +1,13 @@
 import "server-only";
 
-const defaultApiBaseUrl = "http://127.0.0.1:8080";
+const defaultApiBaseUrl = "http://127.0.0.1:7772";
 
 export function getApiBaseUrl() {
-  return process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? defaultApiBaseUrl;
+  return (
+    process.env.API_BASE_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    defaultApiBaseUrl
+  );
 }
 
 export async function proxyToApi(path: string, init?: RequestInit) {
