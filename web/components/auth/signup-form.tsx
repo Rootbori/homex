@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ComponentType, FormEvent } from "react";
+import type { ComponentType, CSSProperties, FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   ArrowLeft,
@@ -85,6 +85,22 @@ function errorMessage(error: unknown) {
   return "เกิดข้อผิดพลาดระหว่างสมัครใช้งาน";
 }
 
+function getAccountCopy(option?: SignupOption | null) {
+  if (option?.id === "job_receiver") {
+    return {
+      title: "รับงานร้าน/ช่าง",
+      caption: "สำหรับร้านและทีมช่าง",
+      nextPath: option.next_path ?? "/portal/dashboard",
+    };
+  }
+
+  return {
+    title: "หาช่างแอร์",
+    caption: "สำหรับลูกค้าที่ต้องการเรียกใช้บริการ",
+    nextPath: option?.next_path ?? "/search",
+  };
+}
+
 export function SignupForm() {
   const [options, setOptions] = useState<SignupOptionsResponse>(fallbackOptions);
   const [form, setForm] = useState<SignupPayload>(initialForm);
@@ -105,11 +121,6 @@ export function SignupForm() {
         }
 
         setOptions(payload);
-        setForm((current) => ({
-          ...current,
-          account_type: current.account_type || payload.defaults.account_type,
-          provider: current.provider || payload.defaults.provider,
-        }));
         setLoadError(null);
       } catch (error) {
         if (!cancelled) {
@@ -126,14 +137,16 @@ export function SignupForm() {
   }, []);
 
   const selectedAccount = useMemo(
-    () => options.account_types.find((item) => item.id === form.account_type),
+    () => options.account_types.find((item) => item.id === form.account_type) ?? options.account_types[0],
     [form.account_type, options.account_types],
   );
 
   const selectedProvider = useMemo(
-    () => options.providers.find((item) => item.id === form.provider),
+    () => options.providers.find((item) => item.id === form.provider) ?? options.providers[0],
     [form.provider, options.providers],
   );
+
+  const accountCopy = getAccountCopy(selectedAccount);
 
   function setField<Key extends keyof SignupPayload>(key: Key, value: SignupPayload[Key]) {
     setForm((current) => ({
@@ -177,152 +190,123 @@ export function SignupForm() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <main className="mx-auto max-w-md px-6 pb-16 pt-8">
-        <Link
-          href="/"
-          className="mb-8 inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface-container-low text-primary transition-transform active:scale-95"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
+      <main className="mx-auto max-w-sm px-5 pb-10 pt-6 sm:max-w-md md:max-w-lg">
+        <div className="mb-6 flex items-center gap-3">
+          <Link
+            href="/"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface-container-low text-primary transition-transform active:scale-95"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Homex</p>
+            <h1 className="headline-font text-2xl font-bold text-on-surface">เริ่มใช้งาน</h1>
+          </div>
+        </div>
 
-        <section className="mb-8 space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Homex</p>
-          <h1 className="headline-font text-4xl font-extrabold leading-tight tracking-tight text-on-surface">
-            {options.title}
-          </h1>
-          <p className="text-base leading-7 text-on-surface-variant">{options.subtitle}</p>
-        </section>
+        <p className="mb-5 text-sm leading-6 text-on-surface-variant">
+          เลือกประเภทบัญชีและวิธีสมัครก่อน แล้วกรอกข้อมูลเท่าที่จำเป็น
+        </p>
 
         {loadError ? (
-          <div className="mb-6 rounded-3xl border border-error/10 bg-error-container p-4 text-sm font-medium text-on-error-container">
-            {loadError}
-          </div>
+          <NoticeBox tone="error">{loadError}</NoticeBox>
         ) : null}
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <section className="space-y-3">
-            <p className="text-sm font-semibold text-on-surface">เลือกประเภทบัญชี</p>
-            <div className="space-y-3">
-              {options.account_types.map((option) => (
-                <SelectableCard
-                  key={option.id}
-                  checked={form.account_type === option.id}
-                  icon={option.id === "job_seeker" ? Search : Wrench}
-                  onClick={() => selectAccount(option.id as SignupAccountType)}
-                  option={option}
-                />
-              ))}
-            </div>
-          </section>
+        <form className="page-stack" onSubmit={handleSubmit}>
+          <Card className="rounded-[1.75rem] border border-border/20">
+            <CardContent className="space-y-5 p-5">
+              <section className="section-stack-sm">
+                <SectionLabel>ฉันต้องการ</SectionLabel>
+                <div className="grid gap-2">
+                  {options.account_types.map((option) => {
+                    const copy = getAccountCopy(option);
 
-          <section className="space-y-3">
-            <p className="text-sm font-semibold text-on-surface">สมัครด้วย</p>
-            <div className="grid grid-cols-2 gap-3">
-              {options.providers.map((option) => {
-                const active = form.provider === option.id;
+                    return (
+                      <ChoiceButton
+                        key={option.id}
+                        active={form.account_type === option.id}
+                        caption={copy.caption}
+                        icon={option.id === "job_seeker" ? Search : Wrench}
+                        onClick={() => selectAccount(option.id as SignupAccountType)}
+                        title={copy.title}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
 
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => selectProvider(option.id as SignupProvider)}
-                    className={cn(
-                      "relative rounded-[1.75rem] border p-5 text-left transition-transform active:scale-[0.98]",
-                      active
-                        ? "border-primary bg-surface-container-lowest shadow-[0_8px_24px_rgba(0,88,188,0.08)]"
-                        : "border-border/30 bg-surface-container-low",
-                    )}
-                  >
-                    <div
-                      className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl"
-                      style={{ backgroundColor: `${option.accent ?? "#0058bc"}16` }}
-                    >
-                      {option.id === "line" ? (
-                        <MessageCircle
-                          className="h-5 w-5"
-                          style={{ color: option.accent ?? "#06C755" }}
-                        />
-                      ) : (
-                        <Mail
-                          className="h-5 w-5"
-                          style={{ color: option.accent ?? "#4285F4" }}
-                        />
-                      )}
-                    </div>
-                    <p className="text-base font-bold text-on-surface">{option.label}</p>
-                    <p className="mt-1 text-sm leading-6 text-on-surface-variant">
-                      {option.description}
-                    </p>
-                    {active ? (
-                      <span className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary">
-                        <Check className="h-3.5 w-3.5" />
-                      </span>
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+              <section className="section-stack-sm">
+                <SectionLabel>สมัครด้วย</SectionLabel>
+                <div className="grid grid-cols-2 gap-2">
+                  {options.providers.map((option) => (
+                    <ProviderButton
+                      key={option.id}
+                      active={form.provider === option.id}
+                      accent={option.accent}
+                      icon={option.id === "line" ? MessageCircle : Mail}
+                      label={option.label}
+                      onClick={() => selectProvider(option.id as SignupProvider)}
+                    />
+                  ))}
+                </div>
+              </section>
 
-          <Card className="rounded-[2rem] border border-border/20">
-            <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                  ชื่อผู้สมัคร
-                </label>
-                <Input
-                  value={form.full_name}
-                  onChange={(event) => setField("full_name", event.target.value)}
-                  placeholder="สมชาย มั่นใจ"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                  เบอร์โทร
-                </label>
-                <Input
-                  value={form.phone}
-                  onChange={(event) => setField("phone", event.target.value)}
-                  placeholder="08x-xxx-xxxx"
-                  type="tel"
-                />
-              </div>
-
-              {form.provider === "google" ? (
-                <div className="space-y-1.5">
-                  <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                    Gmail
-                  </label>
+              <div className="space-y-3 border-t border-border/20 pt-3">
+                <div className="field-stack">
+                  <FieldLabel>ชื่อผู้สมัคร</FieldLabel>
                   <Input
-                    value={form.email}
-                    onChange={(event) => setField("email", event.target.value)}
-                    placeholder="you@gmail.com"
-                    type="email"
+                    value={form.full_name}
+                    onChange={(event) => setField("full_name", event.target.value)}
+                    placeholder="สมชาย มั่นใจ"
                   />
                 </div>
-              ) : null}
 
-              {form.account_type === "job_receiver" ? (
-                <div className="space-y-1.5">
-                  <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                    ชื่อร้าน / ทีมช่าง
-                  </label>
-                  <div className="relative">
-                    <Building2 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
+                <div className="field-stack">
+                  <FieldLabel>เบอร์โทร</FieldLabel>
+                  <Input
+                    value={form.phone}
+                    onChange={(event) => setField("phone", event.target.value)}
+                    placeholder="08x-xxx-xxxx"
+                    type="tel"
+                  />
+                </div>
+
+                {form.provider === "google" ? (
+                  <div className="field-stack">
+                    <FieldLabel>Gmail</FieldLabel>
                     <Input
-                      className="pl-11"
-                      value={form.store_name}
-                      onChange={(event) => setField("store_name", event.target.value)}
-                      placeholder="Cool Care Bangkok"
+                      value={form.email}
+                      onChange={(event) => setField("email", event.target.value)}
+                      placeholder="you@gmail.com"
+                      type="email"
                     />
                   </div>
-                </div>
-              ) : null}
+                ) : null}
+
+                {form.account_type === "job_receiver" ? (
+                  <div className="field-stack">
+                    <FieldLabel>ชื่อร้าน / ทีมช่าง</FieldLabel>
+                    <div className="relative">
+                      <Building2 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
+                      <Input
+                        className="pl-11"
+                        value={form.store_name}
+                        onChange={(event) => setField("store_name", event.target.value)}
+                        placeholder="Cool Care Bangkok"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </CardContent>
           </Card>
 
-          <label className="flex items-start gap-3 rounded-3xl bg-surface-container-low p-4">
+          <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+            สมัครเป็น <span className="font-semibold text-on-surface">{accountCopy.title}</span> ผ่าน{" "}
+            <span className="font-semibold text-on-surface">{selectedProvider?.label ?? "LINE"}</span>
+          </div>
+
+          <label className="flex items-start gap-3 rounded-2xl bg-surface-container-low px-4 py-3">
             <input
               checked={form.accept_terms}
               onChange={(event) => setField("accept_terms", event.target.checked)}
@@ -330,67 +314,47 @@ export function SignupForm() {
               type="checkbox"
             />
             <span className="text-sm leading-6 text-on-surface-variant">
-              ฉันยอมรับเงื่อนไขการใช้งาน และเข้าใจว่า flow นี้เป็น MVP สำหรับเชื่อม front-end กับ API
+              ยอมรับเงื่อนไขการใช้งานและเริ่มสมัครต่อได้
             </span>
           </label>
 
-          {submitError ? (
-            <div className="rounded-3xl border border-error/10 bg-error-container p-4 text-sm font-medium text-on-error-container">
-              {submitError}
-            </div>
-          ) : null}
+          {submitError ? <NoticeBox tone="error">{submitError}</NoticeBox> : null}
 
           {submitResult ? (
-            <Card className="rounded-[2rem] border border-primary/10 bg-surface-container-lowest">
-              <CardContent className="space-y-4">
-                <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-on-primary">
-                  <Check className="h-5 w-5" />
+            <NoticeBox tone="success">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-on-primary">
+                    <Check className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="font-semibold text-on-surface">{submitResult.message}</p>
+                    <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                      ขั้นถัดไปจะพาไปที่ {submitResult.next.next_path}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="headline-font text-xl font-bold text-on-surface">
-                    {submitResult.message}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-                    ระบบ map บัญชีนี้เป็น {selectedAccount?.label ?? "ผู้หางาน"} และจะพาไปที่{" "}
-                    {submitResult.next.next_path}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-                    {submitResult.next.hint}
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid gap-2">
                   <Link
                     href={submitResult.next.next_path}
                     className={cn(buttonVariants(), "w-full")}
                   >
-                    ไปต่อที่ระบบ
+                    ไปต่อ
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
-                    href="/"
+                    href={accountCopy.nextPath}
                     className={cn(buttonVariants({ variant: "outline" }), "w-full")}
                   >
-                    กลับหน้าแรก
+                    ดูหน้าที่เกี่ยวข้อง
                   </Link>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </NoticeBox>
           ) : null}
 
-          <div className="rounded-[2rem] bg-[#001a41] p-6 text-on-primary">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-fixed">
-              Signup Summary
-            </p>
-            <h2 className="headline-font mt-3 text-2xl font-bold leading-tight">
-              {selectedAccount?.label ?? "ผู้หางาน"} ผ่าน {selectedProvider?.label ?? "LINE"}
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-primary-fixed">
-              {selectedAccount?.description}
-            </p>
-          </div>
-
-          <Button className="h-16 w-full text-lg font-bold" disabled={isPending}>
-            {isPending ? "กำลังส่งข้อมูล..." : `สมัครด้วย${selectedProvider?.label ?? "LINE"}`}
+          <Button className="h-14 w-full text-base font-bold" disabled={isPending}>
+            {isPending ? "กำลังส่งข้อมูล..." : "สมัครใช้งาน"}
             <ArrowRight className="h-5 w-5" />
           </Button>
         </form>
@@ -399,38 +363,110 @@ export function SignupForm() {
   );
 }
 
-function SelectableCard({
-  checked,
+function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+      {children}
+    </p>
+  );
+}
+
+function FieldLabel({ children }: { children: ReactNode }) {
+  return <label className="px-1 text-sm font-medium text-on-surface">{children}</label>;
+}
+
+function NoticeBox({
+  children,
+  tone,
+}: {
+  children: ReactNode;
+  tone: "error" | "success";
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border px-4 py-3",
+        tone === "error"
+          ? "border-error/10 bg-error-container text-on-error-container"
+          : "border-primary/10 bg-surface-container-lowest text-on-surface",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ChoiceButton({
+  active,
+  caption,
   icon: Icon,
   onClick,
-  option,
+  title,
 }: {
-  checked: boolean;
+  active: boolean;
+  caption: string;
   icon: ComponentType<{ className?: string }>;
   onClick: () => void;
-  option: SignupOption;
+  title: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "relative w-full rounded-[2rem] border p-5 text-left transition-transform active:scale-[0.98]",
-        checked
-          ? "border-primary bg-surface-container-lowest shadow-[0_8px_24px_rgba(0,88,188,0.08)]"
+        "flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-transform active:scale-[0.98]",
+        active
+          ? "border-primary bg-surface-container-lowest"
           : "border-border/30 bg-surface-container-low",
       )}
     >
-      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/5 text-primary">
+      <span
+        className={cn(
+          "inline-flex h-10 w-10 items-center justify-center rounded-xl",
+          active ? "bg-primary/10 text-primary" : "bg-surface-container-high text-on-surface-variant",
+        )}
+      >
         <Icon className="h-5 w-5" />
-      </div>
-      <p className="text-lg font-bold text-on-surface">{option.label}</p>
-      <p className="mt-2 text-sm leading-6 text-on-surface-variant">{option.description}</p>
-      {checked ? (
-        <span className="absolute right-5 top-5 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary">
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-on-surface">{title}</span>
+        <span className="block text-xs text-on-surface-variant">{caption}</span>
+      </span>
+      {active ? (
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary">
           <Check className="h-3.5 w-3.5" />
         </span>
       ) : null}
+    </button>
+  );
+}
+
+function ProviderButton({
+  active,
+  accent,
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  accent?: string;
+  icon: ComponentType<{ className?: string; style?: CSSProperties }>;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition-transform active:scale-[0.98]",
+        active
+          ? "border-primary bg-surface-container-lowest text-on-surface"
+          : "border-border/30 bg-surface-container-low text-on-surface-variant",
+      )}
+    >
+      <Icon className="h-4 w-4" style={{ color: accent ?? "#0058bc" }} />
+      <span>{label}</span>
     </button>
   );
 }

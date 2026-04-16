@@ -31,8 +31,8 @@ export default async function TrackingPage({
         }
         right={<ProfileBubble image={technician?.heroImage ?? job.photos[0]?.image} />}
       />
-      <main className="mt-20 space-y-6 px-6">
-        <section className="surface-card space-y-4 rounded-xl p-6 shadow-[0_-8px_32px_rgba(0,0,0,0.04)]">
+      <main className="page-content-tight page-stack">
+        <section className="surface-card section-stack rounded-[1.75rem] p-5 shadow-[0_-8px_32px_rgba(0,0,0,0.04)] md:p-6">
           <div className="flex items-start justify-between">
             <div>
               <span className="text-sm font-medium text-on-surface-variant">หมายเลขงาน {job.code}</span>
@@ -55,7 +55,7 @@ export default async function TrackingPage({
           </div>
         </section>
 
-        <section className="flex items-center gap-4 rounded-xl bg-surface-container-low p-5">
+        <section className="flex items-center gap-4 rounded-[1.5rem] bg-surface-container-low p-5">
           <div className="relative">
             <div
               className="h-16 w-16 overflow-hidden rounded-2xl shadow-sm"
@@ -85,32 +85,32 @@ export default async function TrackingPage({
           </div>
         </section>
 
-        <section className="rounded-xl bg-surface-container-lowest p-6">
-          <h2 className="headline-font mb-6 text-lg font-bold">ความคืบหน้า</h2>
+        <section className="rounded-[1.5rem] bg-surface-container-lowest p-5 md:p-6">
+          <h2 className="headline-font mb-5 text-lg font-bold">ความคืบหน้า</h2>
           <Timeline items={job.timeline} />
         </section>
 
         <section className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 rounded-xl bg-surface-container-low p-4">
+          <div className="col-span-2 rounded-[1.5rem] bg-surface-container-low p-4">
             <p className="mb-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               สถานที่รับบริการ
             </p>
             <p className="text-sm font-medium text-on-surface">{job.address}</p>
           </div>
-          <div className="rounded-xl bg-surface-container-low p-4">
+          <div className="rounded-[1.5rem] bg-surface-container-low p-4">
             <p className="mb-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               วันและเวลา
             </p>
             <p className="text-sm font-bold text-on-surface">{job.appointmentDate}</p>
             <p className="text-sm text-on-surface-variant">{job.appointmentTime}</p>
           </div>
-          <div className="flex flex-col justify-center rounded-xl bg-primary/5 p-4">
+          <div className="flex flex-col justify-center rounded-[1.5rem] bg-primary/5 p-4">
             <p className="mb-1 text-xs font-bold uppercase tracking-widest text-primary">ราคาสุทธิ</p>
             <p className="text-xl font-extrabold text-primary">{formatCurrency(job.total)}</p>
           </div>
         </section>
 
-        <Button className="mb-10 h-14 w-full text-lg font-bold">ดูใบเสนอราคา</Button>
+        <Button className="h-14 w-full text-base font-bold">ดูใบเสนอราคา</Button>
       </main>
     </div>
   );

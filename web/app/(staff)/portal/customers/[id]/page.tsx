@@ -27,29 +27,40 @@ export default async function CustomerDetailPage({
         }
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="space-y-4 px-6 pb-24 pt-24">
-        <section className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Customer profile</p>
-          <h1 className="headline-font text-3xl font-extrabold tracking-tight">{customer.name}</h1>
-          <p className="mt-2 text-sm text-on-surface-variant">{customer.phone} • {customer.area}</p>
+      <main className="page-content page-stack">
+        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <div className="page-hero">
+            <p className="text-sm font-bold uppercase tracking-widest text-primary">Customer profile</p>
+            <h1 className="headline-font text-3xl font-extrabold tracking-tight">{customer.name}</h1>
+            <p className="text-sm text-on-surface-variant">{customer.phone} • {customer.area}</p>
+          </div>
         </section>
 
-        <section className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <p className="mb-3 text-sm font-semibold text-on-surface">ข้อมูลติดต่อและ note</p>
-          <p className="text-sm text-on-surface-variant">{customer.note}</p>
-          <p className="mt-3 text-sm text-on-surface-variant">
-            ยอดใช้จ่ายรวม {customer.totalSpend.toLocaleString("th-TH")} บาท
-          </p>
+        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <div className="section-stack-sm">
+            <p className="text-sm font-semibold text-on-surface">ข้อมูลติดต่อและ note</p>
+            <p className="text-sm text-on-surface-variant">{customer.note}</p>
+            <p className="text-sm text-on-surface-variant">
+              ยอดใช้จ่ายรวม {customer.totalSpend.toLocaleString("th-TH")} บาท
+            </p>
+          </div>
         </section>
 
-        <section className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <p className="mb-3 text-sm font-semibold text-on-surface">งานที่ผ่านมา</p>
-          {jobs.map((job) => (
-            <div key={job.id} className="mb-3 rounded-[24px] bg-surface-container-low p-4 text-sm text-on-surface-variant last:mb-0">
-              <p className="font-medium text-on-surface">{job.code}</p>
-              <p>{job.serviceType} • {job.appointmentDate}</p>
+        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <div className="section-stack">
+            <p className="text-sm font-semibold text-on-surface">งานที่ผ่านมา</p>
+            <div className="card-stack">
+              {jobs.map((job) => (
+                <div
+                  key={job.id}
+                  className="rounded-[1.5rem] bg-surface-container-low p-4 text-sm text-on-surface-variant"
+                >
+                  <p className="font-medium text-on-surface">{job.code}</p>
+                  <p>{job.serviceType} • {job.appointmentDate}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </section>
       </main>
     </div>

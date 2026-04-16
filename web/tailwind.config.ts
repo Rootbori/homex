@@ -41,6 +41,8 @@ const config: Config = {
         "surface-container": "var(--surface-container)",
         "surface-container-high": "var(--surface-container-high)",
         "surface-container-highest": "var(--surface-container-highest)",
+        "on-primary": "var(--on-primary)",
+        "on-secondary": "var(--on-secondary)",
         "on-surface": "var(--on-surface)",
         "on-surface-variant": "var(--on-surface-variant)",
         "outline-variant": "var(--outline-variant)",

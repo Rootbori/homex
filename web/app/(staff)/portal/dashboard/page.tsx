@@ -13,8 +13,8 @@ export default function DashboardPage() {
         title="Atmospheric"
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="px-6 pb-28 pt-24">
-        <section className="mb-10">
+      <main className="page-content page-stack">
+        <section className="page-hero">
           <p className="mb-1 text-sm font-medium text-on-surface-variant">สวัสดี, คุณสมชาย</p>
           <h2 className="headline-font text-4xl font-extrabold leading-tight tracking-tight text-on-surface">
             ภาพรวมงาน
@@ -23,7 +23,7 @@ export default function DashboardPage() {
           </h2>
         </section>
 
-        <div className="mb-10 grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3.5 md:gap-4">
           {dashboard.kpis.map((item, index) => {
             const classes = [
               "bg-surface-container-lowest text-primary",
@@ -49,16 +49,16 @@ export default function DashboardPage() {
           })}
         </div>
 
-        <section className="mb-10">
+        <section className="section-stack">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="headline-font text-2xl font-bold tracking-tight">งานด่วนวันนี้</h3>
             <span className="text-sm font-semibold text-primary">ดูทั้งหมด</span>
           </div>
-          <div className="no-scrollbar -mx-6 flex gap-4 overflow-x-auto px-6 pb-4">
+          <div className="no-scrollbar -mx-5 flex gap-4 overflow-x-auto px-5 pb-2 md:-mx-6 md:px-6">
             {dashboard.urgentJobs.map((item) => (
               <div
                 key={item.code}
-                className="min-w-[280px] rounded-3xl border border-border/10 bg-surface-container-lowest p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]"
+                className="min-w-[280px] rounded-3xl border border-border/10 bg-surface-container-lowest p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]"
               >
                 <div className="mb-6 flex items-start justify-between">
                   <Badge variant="warning">Urgent</Badge>
@@ -83,14 +83,14 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="mb-10 space-y-3">
+        <section className="card-stack">
           <p className="text-sm font-semibold text-on-surface">งานวันนี้</p>
           {jobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
         </section>
 
-        <section className="space-y-3">
+        <section className="card-stack">
           <p className="text-sm font-semibold text-on-surface">ผู้สนใจล่าสุด (Leads)</p>
           {leads.map((lead) => (
             <LeadCard key={lead.id} lead={lead} />

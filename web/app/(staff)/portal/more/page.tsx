@@ -18,26 +18,34 @@ export default function MorePage() {
         title="Atmospheric"
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="space-y-4 px-6 pb-24 pt-24">
-        <section className="mb-6 pt-4">
+      <main className="page-content page-stack">
+        <section className="page-hero">
           <span className="block text-sm font-bold uppercase tracking-widest text-primary">More</span>
           <h1 className="headline-font text-3xl font-extrabold tracking-tight">หน้าจอเพิ่มเติม</h1>
         </section>
-        {links.map((item) => (
-          <div key={item.href} className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-            <div className="flex items-center justify-between gap-3">
+        <div className="card-stack">
+          {links.map((item) => (
+            <div
+              key={item.href}
+              className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6"
+            >
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="headline-font text-lg font-bold">{item.label}</p>
                 <p className="text-sm text-on-surface-variant">
                   หน้าจอเสริมสำหรับ owner, admin และ technician
                 </p>
               </div>
-              <Link href={item.href} className={buttonVariants({ variant: "secondary" })}>
+                <Link
+                  href={item.href}
+                  className={`${buttonVariants({ variant: "secondary" })} w-full sm:w-auto`}
+                >
                 เปิด
               </Link>
             </div>
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );

@@ -20,20 +20,20 @@ export function DiscoveryView({ compact = false }: { compact?: boolean }) {
         }
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="space-y-6 px-6 pb-24 pt-24">
-        <section className="mb-8 pt-4">
-          <h1 className="headline-font mb-2 text-4xl font-extrabold leading-tight tracking-tight text-on-surface">
+      <main className="page-content page-stack">
+        <section className="page-hero">
+          <h1 className="headline-font text-4xl font-extrabold leading-tight tracking-tight text-on-surface">
             Air Service
           </h1>
           <p className="text-lg text-on-surface-variant">จัดการความเย็นให้สมบูรณ์แบบ</p>
         </section>
 
-        <div className={`${compact ? "" : "sticky top-20 z-40"} -mx-6 bg-surface/95 px-6 py-4 backdrop-blur-sm`}>
+        <div className={`${compact ? "" : "sticky top-20 z-40"} -mx-5 bg-surface/95 px-5 py-3.5 backdrop-blur-sm md:-mx-6 md:px-6`}>
           <div className="group relative transition-all duration-300">
             <Input className="pl-12 pr-4" placeholder="ค้นหาช่างแอร์ในพื้นที่ของคุณ" />
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant transition-colors group-focus-within:text-primary" />
           </div>
-          <div className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-2">
+          <div className="no-scrollbar mt-3.5 flex gap-2 overflow-x-auto pb-1">
             <button className="flex items-center gap-1 whitespace-nowrap rounded-full bg-primary px-5 py-2 text-sm font-semibold text-on-primary">
               <MapPin className="h-4 w-4" /> พื้นที่
             </button>
@@ -49,14 +49,14 @@ export function DiscoveryView({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="card-stack">
           {technicians.map((technician) => (
             <TechnicianCard key={technician.id} technician={technician} />
           ))}
         </div>
 
         {!compact ? (
-          <div className="relative flex h-64 flex-col justify-end overflow-hidden rounded-[2.5rem] bg-[#001a41] p-8 text-on-primary">
+          <div className="relative flex h-64 flex-col justify-end overflow-hidden rounded-[2.25rem] bg-[#001a41] p-6 md:p-8 text-on-primary">
             <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-primary-container/20 blur-3xl" />
             <div className="relative z-10">
               <Badge variant="warning">Flash Deal</Badge>

@@ -33,8 +33,8 @@ export default async function JobDetailPage({
           </div>
         }
       />
-      <main className="mx-auto max-w-md space-y-8 px-5 pb-32 pt-24">
-        <section className="relative overflow-hidden rounded-[2rem] bg-surface-container-low p-6">
+      <main className="page-content page-stack-lg">
+        <section className="relative overflow-hidden rounded-[1.75rem] bg-surface-container-low p-5 md:p-6">
           <div className="relative z-10">
             <p className="mb-1 text-sm font-medium text-on-surface-variant">Customer Details</p>
             <h1 className="headline-font mb-6 text-3xl font-extrabold leading-tight text-on-surface">
@@ -52,7 +52,7 @@ export default async function JobDetailPage({
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
         </section>
 
-        <section className="space-y-4">
+        <section className="section-stack">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-lg font-bold text-on-surface">แชทกับลูกค้า</h2>
             <button className="text-sm font-semibold text-primary">ดูทั้งหมด</button>
@@ -87,7 +87,7 @@ export default async function JobDetailPage({
           </div>
         </section>
 
-        <section>
+        <section className="section-stack">
           <h2 className="mb-4 text-lg font-bold text-on-surface">ข้อมูลเครื่องปรับอากาศ</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 rounded-3xl border border-border/10 bg-surface-container-lowest p-5">
@@ -127,7 +127,7 @@ export default async function JobDetailPage({
           </div>
         </section>
 
-        <section className="space-y-4">
+        <section className="section-stack">
           <h2 className="px-1 text-lg font-bold text-on-surface">ใบเสนอราคาและผู้รับงาน</h2>
           <div className="space-y-4">
             <div className="rounded-3xl bg-surface-container-low p-6">
@@ -192,7 +192,7 @@ export default async function JobDetailPage({
           </div>
         </section>
 
-        <section className="space-y-4">
+        <section className="section-stack">
           <h2 className="px-1 text-lg font-bold text-on-surface">บันทึกงาน & ไทม์ไลน์</h2>
           <div className="rounded-3xl bg-surface-container-low p-6">
             <div className="space-y-8">
@@ -218,7 +218,7 @@ export default async function JobDetailPage({
                   <p className="text-sm font-bold text-on-surface">กำลังดำเนินการแก้ไข</p>
                   <p className="mt-1 text-xs text-on-surface-variant">เริ่มเมื่อ 11:05 น.</p>
                   <div className="mt-4 rounded-2xl border border-border/10 bg-surface-container-lowest p-4 text-sm italic text-on-surface-variant">
-                    "ตรวจสอบพบว่าท่อน้ำทิ้งอุดตันเนื่องจากมีเมือกสะสม เตรียมล้างด้วยปั๊มแรงดันสูง"
+                    &ldquo;ตรวจสอบพบว่าท่อน้ำทิ้งอุดตันเนื่องจากมีเมือกสะสม เตรียมล้างด้วยปั๊มแรงดันสูง&rdquo;
                   </div>
                 </div>
               </div>
@@ -227,9 +227,9 @@ export default async function JobDetailPage({
         </section>
       </main>
 
-      <div className="glass-bar fixed bottom-0 left-0 z-50 w-full p-6 pb-10">
+      <div className="glass-bar sticky-action-bar fixed bottom-0 left-0 z-50 w-full">
         <div className="mx-auto max-w-md">
-          <button className={`${buttonVariants({ size: "lg" })} h-[60px] w-full text-lg font-bold`}>
+          <button className={`${buttonVariants({ size: "lg" })} h-14 w-full text-base font-bold`}>
             ปิดงาน (Complete Job)
           </button>
         </div>

@@ -12,9 +12,9 @@ export function AppShell({
   className?: string;
 }) {
   return (
-    <div className="min-h-screen pb-28">
-      <div className="mx-auto min-h-screen max-w-md px-0 pb-16">
-        <main className={cn("space-y-6", className)}>{children}</main>
+    <div className="min-h-screen pb-28 md:pb-10">
+      <div className="mx-auto min-h-screen w-full max-w-md px-0 pb-16 md:max-w-3xl md:px-6 lg:max-w-5xl lg:px-8">
+        <main className={cn("space-y-5 md:space-y-6", className)}>{children}</main>
       </div>
       <BottomNav mode={mode} />
     </div>

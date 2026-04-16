@@ -12,8 +12,8 @@ export default function LeadsPage() {
         title="Atmospheric"
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="min-h-screen max-w-md px-6 pb-32 pt-24">
-        <div className="mb-8 pt-4">
+      <main className="page-content page-stack">
+        <div className="page-hero">
           <span className="mb-1 block text-sm font-bold uppercase tracking-widest text-primary">
             Sales Funnel
           </span>
@@ -25,32 +25,32 @@ export default function LeadsPage() {
           </p>
         </div>
 
-        <section className="mb-8 space-y-4">
+        <section className="section-stack">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
             <Input className="pl-12" placeholder="ค้นหาชื่อลูกค้าหรือเบอร์โทร..." />
           </div>
           <div className="no-scrollbar flex gap-2 overflow-x-auto pb-2">
-            <button className="flex items-center gap-2 whitespace-nowrap rounded-full bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary">
+            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-primary-container px-4 text-on-primary">
               <Filter className="h-4 w-4" />
               กรองข้อมูล
             </button>
-            <button className="flex items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 py-2 text-sm font-medium text-on-surface-variant">
+            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 text-sm font-medium text-on-surface-variant">
               <Globe2 className="h-4 w-4" />
               LINE/Web
             </button>
-            <button className="flex items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 py-2 text-sm font-medium text-on-surface-variant">
+            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 text-sm font-medium text-on-surface-variant">
               <MapPin className="h-4 w-4" />
               พื้นที่
             </button>
-            <button className="flex items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 py-2 text-sm font-medium text-on-surface-variant">
+            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 text-sm font-medium text-on-surface-variant">
               <CalendarDays className="h-4 w-4" />
               วันที่
             </button>
           </div>
         </section>
 
-        <div className="space-y-4">
+        <div className="card-stack">
           {leads.map((lead) => (
             <LeadCard key={lead.id} lead={lead} />
           ))}

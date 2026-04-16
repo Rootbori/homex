@@ -52,8 +52,8 @@ export function BottomNav({ mode }: { mode: NavMode }) {
   }
 
   return (
-    <nav className="glass-bar fixed inset-x-0 bottom-0 z-40 rounded-t-3xl px-4 pb-6 pt-3 shadow-[0_-8px_32px_rgba(0,0,0,0.04)]">
-      <div className="mx-auto flex max-w-md items-center justify-around">
+    <nav className="glass-bar fixed inset-x-0 bottom-0 z-40 rounded-t-3xl px-3 pb-5 pt-3 shadow-[0_-8px_32px_rgba(0,0,0,0.04)] md:inset-x-6 md:bottom-6 md:rounded-3xl md:px-4">
+      <div className="mx-auto flex w-full max-w-md items-center justify-around md:max-w-2xl">
         {items.map((item) => {
           const Icon = item.icon;
           const active =
@@ -65,7 +65,7 @@ export function BottomNav({ mode }: { mode: NavMode }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant transition-all duration-300",
+                "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant transition-all duration-300 md:flex-row md:gap-2 md:text-xs",
                 active && "scale-95 bg-secondary-container text-on-secondary-container",
               )}
             >

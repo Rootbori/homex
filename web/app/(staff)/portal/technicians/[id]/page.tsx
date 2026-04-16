@@ -29,17 +29,20 @@ export default async function TechnicianDetailPage({
         }
         right={<ProfileBubble image={technician.heroImage} />}
       />
-      <main className="space-y-4 px-6 pb-24 pt-24">
-        <section className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Technician</p>
-          <h1 className="headline-font text-3xl font-extrabold tracking-tight">{technician.name}</h1>
-          <p className="mt-2 text-sm text-on-surface-variant">{technician.headline}</p>
+      <main className="page-content page-stack">
+        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <div className="page-hero">
+            <p className="text-sm font-bold uppercase tracking-widest text-primary">Technician</p>
+            <h1 className="headline-font text-3xl font-extrabold tracking-tight">{technician.name}</h1>
+            <p className="text-sm text-on-surface-variant">{technician.headline}</p>
+          </div>
         </section>
 
-        <section className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <p className="mb-3 text-sm font-semibold text-on-surface">Performance</p>
-          <div className="grid grid-cols-2 gap-4 text-sm text-on-surface-variant">
-            <div>
+        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <div className="section-stack">
+            <p className="text-sm font-semibold text-on-surface">Performance</p>
+            <div className="grid grid-cols-2 gap-4 text-sm text-on-surface-variant">
+              <div>
               <p className="text-[10px] uppercase tracking-widest">Rating</p>
               <p className="mt-1 text-xl font-bold text-on-surface">{technician.rating}</p>
             </div>
@@ -56,17 +59,23 @@ export default async function TechnicianDetailPage({
               <p className="mt-1 text-xl font-bold text-on-surface">{assignedJobs.length}</p>
             </div>
           </div>
+          </div>
         </section>
 
-        <section className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <p className="mb-3 text-sm font-semibold text-on-surface">ประวัติงาน</p>
-          <div className="space-y-3">
+        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <div className="section-stack">
+            <p className="text-sm font-semibold text-on-surface">ประวัติงาน</p>
+            <div className="card-stack">
             {assignedJobs.map((job) => (
-              <div key={job.id} className="rounded-[24px] bg-surface-container-low p-4 text-sm text-on-surface-variant">
+                <div
+                  key={job.id}
+                  className="rounded-[1.5rem] bg-surface-container-low p-4 text-sm text-on-surface-variant"
+                >
                 <p className="font-medium text-on-surface">{job.customerName}</p>
                 <p>{job.serviceType} • {job.appointmentDate}</p>
               </div>
             ))}
+          </div>
           </div>
         </section>
       </main>

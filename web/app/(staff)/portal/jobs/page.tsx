@@ -11,12 +11,12 @@ export default function JobsPage() {
         title="Atmospheric"
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="space-y-4 px-6 pb-24 pt-24">
-        <section className="mb-6 pt-4">
+      <main className="page-content page-stack">
+        <section className="page-hero">
           <span className="block text-sm font-bold uppercase tracking-widest text-primary">Jobs</span>
           <h1 className="headline-font text-3xl font-extrabold tracking-tight">งานทั้งหมด</h1>
         </section>
-        <div className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
+        <div className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-fixed text-primary">
               <Briefcase className="h-5 w-5" />
@@ -26,9 +26,11 @@ export default function JobsPage() {
             </p>
           </div>
         </div>
-        {jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
-        ))}
+        <div className="card-stack">
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
       </main>
     </div>
   );

@@ -6,7 +6,7 @@ import type { Lead } from "@/lib/mock-data";
 
 export function LeadCard({ lead }: { lead: Lead }) {
   return (
-    <div className="surface-card rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-transform active:scale-[0.98]">
+    <div className="surface-card rounded-[1.75rem] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-transform active:scale-[0.98]">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -35,7 +35,7 @@ export function LeadCard({ lead }: { lead: Lead }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 border-t border-border/15 pt-4">
+        <div className="grid grid-cols-2 gap-4 border-t border-border/15 pt-3.5">
           <div>
             <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-widest text-on-surface-variant">
               Service

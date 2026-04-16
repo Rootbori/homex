@@ -15,17 +15,19 @@ export function TopAppBar({
   return (
     <header
       className={cn(
-        "glass-bar fixed top-0 z-50 flex w-full items-center justify-between px-6 py-4",
+        "glass-bar fixed top-0 z-50 w-full px-5 py-3.5 md:px-6 md:py-4",
         className,
       )}
     >
-      <div className={cn("flex items-center", left ? "gap-4" : "")}>
-        {left}
-        <div className="headline-font text-xl font-bold tracking-tight text-primary">
-          {title}
+      <div className="mx-auto flex w-full max-w-md items-center justify-between md:max-w-3xl lg:max-w-5xl">
+        <div className={cn("flex min-w-0 items-center", left ? "gap-4" : "")}>
+          {left}
+          <div className="headline-font truncate text-xl font-bold tracking-tight text-primary">
+            {title}
+          </div>
         </div>
+        <div className="flex items-center gap-2">{right}</div>
       </div>
-      <div className="flex items-center gap-2">{right}</div>
     </header>
   );
 }

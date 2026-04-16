@@ -6,7 +6,7 @@ import { formatCurrency, type Job } from "@/lib/mock-data";
 
 export function JobCard({ job }: { job: Job }) {
   return (
-    <div className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
+    <div className="surface-card rounded-[1.75rem] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -25,7 +25,7 @@ export function JobCard({ job }: { job: Job }) {
           <p className="font-medium text-on-surface">{formatCurrency(job.total)}</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2.5">
           <a href={`tel:${job.phone}`} className={buttonVariants({ variant: "outline" })}>
             <PhoneCall className="h-4 w-4" />
           </a>

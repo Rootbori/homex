@@ -6,8 +6,8 @@ import type { Technician } from "@/lib/mock-data";
 
 export function TechnicianCard({ technician }: { technician: Technician }) {
   return (
-    <div className="surface-card rounded-[2rem] border border-border/20 p-6 shadow-sm transition-transform duration-200 active:scale-95">
-      <div className="space-y-5">
+    <div className="surface-card rounded-[1.75rem] border border-border/20 p-5 shadow-sm transition-transform duration-200 active:scale-95">
+      <div className="space-y-4">
         <div className="flex items-start gap-3">
           <Avatar label={technician.name} image={technician.heroImage} />
           <div className="min-w-0 flex-1">
@@ -34,7 +34,7 @@ export function TechnicianCard({ technician }: { technician: Technician }) {
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="section-stack-sm">
           <div className="flex items-center gap-2 text-on-surface-variant">
             <MapPin className="h-4 w-4" />
             <span className="text-sm font-medium">{technician.area.join(", ")}</span>
@@ -51,7 +51,7 @@ export function TechnicianCard({ technician }: { technician: Technician }) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between gap-4 pt-1">
           <div className="flex flex-col">
             <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
               ราคาเริ่มต้น
@@ -60,7 +60,7 @@ export function TechnicianCard({ technician }: { technician: Technician }) {
               {technician.startingPrice}฿
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={`/technicians/${technician.slug}`}
               className={buttonVariants({ variant: "secondary" })}

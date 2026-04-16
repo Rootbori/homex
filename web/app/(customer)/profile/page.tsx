@@ -10,13 +10,13 @@ export default function ProfilePage() {
         title="Atmospheric"
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="space-y-4 px-6 pb-24 pt-24">
-        <section className="mb-6 pt-4">
+      <main className="page-content page-stack">
+        <section className="page-hero">
           <span className="block text-sm font-bold uppercase tracking-widest text-primary">Profile</span>
           <h1 className="headline-font text-3xl font-extrabold tracking-tight">บัญชีของฉัน</h1>
         </section>
-        <div className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <div className="space-y-3">
+        <div className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <div className="section-stack-sm">
             <div className="flex items-center gap-3">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-fixed text-primary">
                 <User className="h-6 w-6" />
@@ -33,8 +33,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <div className="surface-card rounded-[2rem] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
-          <button className="flex items-center gap-2 text-sm font-semibold text-primary">
+        <div className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+          <button className="flex w-full items-center justify-between gap-3 text-sm font-semibold text-primary">
             แก้ไขข้อมูลส่วนตัว
             <ArrowRight className="h-4 w-4" />
           </button>

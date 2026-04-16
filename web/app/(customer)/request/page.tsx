@@ -20,8 +20,8 @@ export default function CreateRequestPage() {
         }
         right={<ProfileBubble image={technicians[0]?.heroImage} />}
       />
-      <main className="mt-24 max-w-lg px-6">
-        <section className="mb-12 pt-8">
+      <main className="page-content">
+        <section className="page-hero">
           <h1 className="headline-font text-4xl font-extrabold leading-tight tracking-tight text-on-surface">
             จองบริการ
             <br />
@@ -32,20 +32,20 @@ export default function CreateRequestPage() {
           </p>
         </section>
 
-        <form className="space-y-12">
-          <section className="space-y-6">
+        <form className="form-stack">
+          <section className="section-stack">
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
               <h2 className="headline-font text-xl font-bold text-on-surface">ข้อมูลผู้ติดต่อ</h2>
             </div>
             <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-1.5">
+              <div className="field-stack">
                 <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                   ชื่อ-นามสกุล
                 </label>
                 <Input placeholder="สมชาย มั่นใจ" />
               </div>
-              <div className="space-y-1.5">
+              <div className="field-stack">
                 <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                   เบอร์โทรศัพท์
                 </label>
@@ -54,14 +54,14 @@ export default function CreateRequestPage() {
             </div>
           </section>
 
-          <section className="space-y-8">
+          <section className="section-stack">
             <div className="flex items-center gap-2">
               <Wrench className="h-5 w-5 text-primary" />
               <h2 className="headline-font text-xl font-bold text-on-surface">
                 รายละเอียดเครื่องปรับอากาศ
               </h2>
             </div>
-            <div className="space-y-4">
+            <div className="section-stack-sm">
               <label className="text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 ขนาดเครื่อง (BTU)
               </label>
@@ -81,7 +81,7 @@ export default function CreateRequestPage() {
                 ))}
               </div>
             </div>
-            <div className="space-y-4">
+            <div className="section-stack-sm">
               <label className="text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 ประเภทแอร์
               </label>
@@ -96,7 +96,7 @@ export default function CreateRequestPage() {
                 </div>
               </div>
             </div>
-            <div className="space-y-1.5">
+            <div className="field-stack">
               <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 ยี่ห้อ (ถ้าทราบ)
               </label>
@@ -104,18 +104,18 @@ export default function CreateRequestPage() {
             </div>
           </section>
 
-          <section className="space-y-6">
+          <section className="section-stack">
             <div className="flex items-center gap-2">
               <Wrench className="h-5 w-5 text-primary" />
               <h2 className="headline-font text-xl font-bold text-on-surface">อาการเบื้องต้น</h2>
             </div>
-            <div className="space-y-4">
+            <div className="section-stack-sm">
               <Textarea
                 className="resize-none"
                 placeholder="ระบุอาการ เช่น แอร์ไม่เย็น, มีเสียงดัง, น้ำหยด..."
                 rows={4}
               />
-              <div className="space-y-3">
+              <div className="section-stack-sm">
                 <label className="text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                   แนบรูปภาพอาการ (ไม่บังคับ)
                 </label>
@@ -138,7 +138,7 @@ export default function CreateRequestPage() {
             </div>
           </section>
 
-          <section className="space-y-6 pb-12">
+          <section className="section-stack pb-4">
             <div className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-primary" />
               <h2 className="headline-font text-xl font-bold text-on-surface">วันและเวลาที่สะดวก</h2>
@@ -177,8 +177,8 @@ export default function CreateRequestPage() {
         </form>
       </main>
 
-      <div className="glass-bar fixed bottom-0 left-0 z-40 w-full p-6">
-        <Button className="h-16 w-full text-lg font-bold">
+      <div className="glass-bar sticky-action-bar fixed bottom-0 left-0 z-40 w-full">
+        <Button className="h-14 w-full text-base font-bold">
           ส่งคำขอใช้บริการ
           <Send className="h-5 w-5" />
         </Button>
