@@ -129,6 +129,16 @@ export type ScheduleDay = {
   jobs: JobSummary[];
 };
 
+export type StoreSummary = {
+  id: string;
+  name: string;
+  kind: "shop" | "solo";
+  phone?: string;
+  lineOaId?: string;
+  logoUrl?: string;
+  description?: string;
+};
+
 export type UserSummary = {
   id: string;
   name: string;

@@ -1,8 +1,8 @@
 import { QuotationBuilder } from "@/components/shop/quotation-builder";
-import { getUsers } from "@/lib/server-data";
+import { getPortalStore, getUsers } from "@/lib/server-data";
 
 export default async function QuotationPage() {
-  const users = await getUsers();
+  const [store, users] = await Promise.all([getPortalStore(), getUsers()]);
 
-  return <QuotationBuilder customers={users} />;
+  return <QuotationBuilder customers={users} storeName={store?.name ?? "ร้านปัจจุบัน"} />;
 }

@@ -185,6 +185,13 @@ func NewStoreUsecase(storeRepo domain.StoreRepository, userRepo domain.UserRepos
 	}
 }
 
+func (u *storeUsecase) GetCurrentStore(ctx context.Context, actor domain.Actor) (*domain.Store, error) {
+	if !actor.IsStaff() {
+		return nil, domain.ErrForbidden
+	}
+	return u.storeRepo.GetByID(ctx, actor.UintStoreID())
+}
+
 func (u *storeUsecase) GetTechnicianDetails(ctx context.Context, slug string) (*domain.TechnicianProfile, error) {
 	return u.storeRepo.GetTechnicianBySlug(ctx, slug)
 }
@@ -213,9 +220,6 @@ func (u *storeUsecase) CreateTechnician(ctx context.Context, actor domain.Actor,
 	store, err := u.storeRepo.GetByID(ctx, actor.UintStoreID())
 	if err != nil {
 		return nil, err
-	}
-	if store.Kind == domain.StoreKindSolo {
-		return nil, domain.ErrConflict
 	}
 
 	user, err := u.resolveOrCreateStaffUser(ctx, name, strings.TrimSpace(input.Phone))

@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { ChevronRight, Plus } from "lucide-react";
 import { TopAppBar } from "@/components/ui/top-app-bar";
-import { getTechnicians } from "@/lib/server-data";
+import { getPortalStore, getTechnicians } from "@/lib/server-data";
 
 export default async function TechniciansPage() {
-  const technicians = await getTechnicians();
-  const isSoloStore = technicians[0]?.storeKind === "solo";
+  const [store, technicians] = await Promise.all([getPortalStore(), getTechnicians()]);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col bg-surface-container-lowest">
@@ -17,24 +16,20 @@ export default async function TechniciansPage() {
           </span>
         }
         right={
-          isSoloStore ? null : (
-            <Link
-              href="/portal/technicians/new"
-              className="flex h-8 items-center gap-1.5 rounded-full bg-on-surface px-3 text-[11px] font-bold text-white transition-all hover:bg-on-surface/90 active:scale-95"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              เพิ่มทีมช่าง
-            </Link>
-          )
+          <Link
+            href="/portal/technicians/new"
+            className="flex h-8 items-center gap-1.5 rounded-full bg-on-surface px-3 text-[11px] font-bold text-white transition-all hover:bg-on-surface/90 active:scale-95"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            เพิ่มทีมช่าง
+          </Link>
         }
       />
 
       <main className="px-4 py-4 space-y-2">
-        {isSoloStore ? (
-          <div className="rounded-2xl bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
-            บัญชีนี้เป็นช่างอิสระ จึงแสดงเฉพาะโปรไฟล์ของคุณเอง หากต้องการมีหลายคนในทีม ให้สร้างร้านในโหมดร้าน/บริษัทแทน
-          </div>
-        ) : null}
+        <div className="rounded-2xl bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
+          แสดงเฉพาะทีมช่างของ <span className="font-semibold text-on-surface">{store?.name ?? "ร้านปัจจุบัน"}</span>
+        </div>
         {technicians.length > 0 ? (
           technicians.map((technician) => (
             <Link

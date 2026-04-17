@@ -52,6 +52,7 @@ func (h *Handler) Routes() http.Handler {
 
 	// Staff / App
 	mux.HandleFunc("GET /v1/app/dashboard", h.handleGetDashboard)
+	mux.HandleFunc("GET /v1/app/store", h.handleGetCurrentStore)
 	mux.HandleFunc("GET /v1/app/leads", h.handleListLeads)
 	mux.HandleFunc("GET /v1/app/leads/{id}", h.handleGetLeadDetail)
 	mux.HandleFunc("GET /v1/app/jobs", h.handleListJobs)

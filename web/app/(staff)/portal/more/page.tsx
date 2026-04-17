@@ -4,7 +4,7 @@ import { ChevronRight, LogOut, User } from "lucide-react";
 import { auth } from "@/auth";
 import { signOutAction } from "@/app/login/actions";
 import { providerLabel } from "@/lib/auth-flow";
-import { getUsers, getJobs, getTechnicians } from "@/lib/server-data";
+import { getJobs, getPortalStore, getTechnicians, getUsers } from "@/lib/server-data";
 
 const links = [
   { href: "/portal/quotation", label: "Quotation", description: "เตรียมใบเสนอราคา" },
@@ -16,8 +16,9 @@ const links = [
 export default async function MorePage() {
   const cookieStore = await cookies();
   const actorRole = cookieStore.get("homex_role")?.value ?? "";
-  const [session, technicians, users, jobs] = await Promise.all([
+  const [session, store, technicians, users, jobs] = await Promise.all([
     auth(),
+    getPortalStore(),
     getTechnicians(),
     getUsers(),
     getJobs(),
@@ -25,14 +26,13 @@ export default async function MorePage() {
   const displayName = session?.user?.name ?? "ทีมช่าง Homex";
   const displayEmail = session?.user?.email ?? "ยังไม่ได้เชื่อมอีเมล";
   const loginProvider = providerLabel(session?.provider ?? session?.user?.provider);
-  const isSoloStore = technicians[0]?.storeKind === "solo";
   const isTechnicianView = actorRole === "technician";
   const statCards = [
     {
       href: "/portal/technicians",
       value: technicians.length,
-      label: isSoloStore ? "โปรไฟล์ช่าง" : "ช่าง",
-      description: isSoloStore ? "แสดงเฉพาะบัญชีช่างอิสระนี้" : "ทีมช่างของร้านนี้เท่านั้น",
+      label: "ช่าง",
+      description: "ทีมช่างของร้านนี้เท่านั้น",
     },
     {
       href: "/portal/users",
@@ -67,6 +67,9 @@ export default async function MorePage() {
             <h2 className="font-bold text-on-surface">{displayName}</h2>
             <p className="text-xs text-on-surface-variant/50">
               {displayEmail} • {loginProvider}
+            </p>
+            <p className="mt-1 text-[11px] font-medium text-on-surface-variant/40">
+              ร้านปัจจุบัน: {store?.name ?? "ยังไม่พบข้อมูลร้าน"}
             </p>
           </div>
         </div>

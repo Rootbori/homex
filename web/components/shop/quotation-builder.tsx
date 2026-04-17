@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { LoaderCircle, Mail, Plus, Save, Send, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, LoaderCircle, Mail, Plus, Save, Send, Trash2 } from "lucide-react";
 import { InputField } from "@/components/ui/input-field";
 import { TextareaField } from "@/components/ui/textarea-field";
 import { formatCurrency } from "@/lib/format";
@@ -16,6 +17,7 @@ type QuoteItem = {
 
 type QuotationBuilderProps = {
   customers: UserSummary[];
+  storeName: string;
 };
 
 const presetItems = [
@@ -35,13 +37,14 @@ function newItem(label = "", unitPrice = 0): QuoteItem {
   };
 }
 
-export function QuotationBuilder({ customers }: Readonly<QuotationBuilderProps>) {
+export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBuilderProps>) {
+  const router = useRouter();
   const [selectedUserId, setSelectedUserId] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [discount, setDiscount] = useState(0);
   const [note, setNote] = useState("");
-  const [items, setItems] = useState<QuoteItem[]>([newItem("ล้างแอร์ 9,000-12,000 BTU", 600)]);
+  const [items, setItems] = useState<QuoteItem[]>([]);
   const [result, setResult] = useState<{
     type: "idle" | "error" | "success";
     message?: string;
@@ -78,11 +81,20 @@ export function QuotationBuilder({ customers }: Readonly<QuotationBuilderProps>)
   }
 
   function removeItem(id: string) {
-    setItems((current) => (current.length > 1 ? current.filter((item) => item.id !== id) : current));
+    setItems((current) => current.filter((item) => item.id !== id));
   }
 
   function addCustomItem() {
     setItems((current) => [...current, newItem()]);
+  }
+
+  function goBack() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/portal/more");
   }
 
   function submit(sendViaEmail: boolean) {
@@ -172,17 +184,29 @@ export function QuotationBuilder({ customers }: Readonly<QuotationBuilderProps>)
   return (
     <div className="mx-auto max-w-3xl">
       <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
-        <div className="flex h-14 items-center px-4">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <button
+            type="button"
+            onClick={goBack}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant/50 transition-colors hover:bg-surface-container-low hover:text-on-surface active:bg-surface-container"
+            aria-label="กลับหน้าก่อนหน้า"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
           <div className="min-w-0 flex-1">
             <h1 className="text-base font-bold text-on-surface">ใบเสนอราคา</h1>
             <p className="text-[11px] text-on-surface-variant/40">
-              บันทึกรายการจริง แล้วเปิด Gmail พร้อมเนื้อหาอีเมลให้ทันที
+              บันทึกรายการของ {storeName} แล้วเปิด Gmail พร้อมเนื้อหาอีเมลให้ทันที
             </p>
           </div>
         </div>
       </header>
 
       <main className="space-y-6 px-4 py-6">
+        <section className="rounded-2xl bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
+          รายชื่อลูกค้าด้านล่างดึงเฉพาะลูกค้าที่อยู่ในร้าน <span className="font-semibold text-on-surface">{storeName}</span> เท่านั้น
+        </section>
+
         <section className="rounded-2xl bg-white p-5 ring-1 ring-black/[0.04]">
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -262,58 +286,68 @@ export function QuotationBuilder({ customers }: Readonly<QuotationBuilderProps>)
           </div>
 
           <div className="space-y-4">
-            {items.map((item, index) => {
-              const amount = item.quantity * item.unitPrice;
-              return (
-                <div key={item.id} className="rounded-2xl bg-surface-container-low p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-on-surface">รายการ {index + 1}</p>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.id)}
-                      className="text-on-surface-variant/50 transition-colors hover:text-red-500"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
+            {items.length > 0 ? (
+              items.map((item, index) => {
+                const amount = item.quantity * item.unitPrice;
+                return (
+                  <div key={item.id} className="rounded-2xl bg-surface-container-low p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm font-semibold text-on-surface">รายการ {index + 1}</p>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="text-on-surface-variant/50 transition-colors hover:text-red-500"
+                        aria-label={`ลบรายการ ${index + 1}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
 
-                  <div className="grid gap-3 md:grid-cols-[1.8fr,0.7fr,1fr]">
-                    <InputField
-                      id={`label-${item.id}`}
-                      type="text"
-                      label="รายการ"
-                      value={item.label}
-                      onChange={(event) => updateItem(item.id, { label: event.target.value })}
-                      placeholder="เช่น ล้างแอร์ 12,000 BTU"
-                    />
-                    <InputField
-                      id={`qty-${item.id}`}
-                      type="number"
-                      min={1}
-                      label="จำนวน"
-                      value={String(item.quantity)}
-                      onChange={(event) =>
-                        updateItem(item.id, { quantity: Number(event.target.value || 1) })
-                      }
-                    />
-                    <InputField
-                      id={`price-${item.id}`}
-                      type="number"
-                      min={0}
-                      label="ราคา/หน่วย"
-                      value={String(item.unitPrice)}
-                      onChange={(event) =>
-                        updateItem(item.id, { unitPrice: Number(event.target.value || 0) })
-                      }
-                    />
-                  </div>
+                    <div className="grid gap-3 md:grid-cols-[1.8fr,0.7fr,1fr]">
+                      <InputField
+                        id={`label-${item.id}`}
+                        type="text"
+                        label="รายการ"
+                        value={item.label}
+                        onChange={(event) => updateItem(item.id, { label: event.target.value })}
+                        placeholder="เช่น ล้างแอร์ 12,000 BTU"
+                      />
+                      <InputField
+                        id={`qty-${item.id}`}
+                        type="number"
+                        min={1}
+                        label="จำนวน"
+                        value={String(item.quantity)}
+                        onChange={(event) =>
+                          updateItem(item.id, { quantity: Number(event.target.value || 1) })
+                        }
+                      />
+                      <InputField
+                        id={`price-${item.id}`}
+                        type="number"
+                        min={0}
+                        label="ราคา/หน่วย"
+                        value={String(item.unitPrice)}
+                        onChange={(event) =>
+                          updateItem(item.id, { unitPrice: Number(event.target.value || 0) })
+                        }
+                      />
+                    </div>
 
-                  <div className="mt-3 text-right text-sm font-bold text-on-surface">
-                    รวมรายการนี้ {formatCurrency(amount)}
+                    <div className="mt-3 text-right text-sm font-bold text-on-surface">
+                      รวมรายการนี้ {formatCurrency(amount)}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div className="rounded-2xl bg-surface-container-low px-4 py-8 text-center">
+                <p className="text-sm font-semibold text-on-surface">ยังไม่มีรายการในใบเสนอราคา</p>
+                <p className="mt-1 text-xs leading-6 text-on-surface-variant">
+                  กดเพิ่มรายการเอง หรือเลือกจากบริการด่วนด้านบนได้เลย
+                </p>
+              </div>
+            )}
           </div>
         </section>
 

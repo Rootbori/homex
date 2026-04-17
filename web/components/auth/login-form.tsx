@@ -214,8 +214,8 @@ export function LoginTypeChooser() {
             <RoleCard
               href={loginPathForAccountType("staff")}
               icon={Wrench}
-              title="ร้าน / ช่างอิสระ / ทีมงาน"
-              description="จัดการงานหลังบ้านหรือเข้าร่วมทีมด้วย invite"
+              title="ร้าน / ทีมช่าง"
+              description="สร้างร้านใหม่หรือเข้าร่วมทีมด้วยลิงก์เชิญ"
               gradient="from-amber-500 to-orange-600"
               shadowColor="shadow-orange-500/15"
             />

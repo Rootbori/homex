@@ -2,7 +2,6 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import type {
-  UserSummary,
   DashboardData,
   JobStatus,
   JobSummary,
@@ -11,9 +10,11 @@ import type {
   LeadStatus,
   LeadSummary,
   ScheduleDay,
+  StoreSummary,
   TechnicianDetail,
   TechnicianSummary,
   TimelineItem,
+  UserSummary,
 } from "@/lib/api-types";
 import { formatDateLabel, formatTimeLabel } from "@/lib/format";
 import { proxyToApi, readProxyPayload } from "@/lib/server-api";
@@ -328,6 +329,20 @@ function normalizeUser(raw: unknown): UserSummary {
   };
 }
 
+function normalizeStore(raw: unknown): StoreSummary {
+  const item = (raw ?? {}) as Record<string, unknown>;
+
+  return {
+    id: stringValue(item.id),
+    name: stringValue(item.name, "ร้าน Homex"),
+    kind: stringValue(item.kind) === "solo" ? "solo" : "shop",
+    phone: stringValue(item.phone) || undefined,
+    lineOaId: stringValue(item.line_oa_id) || undefined,
+    logoUrl: stringValue(item.logo_url) || undefined,
+    description: stringValue(item.description) || undefined,
+  };
+}
+
 export async function getPublicTechnicians(searchParams?: URLSearchParams | Record<string, string | string[] | undefined>) {
   try {
     const query = new URLSearchParams();
@@ -524,6 +539,15 @@ export async function getUsers() {
     return Array.isArray(payload.items) ? payload.items.map((item) => normalizeUser(item)) : [];
   } catch {
     return [];
+  }
+}
+
+export async function getPortalStore() {
+  try {
+    const payload = await fetchApiJson<{ store?: unknown }>("/v1/app/store");
+    return payload.store ? normalizeStore(payload.store) : null;
+  } catch {
+    return null;
   }
 }
 

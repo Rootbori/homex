@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
-import { Building2, CheckCircle2, LoaderCircle, Store, UserRoundPlus, Users } from "lucide-react";
+import { Building2, CheckCircle2, LoaderCircle, UserRoundPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
 import { staffIntentOptions, type StaffIntent } from "@/lib/auth-flow";
@@ -12,30 +12,27 @@ type StaffOnboardingProps = {
 };
 
 export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>) {
-  const [intent, setIntent] = useState<StaffIntent>("solo");
-  const [storeName, setStoreName] = useState(defaultStoreName("solo", displayName));
+  const [intent, setIntent] = useState<StaffIntent>("create_store");
+  const [storeName, setStoreName] = useState(defaultStoreName(displayName));
   const [result, setResult] = useState<{
     type: "idle" | "error";
     message?: string;
   }>({ type: "idle" });
   const [isPending, startTransition] = useTransition();
 
-  const suggestedStoreName = useMemo(
-    () => defaultStoreName(intent, displayName),
-    [displayName, intent],
-  );
+  const suggestedStoreName = useMemo(() => defaultStoreName(displayName), [displayName]);
 
   function selectIntent(nextIntent: StaffIntent) {
     setIntent(nextIntent);
     setResult({ type: "idle" });
 
-    if (nextIntent === "solo" || nextIntent === "owner") {
-      setStoreName(defaultStoreName(nextIntent, displayName));
+    if (nextIntent === "create_store") {
+      setStoreName(defaultStoreName(displayName));
     }
   }
 
   function handleSubmit() {
-    if (intent === "team_member") {
+    if (intent === "join_team") {
       return;
     }
 
@@ -86,10 +83,10 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-primary">Staff Onboarding</p>
             <h1 className="headline-font mt-2 text-3xl font-extrabold tracking-tight text-on-surface">
-              เริ่มต้นใช้งานฝั่งร้าน
+              เริ่มต้นใช้งานฝั่งร้านหรือทีมช่าง
             </h1>
             <p className="mt-3 text-sm leading-6 text-on-surface-variant">
-              เลือกวิธีเริ่มต้นใช้งานที่ตรงกับคุณที่สุด ระบบจะตั้งค่า store และสิทธิ์ให้เหมาะกับ flow ของคุณ
+              เลือกว่าจะสร้างร้านใหม่ของตัวเอง หรือเข้าร่วมทีมที่มีอยู่แล้วด้วยลิงก์เชิญ
             </p>
           </div>
 
@@ -102,10 +99,7 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
       <section className="card-stack">
         {staffIntentOptions.map((option) => {
           const active = intent === option.id;
-          const icon =
-            option.id === "owner" ? Building2 : option.id === "solo" ? Store : Users;
-
-          const Icon = icon;
+          const Icon = option.id === "create_store" ? Building2 : Users;
 
           return (
             <button
@@ -137,7 +131,7 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
         })}
       </section>
 
-      {intent === "team_member" ? (
+      {intent === "join_team" ? (
         <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
           <div className="section-stack">
             <div className="flex items-start gap-3">
@@ -147,23 +141,16 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
               <div>
                 <p className="headline-font text-lg font-bold text-on-surface">เข้าร่วมทีมด้วยลิงก์เชิญ</p>
                 <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-                  หากคุณเป็นทีมงาน ให้ขอ invite link จากเจ้าของร้านแล้วเปิดลิงก์นั้นก่อน login ระบบจะพาคุณเข้าทีมให้อัตโนมัติ
+                  ให้เจ้าของร้านส่ง invite link ให้คุณ แล้วเปิดลิงก์นั้นก่อน login หรือหลัง login ก็ได้ ระบบจะผูกคุณเข้าร้านให้อัตโนมัติ
                 </p>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Link href="/login/staff" className="inline-flex h-12 items-center justify-center rounded-2xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
-                กลับไปหน้าเข้าสู่ระบบ
-              </Link>
-              <Button
-                type="button"
-                variant="secondary"
-                size="lg"
-                onClick={() => globalThis.location.replace("/login/staff")}
-              >
-                ฉันจะเปิด invite link ภายหลัง
-              </Button>
-            </div>
+            <Link
+              href="/"
+              className="inline-flex h-12 items-center justify-center rounded-2xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface"
+            >
+              กลับไปหน้าแรก
+            </Link>
           </div>
         </section>
       ) : (
@@ -171,16 +158,16 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
           <div className="section-stack">
             <div>
               <p className="text-sm font-semibold text-on-surface">
-                {intent === "solo" ? "ชื่อร้านของช่างอิสระ" : "ชื่อร้าน / บริษัท"}
+                ชื่อร้าน / ทีมช่าง
               </p>
               <p className="mt-1 text-sm text-on-surface-variant">
-                คุณแก้ไขชื่อได้ตอนนี้ หรือปล่อยให้ระบบใช้ชื่อแนะนำ
+                ใส่ชื่อที่ลูกค้าและทีมงานจะเห็นในระบบภายหลัง
               </p>
             </div>
 
             <InputField
               id="store_name"
-              label={intent === "solo" ? "ชื่อร้านของช่างอิสระ" : "ชื่อร้าน / บริษัท"}
+              label="ชื่อร้าน / ทีมช่าง"
               value={storeName}
               onChange={(event) => setStoreName(event.target.value)}
               placeholder={suggestedStoreName}
@@ -198,8 +185,6 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                   กำลังตั้งค่าพื้นที่ทำงาน...
                 </>
-              ) : intent === "solo" ? (
-                "เริ่มใช้งานแบบช่างอิสระ"
               ) : (
                 "สร้างร้านและเริ่มใช้งาน"
               )}
@@ -211,15 +196,7 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
   );
 }
 
-function defaultStoreName(intent: StaffIntent, displayName: string) {
+function defaultStoreName(displayName: string) {
   const trimmed = displayName.trim();
-  if (intent === "solo") {
-    return trimmed || "ทีมช่าง Homex";
-  }
-
-  if (intent === "owner") {
-    return trimmed ? `ร้านของ ${trimmed}` : "ร้าน Homex ใหม่";
-  }
-
-  return "";
+  return trimmed ? `ร้านของ ${trimmed}` : "ร้าน Homex ใหม่";
 }

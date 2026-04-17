@@ -20,8 +20,8 @@ export default async function StaffLoginPage({
       backHref="/login"
       error={params?.error ?? null}
       initialAccountType="staff"
-      heading="ร้าน / ช่างอิสระ / ทีมงาน"
-      subtitle="เข้าสู่ระบบก่อน แล้วระบบจะพาไปสร้างร้านใหม่หรือเข้าร่วมทีมตาม flow ที่เหมาะกับคุณ"
+      heading="ร้าน / ทีมช่าง"
+      subtitle="เข้าสู่ระบบก่อน แล้วค่อยเลือกว่าจะสร้างร้านใหม่หรือเข้าร่วมทีม"
       providerAvailability={{
         google: isProviderConfigured("google"),
         line: isProviderConfigured("line"),

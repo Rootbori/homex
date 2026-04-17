@@ -129,7 +129,8 @@ func (u *authUsecase) CompleteStaffOnboarding(
 		return nil, err
 	}
 
-	if input.Mode != "owner" && input.Mode != "solo" {
+	mode := normalizeStaffOnboardingMode(input.Mode)
+	if mode != "create_store" {
 		return nil, fmt.Errorf("unsupported onboarding mode")
 	}
 
@@ -154,26 +155,19 @@ func (u *authUsecase) CompleteStaffOnboarding(
 
 	storeName := strings.TrimSpace(input.StoreName)
 	if storeName == "" {
-		if input.Mode == "solo" {
-			storeName = defaultSoloStoreName(user.FullName)
-		} else {
-			storeName = defaultShopStoreName(user.FullName)
-		}
+		storeName = defaultShopStoreName(user.FullName)
 	}
 
 	store := &domain.Store{
 		Name: storeName,
 		Kind: domain.StoreKindShop,
 	}
-	if input.Mode == "solo" {
-		store.Kind = domain.StoreKindSolo
-	}
 
 	if err := u.storeRepo.Create(ctx, store); err != nil {
 		return nil, err
 	}
 
-	membership, tech, err := u.ensureStaffMembership(ctx, user, store, domain.RoleOwner, input.Mode == "solo")
+	membership, tech, err := u.ensureStaffMembership(ctx, user, store, domain.RoleOwner, true)
 	if err != nil {
 		return nil, err
 	}
@@ -360,20 +354,23 @@ func needsHybridType(current, incoming domain.UserType) bool {
 		(current == domain.UserTypeUser && incoming == domain.UserTypeStaff)
 }
 
-func defaultSoloStoreName(fullName string) string {
-	name := strings.TrimSpace(fullName)
-	if name == "" {
-		name = "ทีมช่าง Homex"
-	}
-	return name
-}
-
 func defaultShopStoreName(fullName string) string {
 	name := strings.TrimSpace(fullName)
 	if name == "" {
 		return "ร้าน Homex ใหม่"
 	}
 	return fmt.Sprintf("ร้านของ %s", name)
+}
+
+func normalizeStaffOnboardingMode(raw string) string {
+	switch strings.TrimSpace(raw) {
+	case "create_store", "owner", "solo":
+		return "create_store"
+	case "join_team", "team_member":
+		return "join_team"
+	default:
+		return ""
+	}
 }
 
 func defaultTechnicianHeadline(storeName string) string {

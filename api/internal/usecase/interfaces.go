@@ -67,6 +67,7 @@ type JobUsecase interface {
 }
 
 type StoreUsecase interface {
+	GetCurrentStore(ctx context.Context, actor domain.Actor) (*domain.Store, error)
 	GetTechnicianDetails(ctx context.Context, slug string) (*domain.TechnicianProfile, error)
 	ListTechnicians(ctx context.Context, query string) ([]domain.TechnicianProfile, error)
 	ListStoreTechnicians(ctx context.Context, actor domain.Actor) ([]domain.TechnicianProfile, error)

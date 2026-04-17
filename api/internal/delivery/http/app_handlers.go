@@ -66,7 +66,7 @@ func (h *Handler) handleGetTechnician(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleSignupOptions(w http.ResponseWriter, _ *http.Request) {
 	h.writeJSON(w, http.StatusOK, map[string]any{
 		"title":    "สมัครใช้งาน Homex",
-		"subtitle": "เข้าใช้งานด้วย LINE หรือ Gmail ก่อน จากนั้นระบบจะพาไปเลือกว่าจะเป็นลูกค้า, ร้าน, ช่างอิสระ หรือเข้าร่วมทีม",
+		"subtitle": "เข้าใช้งานด้วย LINE หรือ Gmail ก่อน จากนั้นระบบจะพาไปเลือกว่าเป็นลูกค้าหรือฝั่งร้าน และถ้าเป็นฝั่งร้านจะเลือกสร้างร้านใหม่หรือเข้าร่วมทีมต่อได้",
 		"account_types": []map[string]any{
 			{
 				"id":          "user",
@@ -77,8 +77,8 @@ func (h *Handler) handleSignupOptions(w http.ResponseWriter, _ *http.Request) {
 			},
 			{
 				"id":          "staff",
-				"label":       "ร้าน / ช่างอิสระ / ทีมงาน",
-				"description": "ใช้สำหรับฝั่งหลังบ้าน และจะมี onboarding แยกให้อีกครั้งหลัง login",
+				"label":       "ร้าน / ทีมช่าง",
+				"description": "ใช้สำหรับฝั่งหลังบ้าน แล้วค่อยเลือกสร้างร้านใหม่หรือเข้าร่วมทีมหลัง login",
 				"user_type":   domain.UserTypeStaff,
 				"next_path":   "/onboarding/staff",
 			},
@@ -152,6 +152,40 @@ func (h *Handler) handleGetDashboard(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, map[string]any{
 		"scope":     actor.Scope(),
 		"dashboard": map[string]any{},
+	})
+}
+
+func (h *Handler) handleGetCurrentStore(w http.ResponseWriter, r *http.Request) {
+	actor := actorFromRequest(r)
+	if !h.requireStaff(actor, w) {
+		return
+	}
+
+	store, err := h.storeUC.GetCurrentStore(r.Context(), actor)
+	if err != nil {
+		if errors.Is(err, domain.ErrForbidden) {
+			h.errJSON(w, http.StatusForbidden, "forbidden")
+			return
+		}
+		if errors.Is(err, domain.ErrNotFound) {
+			h.errJSON(w, http.StatusNotFound, "store not found")
+			return
+		}
+		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, map[string]any{
+		"store": map[string]any{
+			"id":          store.ID,
+			"name":        store.Name,
+			"kind":        store.Kind,
+			"phone":       store.Phone,
+			"line_oa_id":  store.LineOAID,
+			"logo_url":    store.LogoURL,
+			"description": store.Description,
+		},
+		"scope": actor.Scope(),
 	})
 }
 
@@ -355,7 +389,7 @@ func (h *Handler) handleCreateTechnician(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		if errors.Is(err, domain.ErrConflict) {
-			h.errJSON(w, http.StatusConflict, "บัญชีช่างอิสระยังไม่สามารถเพิ่มทีมช่างเพิ่มได้")
+			h.errJSON(w, http.StatusConflict, "ยังไม่สามารถสร้างโปรไฟล์ช่างได้")
 			return
 		}
 		h.errJSON(w, http.StatusInternalServerError, err.Error())

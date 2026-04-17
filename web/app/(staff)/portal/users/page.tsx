@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
-import { getUsers } from "@/lib/server-data";
+import { getPortalStore, getUsers } from "@/lib/server-data";
 
 export default async function UsersPage() {
-  const users = await getUsers();
+  const [store, users] = await Promise.all([getPortalStore(), getUsers()]);
   const totalSpend = users.reduce((sum, user) => sum + user.totalSpend, 0);
 
   return (
@@ -19,6 +19,10 @@ export default async function UsersPage() {
       </header>
 
       <main className="px-4 py-6 space-y-6">
+        <div className="rounded-2xl bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
+          แสดงเฉพาะลูกค้าที่มีงานหรือเคยใช้บริการกับ <span className="font-semibold text-on-surface">{store?.name ?? "ร้านปัจจุบัน"}</span>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2">
           <div className="rounded-xl bg-surface-container-low p-3 text-center">
