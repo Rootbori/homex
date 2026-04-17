@@ -49,14 +49,42 @@ export async function signOutAction(formData: FormData) {
   const redirectToRaw = formData.get("redirectTo");
   const requestedRedirect = normalizeRedirectPath(typeof redirectToRaw === "string" ? redirectToRaw : "");
   const cookieStore = await cookies();
-  cookieStore.delete("homex_account_type");
-  cookieStore.delete("homex_redirect_to");
-  cookieStore.delete("homex_signup_token");
-  cookieStore.delete("homex_user_id");
-  cookieStore.delete("homex_store_id");
-  cookieStore.delete("homex_role");
-  cookieStore.delete("homex_user_id");
-  cookieStore.delete("homex_technician_id");
+  clearCookieJar(cookieStore);
 
   await signOut({ redirectTo: requestedRedirect ?? "/login" });
+}
+
+function clearCookieJar(cookieStore: Awaited<ReturnType<typeof cookies>>) {
+  const names = [
+    "homex_account_type",
+    "homex_redirect_to",
+    "homex_signup_token",
+    "homex_user_id",
+    "homex_store_id",
+    "homex_role",
+    "homex_profile_id",
+    "homex_technician_id",
+    "homex_invite_store_id",
+    "authjs.session-token",
+    "authjs.callback-url",
+    "authjs.csrf-token",
+    "authjs.pkce.code_verifier",
+    "authjs.state",
+    "authjs.nonce",
+    "__Secure-authjs.session-token",
+    "__Secure-authjs.callback-url",
+    "__Secure-authjs.csrf-token",
+    "__Secure-authjs.pkce.code_verifier",
+    "__Secure-authjs.state",
+    "__Secure-authjs.nonce",
+    "__Host-authjs.csrf-token",
+  ] as const;
+
+  for (const name of names) {
+    cookieStore.set(name, "", {
+      ...temporaryCookieOptions,
+      maxAge: 0,
+      expires: new Date(0),
+    });
+  }
 }

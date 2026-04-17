@@ -11,7 +11,10 @@ export function TechnicianCard({ technician }: Readonly<{ technician: Technician
       {/* Avatar */}
       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-container">
         {technician.image ? (
-          <img src={technician.image} alt={technician.name} className="h-full w-full object-cover" />
+          <div
+            className="h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${technician.image})` }}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-lg font-bold text-primary/30">
             {technician.name.charAt(0)}

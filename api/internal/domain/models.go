@@ -10,6 +10,7 @@ type Availability string
 type ServiceType string
 type UserType string
 type IdentityProvider string
+type StoreKind string
 
 const (
 	LeadSourceLineOA         LeadSource       = "line_oa"
@@ -36,7 +37,9 @@ const (
 	ServiceRepair            ServiceType      = "repair"
 	ServiceRefill            ServiceType      = "refill"
 	ServiceInstallation      ServiceType      = "installation"
-	UserTypeUser         UserType         = "user"
+	StoreKindShop            StoreKind        = "shop"
+	StoreKindSolo            StoreKind        = "solo"
+	UserTypeUser             UserType         = "user"
 	UserTypeStaff            UserType         = "staff"
 	UserTypeHybrid           UserType         = "hybrid"
 	IdentityProviderLine     IdentityProvider = "line"
@@ -83,6 +86,7 @@ type AuthSignupSession struct {
 type Store struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Name        string    `gorm:"size:120;not null" json:"name"`
+	Kind        StoreKind `gorm:"size:32;not null;default:'shop'" json:"kind"`
 	Phone       string    `gorm:"size:32" json:"phone"`
 	LineOAID    string    `gorm:"size:120" json:"line_oa_id"`
 	LogoURL     string    `gorm:"size:255" json:"logo_url"`
@@ -104,21 +108,25 @@ type StoreMembership struct {
 }
 
 type TechnicianProfile struct {
-	ID              uint         `gorm:"primaryKey" json:"id"`
-	MembershipID    uint         `gorm:"uniqueIndex;not null" json:"membership_id"`
-	StoreID         uint         `gorm:"index;not null" json:"store_id"`
-	UserID          uint         `gorm:"index;not null" json:"user_id"`
-	Slug            string       `gorm:"uniqueIndex;size:140;not null" json:"slug"`
-	AvatarURL       string       `gorm:"size:255" json:"avatar_url"`
-	Headline        string       `gorm:"size:180" json:"headline"`
-	ExperienceYears int          `gorm:"default:0" json:"experience_years"`
-	Rating          float64      `gorm:"type:numeric(3,2);default:0" json:"rating"`
-	ReviewCount     int          `gorm:"default:0" json:"review_count"`
-	Availability    Availability `gorm:"size:32;default:'available'" json:"availability"`
-	WorkingHours    string       `gorm:"size:160" json:"working_hours"`
-	LineURL         string       `gorm:"size:255" json:"line_url"`
-	CreatedAt       time.Time    `json:"created_at"`
-	UpdatedAt       time.Time    `json:"updated_at"`
+	ID              uint                `gorm:"primaryKey" json:"id"`
+	MembershipID    uint                `gorm:"uniqueIndex;not null" json:"membership_id"`
+	StoreID         uint                `gorm:"index;not null" json:"store_id"`
+	UserID          uint                `gorm:"index;not null" json:"user_id"`
+	Slug            string              `gorm:"uniqueIndex;size:140;not null" json:"slug"`
+	AvatarURL       string              `gorm:"size:255" json:"avatar_url"`
+	Headline        string              `gorm:"size:180" json:"headline"`
+	ExperienceYears int                 `gorm:"default:0" json:"experience_years"`
+	Rating          float64             `gorm:"type:numeric(3,2);default:0" json:"rating"`
+	ReviewCount     int                 `gorm:"default:0" json:"review_count"`
+	Availability    Availability        `gorm:"size:32;default:'available'" json:"availability"`
+	WorkingHours    string              `gorm:"size:160" json:"working_hours"`
+	LineURL         string              `gorm:"size:255" json:"line_url"`
+	User            User                `gorm:"foreignKey:UserID" json:"user"`
+	Store           Store               `gorm:"foreignKey:StoreID" json:"store"`
+	Services        []TechnicianService `gorm:"foreignKey:TechnicianID" json:"services"`
+	Areas           []ServiceArea       `gorm:"foreignKey:TechnicianID" json:"areas"`
+	CreatedAt       time.Time           `json:"created_at"`
+	UpdatedAt       time.Time           `json:"updated_at"`
 }
 
 type TechnicianService struct {
@@ -149,6 +157,17 @@ type UserProfile struct {
 	Note          string    `gorm:"size:800" json:"note"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+type StoreUserSummary struct {
+	ID         uint   `json:"id"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Phone      string `json:"phone"`
+	Area       string `json:"area"`
+	TotalSpend int    `json:"total_spend"`
+	JobsCount  int    `json:"jobs_count"`
+	Note       string `json:"note"`
 }
 
 type UserAddress struct {
@@ -196,18 +215,21 @@ type LeadUnit struct {
 }
 
 type Quotation struct {
-	ID            uint            `gorm:"primaryKey" json:"id"`
-	StoreID       uint            `gorm:"index;not null" json:"store_id"`
-	LeadID        *uint           `gorm:"index" json:"lead_id,omitempty"`
-	JobID         *uint           `gorm:"index" json:"job_id,omitempty"`
-	Status        QuotationStatus `gorm:"size:32;index;not null" json:"status"`
-	Subtotal      int             `gorm:"default:0" json:"subtotal"`
-	Discount      int             `gorm:"default:0" json:"discount"`
-	Total         int             `gorm:"default:0" json:"total"`
-	Note          string          `gorm:"size:800" json:"note"`
-	SharedViaLine bool            `gorm:"default:false" json:"shared_via_line"`
-	CreatedAt     time.Time       `json:"created_at"`
-	UpdatedAt     time.Time       `json:"updated_at"`
+	ID             uint            `gorm:"primaryKey" json:"id"`
+	StoreID        uint            `gorm:"index;not null" json:"store_id"`
+	LeadID         *uint           `gorm:"index" json:"lead_id,omitempty"`
+	JobID          *uint           `gorm:"index" json:"job_id,omitempty"`
+	RecipientName  string          `gorm:"size:160" json:"recipient_name"`
+	RecipientEmail string          `gorm:"size:160" json:"recipient_email"`
+	Status         QuotationStatus `gorm:"size:32;index;not null" json:"status"`
+	Subtotal       int             `gorm:"default:0" json:"subtotal"`
+	Discount       int             `gorm:"default:0" json:"discount"`
+	Total          int             `gorm:"default:0" json:"total"`
+	Note           string          `gorm:"size:800" json:"note"`
+	SharedViaLine  bool            `gorm:"default:false" json:"shared_via_line"`
+	SharedViaEmail bool            `gorm:"default:false" json:"shared_via_email"`
+	CreatedAt      time.Time       `json:"created_at"`
+	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
 type QuotationItem struct {
@@ -263,13 +285,13 @@ type JobTimelineEvent struct {
 }
 
 type Review struct {
-	ID             uint      `gorm:"primaryKey" json:"id"`
-	StoreID        uint      `gorm:"index;not null" json:"store_id"`
-	TechnicianID   uint      `gorm:"index;not null" json:"technician_id"`
-	UserID         uint      `gorm:"index;not null" json:"user_id"`
-	JobID          uint      `gorm:"index;not null" json:"job_id"`
-	Rating         int       `gorm:"not null" json:"rating"`
-	Comment        string    `gorm:"size:500" json:"comment"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID           uint      `gorm:"primaryKey" json:"id"`
+	StoreID      uint      `gorm:"index;not null" json:"store_id"`
+	TechnicianID uint      `gorm:"index;not null" json:"technician_id"`
+	UserID       uint      `gorm:"index;not null" json:"user_id"`
+	JobID        uint      `gorm:"index;not null" json:"job_id"`
+	Rating       int       `gorm:"not null" json:"rating"`
+	Comment      string    `gorm:"size:500" json:"comment"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }

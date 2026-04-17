@@ -35,6 +35,7 @@ export type TechnicianSummary = {
   slug: string;
   name: string;
   shopName: string;
+  storeKind?: "solo" | "shop";
   rating: number;
   reviewCount: number;
   experienceYears: number;
@@ -131,6 +132,7 @@ export type ScheduleDay = {
 export type UserSummary = {
   id: string;
   name: string;
+  email?: string;
   phone: string;
   area: string;
   totalSpend: number;

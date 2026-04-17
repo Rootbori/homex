@@ -28,7 +28,7 @@ func main() {
 	authUC := usecase.NewAuthUsecase(userRepo, storeRepo)
 	userUC := usecase.NewUserUsecase(userRepo)
 	jobUC := usecase.NewJobUsecase(jobRepo)
-	storeUC := usecase.NewStoreUsecase(storeRepo)
+	storeUC := usecase.NewStoreUsecase(storeRepo, userRepo)
 
 	// 3. HTTP Handler
 	handler := deliveryHTTP.NewHandler(cfg, authUC, userUC, jobUC, storeUC)

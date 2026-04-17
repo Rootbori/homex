@@ -20,6 +20,7 @@ func Seed(db *gorm.DB) error {
 	// 1. Create a Store
 	store := domain.Store{
 		Name:        "Atmospheric Air Service",
+		Kind:        domain.StoreKindShop,
 		Phone:       "02-123-4567",
 		Description: "ศูนย์รวมช่างแอร์มืออาชีพ ดูแลคุณด้วยใจ",
 	}
@@ -97,30 +98,30 @@ func Seed(db *gorm.DB) error {
 
 	// 4. Create a Lead
 	lead := domain.Lead{
-		StoreID:        store.ID,
-		UserID:         userUser.ID,
-		Source:         domain.LeadSourceLineOA,
-		Status:         domain.LeadStatusNew,
-		ServiceType:    domain.ServiceCleaning,
-		AreaLabel:      "พหลโยธิน 24",
-		AddressLine:    "คอนโดไลฟ์ ชั้น 10",
-		Symptom:        "แอร์ไม่ค่อยเย็น มีลมร้อนสลับ",
-		PreferredDate:  "2026-04-20",
-		PreferredTime:  "13:00-15:00",
+		StoreID:       store.ID,
+		UserID:        userUser.ID,
+		Source:        domain.LeadSourceLineOA,
+		Status:        domain.LeadStatusNew,
+		ServiceType:   domain.ServiceCleaning,
+		AreaLabel:     "พหลโยธิน 24",
+		AddressLine:   "คอนโดไลฟ์ ชั้น 10",
+		Symptom:       "แอร์ไม่ค่อยเย็น มีลมร้อนสลับ",
+		PreferredDate: "2026-04-20",
+		PreferredTime: "13:00-15:00",
 	}
 	db.Create(&lead)
 
 	// 5. Create a Job
 	job := domain.Job{
-		StoreID:        store.ID,
-		UserID:         userUser.ID,
-		JobCode:        "JOB-2026-0001",
-		Status:         domain.JobStatusScheduled,
-		ServiceType:    domain.ServiceCleaning,
-		AreaLabel:      "สุขุมวิท 101",
-		AddressLine:    "หมู่บ้านสุขดี ซอย 5",
-		ScheduledDate:  "2026-04-18",
-		ScheduledTime:  "10:00",
+		StoreID:       store.ID,
+		UserID:        userUser.ID,
+		JobCode:       "JOB-2026-0001",
+		Status:        domain.JobStatusScheduled,
+		ServiceType:   domain.ServiceCleaning,
+		AreaLabel:     "สุขุมวิท 101",
+		AddressLine:   "หมู่บ้านสุขดี ซอย 5",
+		ScheduledDate: "2026-04-18",
+		ScheduledTime: "10:00",
 	}
 	db.Create(&job)
 

@@ -373,3 +373,28 @@ Scaffold ที่สร้างไว้
 - สรุปภาพรวมระบบ: `docs/mvp-architecture.md`
 - Backend scaffold: `api/README.md`
 - Frontend scaffold: `web/README.md`
+
+BEGIN;
+
+TRUNCATE TABLE
+reviews,
+job_timeline_events,
+job_photos,
+quotation_items,
+quotations,
+lead_units,
+jobs,
+leads,
+user_addresses,
+user_profiles,
+service_areas,
+technician_services,
+technician_profiles,
+store_memberships,
+auth_signup_sessions,
+user_identities,
+users,
+stores
+RESTART IDENTITY CASCADE;
+
+COMMIT;

@@ -44,6 +44,7 @@ func (h *Handler) Routes() http.Handler {
 	// Auth
 	mux.HandleFunc("POST /v1/public/auth/signup", h.handleCompleteSignup)
 	mux.HandleFunc("POST /v1/public/auth/oauth-sync", h.handleOAuthSync)
+	mux.HandleFunc("POST /v1/app/staff/onboarding", h.handleStaffOnboarding)
 
 	// User
 	mux.HandleFunc("GET /v1/user/jobs", h.handleListUserJobs)
@@ -56,9 +57,12 @@ func (h *Handler) Routes() http.Handler {
 	mux.HandleFunc("GET /v1/app/jobs", h.handleListJobs)
 	mux.HandleFunc("GET /v1/app/jobs/{id}", h.handleGetJobDetail)
 	mux.HandleFunc("POST /v1/app/jobs/{id}/status", h.handleUpdateJobStatus)
+	mux.HandleFunc("POST /v1/app/quotations", h.handleCreateQuotation)
 	mux.HandleFunc("GET /v1/app/schedule", h.handleGetSchedule)
 	mux.HandleFunc("GET /v1/app/technicians", h.handleListStoreTechnicians)
+	mux.HandleFunc("POST /v1/app/technicians", h.handleCreateTechnician)
 	mux.HandleFunc("GET /v1/app/users", h.handleListUsers)
+	mux.HandleFunc("GET /v1/app/users/{id}/jobs", h.handleListUserJobsForStore)
 
 	return withCORS(mux)
 }

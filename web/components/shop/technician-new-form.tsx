@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import type { FormEvent } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, Copy, QrCode, UserPlus, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, CheckCircle2, Copy, LoaderCircle, QrCode, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { TopAppBar } from "@/components/ui/top-app-bar";
 import { InputField } from "@/components/ui/input-field";
 import { CheckboxField } from "@/components/ui/checkbox-field";
@@ -13,15 +15,23 @@ export interface TechnicianNewFormProps {
   baseUrl: string;
 }
 
+const serviceOptions = ["ล้างแอร์", "ซ่อมแอร์", "ติดตั้งแอร์ใหม่", "ย้ายแอร์"];
+
 export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFormProps>) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({
     name: "",
     phone: "",
     services: [] as string[],
   });
+  const [result, setResult] = useState<{
+    type: "idle" | "error" | "success";
+    message?: string;
+  }>({ type: "idle" });
+  const [isPending, startTransition] = useTransition();
 
-  const inviteLink = `${baseUrl}/invite/t/${storeId || "pending"}`;
+  const inviteLink = `${baseUrl}/invite/t/${storeId}`;
 
   const handleCopy = async () => {
     try {
@@ -29,7 +39,7 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy: ", err);
+      console.error("Failed to copy:", err);
     }
   };
 
@@ -42,15 +52,62 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
     }));
   };
 
-  const handleManualSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`สร้างโปรไฟล์สำหรับ ${form.name} เรียบร้อยแล้ว! ระบบจะเชื่อมต่อกับบัญชีของช่างโดยอัตโนมัติเมื่อเขาลงทะเบียนด้วยเบอร์ ${form.phone}`);
+  const handleManualSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    setResult({ type: "idle" });
+
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/app/technicians", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: form.name,
+            phone: form.phone,
+            services: form.services,
+          }),
+        });
+        const payload = (await response.json()) as {
+          error?: string;
+          message?: string;
+        };
+
+        if (!response.ok) {
+          setResult({
+            type: "error",
+            message: payload.message ?? payload.error ?? "ยังสร้างโปรไฟล์ช่างไม่สำเร็จ",
+          });
+          return;
+        }
+
+        setResult({
+          type: "success",
+          message: payload.message ?? "สร้างโปรไฟล์ช่างเรียบร้อยแล้ว",
+        });
+        setForm({
+          name: "",
+          phone: "",
+          services: [],
+        });
+        router.refresh();
+        setTimeout(() => {
+          router.push("/portal/technicians");
+        }, 500);
+      } catch {
+        setResult({
+          type: "error",
+          message: "ยังเชื่อมต่อ API ไม่สำเร็จ ลองอีกครั้งอีกสักครู่",
+        });
+      }
+    });
   };
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-3xl flex-col bg-surface-container-lowest pb-20">
       <TopAppBar
-        title="เพิ่มช่างใหม่"
+        title="เพิ่มทีมช่าง"
         left={
           <Link
             href="/portal/technicians"
@@ -61,15 +118,26 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
         }
       />
 
-      <main className="px-4 py-6 space-y-8">
-        {/* Method 1: Invite Link */}
-        <section className="animate-in slide-in-from-bottom-2 fade-in duration-500">
+      <main className="space-y-8 px-4 py-6">
+        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow">
+          <div className="section-stack">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest text-primary">Invite Team</p>
+              <h1 className="headline-font mt-2 text-3xl font-extrabold tracking-tight text-on-surface">
+                เพิ่มช่างเข้าร้าน
+              </h1>
+              <p className="mt-3 text-sm leading-6 text-on-surface-variant">
+                วิธีที่แนะนำคือส่ง invite link ให้ช่างกดเข้าระบบด้วยตัวเอง ส่วนแบบ manual ใช้สร้างโปรไฟล์ช่างในร้านเพื่อเริ่มมอบหมายงานได้ทันที
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <div className="mb-4">
-            <h2 className="text-sm font-bold text-on-surface">
-              วิธีที่ 1: ส่งลิงก์เชิญ (แนะนำ)
-            </h2>
+            <h2 className="text-sm font-bold text-on-surface">วิธีที่ 1: ส่งลิงก์เชิญ</h2>
             <p className="mt-1 text-xs text-on-surface-variant/60">
-              ให้ช่างกดลิงก์นี้เพื่อเข้าสู่ระบบและเชื่อมต่อกับร้านของคุณโดยอัตโนมัติ
+              ช่างกดลิงก์นี้แล้ว login ด้วย LINE หรือ Gmail ระบบจะพาเข้าร้านของคุณอัตโนมัติ
             </p>
           </div>
           <div className="rounded-2xl bg-white p-5 ring-1 ring-black/[0.04] shadow-sm">
@@ -78,12 +146,10 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
                 <QrCode className="h-6 w-6 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-on-surface">
-                  {inviteLink}
-                </p>
+                <p className="truncate text-sm font-medium text-on-surface">{inviteLink}</p>
                 <div className="mt-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  ลิงก์ใช้งานได้ 24 ชั่วโมง
+                  ลิงก์สำหรับเข้าร่วมร้านนี้
                 </div>
               </div>
             </div>
@@ -94,18 +160,18 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
                 "mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all active:scale-[0.98]",
                 copied
                   ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"
-                  : "bg-white ring-1 ring-slate-200/60 text-on-surface hover:bg-slate-50"
+                  : "bg-white text-on-surface ring-1 ring-slate-200/60 hover:bg-slate-50",
               )}
             >
               {copied ? (
                 <>
-                  <ShieldCheck className="h-4 w-4" />
-                  คัดลอกแล้ว!
+                  <CheckCircle2 className="h-4 w-4" />
+                  คัดลอกแล้ว
                 </>
               ) : (
                 <>
                   <Copy className="h-4 w-4" />
-                  คัดลอกลิงก์
+                  คัดลอกลิงก์เชิญ
                 </>
               )}
             </button>
@@ -120,21 +186,32 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
           <div className="h-px flex-1 bg-black/[0.04]" />
         </div>
 
-        {/* Method 2: Manual Add Form */}
-        <section className="animate-in slide-in-from-bottom-4 fade-in duration-500 delay-100 fill-both">
+        <section>
           <div className="mb-4">
-            <h2 className="text-sm font-bold text-on-surface">
-              วิธีที่ 2: เพิ่มช่างด้วยตนเอง
-            </h2>
+            <h2 className="text-sm font-bold text-on-surface">วิธีที่ 2: สร้างโปรไฟล์ช่างในระบบ</h2>
             <p className="mt-1 text-xs text-on-surface-variant/60">
-              คุณสามารถกรอกข้อมูลของช่างเพื่อสร้างโปรไฟล์เบื้องต้นให้ก่อนได้
+              เหมาะกับการเพิ่มลูกทีมเพื่อเริ่ม assign งานภายในร้านได้ทันที แม้เขาจะยังไม่ได้ login เข้าระบบด้วยตัวเอง
             </p>
           </div>
+
           <form className="space-y-4 rounded-2xl bg-white p-5 ring-1 ring-black/[0.04] shadow-sm" onSubmit={handleManualSubmit}>
-            <div className="rounded-xl bg-amber-50 p-4 text-[11px] leading-relaxed text-amber-900/70 shadow-inner">
-              <p className="font-bold mb-1">💡 ข้อมูลการเชื่อมต่อ:</p>
-              เมื่อช่างคนนี้สมัครใช้งานระบบด้วยเบอร์โทรศัพท์ที่ระบุไว้ ระบบจะตรวจพบบัญชีที่สร้างล่วงหน้านี้ และเชื่อมต่อเข้ากับร้านของคุณทันที
+            <div className="rounded-xl bg-surface-container-low p-4 text-[12px] leading-relaxed text-on-surface-variant shadow-inner">
+              เมื่อสร้างโปรไฟล์แบบ manual แล้ว คุณจะเห็นช่างคนนี้ในรายการทีมช่างทันที หากภายหลังต้องการให้เขา login เอง แนะนำให้ส่ง invite link ด้านบนแทน
             </div>
+
+            {result.type !== "idle" ? (
+              <div
+                className={cn(
+                  "rounded-xl px-4 py-3 text-sm",
+                  result.type === "success"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-[rgba(186,26,26,0.08)] text-error",
+                )}
+              >
+                {result.message}
+              </div>
+            ) : null}
+
             <InputField
               id="name"
               type="text"
@@ -142,46 +219,56 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
               required
               placeholder="เช่น ช่างสมชาย แอร์เซอร์วิส"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(event) => setForm({ ...form, name: event.target.value })}
             />
 
             <InputField
               id="phone"
               type="tel"
               label="เบอร์โทรศัพท์"
-              required
               placeholder="08X-XXX-XXXX"
               value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              onChange={(event) => setForm({ ...form, phone: event.target.value })}
             />
 
             <div className="space-y-1.5 pt-2">
-              <span className="text-xs font-semibold text-on-surface">
-                ประเภทงานที่รับ (เลือกได้มากกว่า 1)
-              </span>
+              <span className="text-xs font-semibold text-on-surface">ประเภทงานที่รับ</span>
               <div className="grid grid-cols-2 gap-2 pt-1">
-                {["ล้างแอร์", "ซ่อมแอร์", "ติดตั้งแอร์ใหม่", "ย้ายแอร์"].map(
-                  (service) => (
-                    <CheckboxField
-                      key={service}
-                      id={`service-${service}`}
-                      label={service}
-                      checked={form.services.includes(service)}
-                      onChange={() => toggleService(service)}
-                    />
-                  ),
-                )}
+                {serviceOptions.map((service) => (
+                  <CheckboxField
+                    key={service}
+                    id={`service-${service}`}
+                    label={service}
+                    checked={form.services.includes(service)}
+                    onChange={() => toggleService(service)}
+                  />
+                ))}
               </div>
             </div>
 
             <button
               type="submit"
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:brightness-110 active:scale-[0.98]"
+              disabled={isPending}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <UserPlus className="h-4 w-4" />
-              สร้างโปรไฟล์ช่าง
+              {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+              {isPending ? "กำลังสร้างโปรไฟล์..." : "สร้างโปรไฟล์ช่าง"}
             </button>
           </form>
+        </section>
+
+        <section className="rounded-2xl bg-surface-container-low p-5">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-container text-on-primary">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-on-surface">คำแนะนำการใช้งาน</p>
+              <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                ถ้าช่างคนนั้นต้องเข้ามาเปลี่ยนสถานะงานหรืออัปโหลดรูปหน้างานด้วยตัวเอง ให้ใช้ invite link เป็นหลัก ส่วน manual create เหมาะกับการสร้าง roster ภายในร้านอย่างรวดเร็ว
+              </p>
+            </div>
+          </div>
         </section>
       </main>
     </div>

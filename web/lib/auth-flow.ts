@@ -1,6 +1,7 @@
 export type AuthAccountType = "user" | "staff";
 export type AuthProviderId = "line" | "google";
 export type AppRole = "user" | "staff";
+export type StaffIntent = "owner" | "solo" | "team_member";
 
 export const authAccountOptions: Array<{
   id: AuthAccountType;
@@ -16,9 +17,31 @@ export const authAccountOptions: Array<{
   },
   {
     id: "staff",
-    label: "ร้าน / ทีมช่าง",
-    caption: "สำหรับ owner, admin, dispatcher และ technician ในร้าน",
+    label: "ร้าน / ช่างอิสระ / ทีมงาน",
+    caption: "สำหรับเจ้าของร้าน ช่างอิสระ หรือทีมงานที่ต้องเข้าระบบหลังบ้าน",
     nextPath: "/portal/dashboard",
+  },
+];
+
+export const staffIntentOptions: Array<{
+  id: StaffIntent;
+  label: string;
+  description: string;
+}> = [
+  {
+    id: "owner",
+    label: "ฉันเป็นเจ้าของร้าน / บริษัท",
+    description: "สร้างร้านใหม่และเริ่มจัดการทีม งาน และลูกค้าในฐานะ owner",
+  },
+  {
+    id: "solo",
+    label: "ฉันเป็นช่างอิสระ",
+    description: "สร้างร้านชื่อเดียวกับคุณและเปิดใช้งานเป็นทีมเดี่ยวได้ทันที",
+  },
+  {
+    id: "team_member",
+    label: "ฉันเป็นทีมงาน / ลูกน้อง",
+    description: "ใช้ลิงก์เชิญจากเจ้าของร้านเพื่อเข้าร่วมทีมของเขา",
   },
 ];
 
@@ -52,6 +75,10 @@ export function isAuthProviderId(value: string): value is AuthProviderId {
 
 export function redirectForAccountType(accountType: AuthAccountType) {
   return accountType === "staff" ? "/portal/dashboard" : "/search";
+}
+
+export function staffOnboardingPath() {
+  return "/onboarding/staff";
 }
 
 export function loginPathForAccountType(accountType: AuthAccountType) {

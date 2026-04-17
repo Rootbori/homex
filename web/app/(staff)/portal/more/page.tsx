@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { ChevronRight, LogOut, User } from "lucide-react";
 import { auth } from "@/auth";
 import { signOutAction } from "@/app/login/actions";
@@ -13,6 +14,8 @@ const links = [
 ];
 
 export default async function MorePage() {
+  const cookieStore = await cookies();
+  const actorRole = cookieStore.get("homex_role")?.value ?? "";
   const [session, technicians, users, jobs] = await Promise.all([
     auth(),
     getTechnicians(),
@@ -22,6 +25,28 @@ export default async function MorePage() {
   const displayName = session?.user?.name ?? "ทีมช่าง Homex";
   const displayEmail = session?.user?.email ?? "ยังไม่ได้เชื่อมอีเมล";
   const loginProvider = providerLabel(session?.provider ?? session?.user?.provider);
+  const isSoloStore = technicians[0]?.storeKind === "solo";
+  const isTechnicianView = actorRole === "technician";
+  const statCards = [
+    {
+      href: "/portal/technicians",
+      value: technicians.length,
+      label: isSoloStore ? "โปรไฟล์ช่าง" : "ช่าง",
+      description: isSoloStore ? "แสดงเฉพาะบัญชีช่างอิสระนี้" : "ทีมช่างของร้านนี้เท่านั้น",
+    },
+    {
+      href: "/portal/users",
+      value: users.length,
+      label: "ลูกค้า",
+      description: "เฉพาะลูกค้าที่มีงานหรือเคยจ้างร้านนี้",
+    },
+    {
+      href: "/portal/jobs",
+      value: jobs.length,
+      label: "งาน",
+      description: isTechnicianView ? "นับเฉพาะงานที่มอบหมายให้คุณ" : "นับงานทั้งหมดในร้านนี้",
+    },
+  ] as const;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -48,18 +73,24 @@ export default async function MorePage() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-surface-container-low p-3 text-center">
-            <p className="text-xl font-extrabold text-on-surface">{technicians.length}</p>
-            <p className="text-[10px] font-medium text-on-surface-variant/40">ช่าง</p>
-          </div>
-          <div className="rounded-xl bg-surface-container-low p-3 text-center">
-            <p className="text-xl font-extrabold text-on-surface">{users.length}</p>
-            <p className="text-[10px] font-medium text-on-surface-variant/40">ลูกค้า</p>
-          </div>
-          <div className="rounded-xl bg-surface-container-low p-3 text-center">
-            <p className="text-xl font-extrabold text-on-surface">{jobs.length}</p>
-            <p className="text-[10px] font-medium text-on-surface-variant/40">งาน</p>
-          </div>
+          {statCards.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded-xl bg-surface-container-low p-3 text-center transition-colors hover:bg-surface-container"
+            >
+              <p className="text-xl font-extrabold text-on-surface">{item.value}</p>
+              <p className="text-[10px] font-medium text-on-surface-variant/40">{item.label}</p>
+            </Link>
+          ))}
+        </div>
+
+        <div className="rounded-2xl bg-surface-container-low p-4 text-xs leading-6 text-on-surface-variant">
+          {statCards.map((item) => (
+            <p key={`${item.href}-description`}>
+              <span className="font-semibold text-on-surface">{item.label}:</span> {item.description}
+            </p>
+          ))}
         </div>
 
         {/* Menu links */}

@@ -3,11 +3,18 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rootbeer/homex/api/internal/domain"
 )
+
+const defaultUserStoreID uint = 1
+
+var slugSanitizer = regexp.MustCompile(`[^a-z0-9]+`)
 
 type authUsecase struct {
 	userRepo  domain.UserRepository
@@ -21,41 +28,173 @@ func NewAuthUsecase(userRepo domain.UserRepository, storeRepo domain.StoreReposi
 	}
 }
 
-func (u *authUsecase) SyncOAuthUser(ctx context.Context, ident domain.UserIdentity, accountType domain.UserType, inviteStoreID string) (*domain.User, *domain.StoreMembership, *domain.Store, *domain.TechnicianProfile, error) {
-	// 1. Find or create user
-	user, err := u.findOrCreateUser(ctx, ident, accountType)
+func (u *authUsecase) SyncOAuthUser(
+	ctx context.Context,
+	ident domain.UserIdentity,
+	accountType domain.UserType,
+	inviteStoreID,
+	fullName,
+	avatarURL string,
+) (*AuthSyncResult, error) {
+	user, err := u.findOrCreateUser(ctx, ident, accountType, fullName, avatarURL)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, err
 	}
 
-	// 2. Determine target store ID
-	storeID := uint(1)
+	result := &AuthSyncResult{
+		User: user,
+	}
+
+	if accountType == domain.UserTypeUser {
+		store, err := u.storeRepo.GetByID(ctx, defaultUserStoreID)
+		if err != nil {
+			return nil, err
+		}
+
+		profile := &domain.UserProfile{
+			StoreID: store.ID,
+			UserID:  user.ID,
+		}
+		if err := u.userRepo.UpsertProfile(ctx, profile); err != nil {
+			return nil, err
+		}
+
+		result.Store = store
+		result.Role = domain.RoleUser
+		result.ProfileID = user.ID
+		result.NextPath = "/search"
+		return result, nil
+	}
+
 	if inviteStoreID != "" && inviteStoreID != "draft" {
-		if id, err := strconv.Atoi(inviteStoreID); err == nil && id > 0 {
-			storeID = uint(id)
+		storeID, err := parseStoreID(inviteStoreID)
+		if err != nil {
+			return nil, err
+		}
+
+		store, err := u.storeRepo.GetByID(ctx, storeID)
+		if err != nil {
+			return nil, err
+		}
+
+		membership, tech, err := u.ensureStaffMembership(ctx, user, store, domain.RoleTechnician, true)
+		if err != nil {
+			return nil, err
+		}
+
+		result.Membership = membership
+		result.Store = store
+		result.Technician = tech
+		result.Role = membership.Role
+		result.NextPath = "/portal/dashboard"
+		return result, nil
+	}
+
+	membership, err := u.storeRepo.GetAnyMembershipByUser(ctx, user.ID)
+	if err == nil && membership != nil {
+		store, err := u.storeRepo.GetByID(ctx, membership.StoreID)
+		if err != nil {
+			return nil, err
+		}
+
+		tech, err := u.storeRepo.GetTechnicianProfile(ctx, membership.ID)
+		if err != nil && !errors.Is(err, domain.ErrNotFound) {
+			return nil, err
+		}
+
+		result.Membership = membership
+		result.Store = store
+		result.Technician = tech
+		result.Role = membership.Role
+		result.NextPath = "/portal/dashboard"
+		return result, nil
+	}
+	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+		return nil, err
+	}
+
+	result.Role = domain.RoleAnonymous
+	result.NextPath = "/onboarding/staff"
+	result.OnboardingRequired = true
+	return result, nil
+}
+
+func (u *authUsecase) CompleteStaffOnboarding(
+	ctx context.Context,
+	userID uint,
+	input StaffOnboardingInput,
+) (*AuthSyncResult, error) {
+	user, err := u.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Mode != "owner" && input.Mode != "solo" {
+		return nil, fmt.Errorf("unsupported onboarding mode")
+	}
+
+	if existing, err := u.storeRepo.GetAnyMembershipByUser(ctx, user.ID); err == nil && existing != nil {
+		store, storeErr := u.storeRepo.GetByID(ctx, existing.StoreID)
+		if storeErr != nil {
+			return nil, storeErr
+		}
+		tech, techErr := u.storeRepo.GetTechnicianProfile(ctx, existing.ID)
+		if techErr != nil && !errors.Is(techErr, domain.ErrNotFound) {
+			return nil, techErr
+		}
+		return &AuthSyncResult{
+			User:       user,
+			Membership: existing,
+			Store:      store,
+			Technician: tech,
+			Role:       existing.Role,
+			NextPath:   "/portal/dashboard",
+		}, nil
+	}
+
+	storeName := strings.TrimSpace(input.StoreName)
+	if storeName == "" {
+		if input.Mode == "solo" {
+			storeName = defaultSoloStoreName(user.FullName)
+		} else {
+			storeName = defaultShopStoreName(user.FullName)
 		}
 	}
 
-	// 3. Ensure membership if staff/invite flow
-	if user.Type == domain.UserTypeStaff || user.Type == domain.UserTypeHybrid || accountType == domain.UserTypeStaff {
-		_ = u.ensureStaffMembership(ctx, user, storeID)
-	} else {
-		profile := &domain.UserProfile{StoreID: storeID, UserID: user.ID}
-		_ = u.userRepo.UpsertProfile(ctx, profile)
+	store := &domain.Store{
+		Name: storeName,
+		Kind: domain.StoreKindShop,
+	}
+	if input.Mode == "solo" {
+		store.Kind = domain.StoreKindSolo
 	}
 
-	// 4. Load full context
-	membership, _ := u.storeRepo.GetMembership(ctx, storeID, user.ID)
-	store, _ := u.storeRepo.GetByID(ctx, storeID)
-	var tech *domain.TechnicianProfile
-	if membership != nil {
-		tech, _ = u.storeRepo.GetTechnicianProfile(ctx, membership.ID)
+	if err := u.storeRepo.Create(ctx, store); err != nil {
+		return nil, err
 	}
 
-	return user, membership, store, tech, nil
+	membership, tech, err := u.ensureStaffMembership(ctx, user, store, domain.RoleOwner, input.Mode == "solo")
+	if err != nil {
+		return nil, err
+	}
+
+	return &AuthSyncResult{
+		User:       user,
+		Membership: membership,
+		Store:      store,
+		Technician: tech,
+		Role:       membership.Role,
+		NextPath:   "/portal/dashboard",
+	}, nil
 }
 
-func (u *authUsecase) findOrCreateUser(ctx context.Context, ident domain.UserIdentity, accountType domain.UserType) (*domain.User, error) {
+func (u *authUsecase) findOrCreateUser(
+	ctx context.Context,
+	ident domain.UserIdentity,
+	accountType domain.UserType,
+	fullName,
+	avatarURL string,
+) (*domain.User, error) {
 	existingIdent, err := u.userRepo.GetIdentity(ctx, ident.Provider, ident.ProviderUserID)
 
 	var user *domain.User
@@ -66,15 +205,40 @@ func (u *authUsecase) findOrCreateUser(ctx context.Context, ident domain.UserIde
 	}
 
 	if user != nil {
+		updated := false
+		if needsHybridType(user.Type, accountType) {
+			user.Type = domain.UserTypeHybrid
+			updated = true
+		}
+		if strings.TrimSpace(user.FullName) == "" || user.FullName == user.Email {
+			if strings.TrimSpace(fullName) != "" {
+				user.FullName = fullName
+				updated = true
+			}
+		}
+		if strings.TrimSpace(user.AvatarURL) == "" && strings.TrimSpace(avatarURL) != "" {
+			user.AvatarURL = avatarURL
+			updated = true
+		}
+		if updated {
+			if err := u.userRepo.Update(ctx, user); err != nil {
+				return nil, err
+			}
+		}
 		return user, nil
 	}
 
-	// Create new user
+	displayName := strings.TrimSpace(fullName)
+	if displayName == "" {
+		displayName = ident.Email
+	}
+
 	user = &domain.User{
-		Type:     accountType,
-		FullName: ident.Email,
-		Email:    ident.Email,
-		IsActive: true,
+		Type:      accountType,
+		FullName:  displayName,
+		Email:     ident.Email,
+		AvatarURL: strings.TrimSpace(avatarURL),
+		IsActive:  true,
 	}
 	if err := u.userRepo.Create(ctx, user); err != nil {
 		return nil, err
@@ -82,43 +246,69 @@ func (u *authUsecase) findOrCreateUser(ctx context.Context, ident domain.UserIde
 
 	ident.UserID = user.ID
 	ident.IsPrimary = true
-	_ = u.userRepo.UpsertIdentity(ctx, &ident)
+	if err := u.userRepo.UpsertIdentity(ctx, &ident); err != nil {
+		return nil, err
+	}
 
 	return user, nil
 }
 
-func (u *authUsecase) ensureStaffMembership(ctx context.Context, user *domain.User, storeID uint) error {
-	if storeID == 0 {
-		return nil
+func (u *authUsecase) ensureStaffMembership(
+	ctx context.Context,
+	user *domain.User,
+	store *domain.Store,
+	role domain.Role,
+	createTechnician bool,
+) (*domain.StoreMembership, *domain.TechnicianProfile, error) {
+	if store == nil || store.ID == 0 {
+		return nil, nil, nil
 	}
 
-	membership, _ := u.storeRepo.GetMembership(ctx, storeID, user.ID)
-	if membership != nil {
-		return nil
+	membership, err := u.storeRepo.GetMembership(ctx, store.ID, user.ID)
+	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+		return nil, nil, err
+	}
+	if membership == nil {
+		membership = &domain.StoreMembership{
+			StoreID:     store.ID,
+			UserID:      user.ID,
+			DisplayName: user.FullName,
+			IsActive:    true,
+			Role:        role,
+		}
+		if err := u.storeRepo.CreateMembership(ctx, membership); err != nil {
+			return nil, nil, err
+		}
 	}
 
-	// Join store via invite or default
-	membership = &domain.StoreMembership{
-		StoreID:  storeID,
-		UserID:   user.ID,
-		IsActive: true,
-		Role:     domain.RoleTechnician,
-	}
-	if err := u.storeRepo.CreateMembership(ctx, membership); err != nil {
-		return err
+	if !createTechnician && membership.Role != domain.RoleTechnician {
+		return membership, nil, nil
 	}
 
-	// Initialize tech profile
-	tech := &domain.TechnicianProfile{
-		MembershipID: membership.ID,
-		StoreID:      storeID,
-		UserID:       user.ID,
-		Slug:         "tech-" + strconv.FormatUint(uint64(user.ID), 10),
-		Availability: domain.AvailabilityAvailable,
+	tech, err := u.storeRepo.GetTechnicianProfile(ctx, membership.ID)
+	if err == nil && tech != nil {
+		return membership, tech, nil
 	}
-	_ = u.storeRepo.CreateTechnicianProfile(ctx, tech)
+	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+		return nil, nil, err
+	}
 
-	return nil
+	tech = &domain.TechnicianProfile{
+		MembershipID:    membership.ID,
+		StoreID:         store.ID,
+		UserID:          user.ID,
+		Slug:            technicianSlug(user.FullName, membership.ID),
+		AvatarURL:       user.AvatarURL,
+		Headline:        defaultTechnicianHeadline(store.Name),
+		Availability:    domain.AvailabilityAvailable,
+		WorkingHours:    "ทุกวัน 08:00 - 18:00",
+		ExperienceYears: 0,
+	}
+	if err := u.storeRepo.CreateTechnicianProfile(ctx, tech); err != nil {
+		return nil, nil, err
+	}
+
+	return membership, tech, nil
 }
 
 func (u *authUsecase) GetSignupSession(ctx context.Context, token string) (*domain.AuthSignupSession, error) {
@@ -146,7 +336,7 @@ func (u *authUsecase) CompleteSignup(ctx context.Context, token string, fullName
 	sess.ConsumedAt = &now
 	_ = u.userRepo.UpdateSignupSession(ctx, sess)
 
-	storeID := uint(1)
+	storeID := defaultUserStoreID
 	if sess.StoreID != nil {
 		storeID = *sess.StoreID
 	}
@@ -155,4 +345,53 @@ func (u *authUsecase) CompleteSignup(ctx context.Context, token string, fullName
 	store, _ := u.storeRepo.GetByID(ctx, storeID)
 
 	return user, membership, store, nil
+}
+
+func parseStoreID(raw string) (uint, error) {
+	id, err := strconv.Atoi(raw)
+	if err != nil || id <= 0 {
+		return 0, fmt.Errorf("invalid invite store id")
+	}
+	return uint(id), nil
+}
+
+func needsHybridType(current, incoming domain.UserType) bool {
+	return (current == domain.UserTypeStaff && incoming == domain.UserTypeUser) ||
+		(current == domain.UserTypeUser && incoming == domain.UserTypeStaff)
+}
+
+func defaultSoloStoreName(fullName string) string {
+	name := strings.TrimSpace(fullName)
+	if name == "" {
+		name = "ทีมช่าง Homex"
+	}
+	return name
+}
+
+func defaultShopStoreName(fullName string) string {
+	name := strings.TrimSpace(fullName)
+	if name == "" {
+		return "ร้าน Homex ใหม่"
+	}
+	return fmt.Sprintf("ร้านของ %s", name)
+}
+
+func defaultTechnicianHeadline(storeName string) string {
+	if strings.TrimSpace(storeName) == "" {
+		return "พร้อมรับงานหน้างานและจัดตารางงานผ่าน Homex"
+	}
+	return fmt.Sprintf("ทีมงานจาก %s พร้อมดูแลงานหน้างาน", storeName)
+}
+
+func technicianSlug(name string, suffix uint) string {
+	base := strings.ToLower(strings.TrimSpace(name))
+	if base == "" {
+		base = "technician"
+	}
+	base = slugSanitizer.ReplaceAllString(base, "-")
+	base = strings.Trim(base, "-")
+	if base == "" {
+		base = "technician"
+	}
+	return fmt.Sprintf("%s-%d", base, suffix)
 }

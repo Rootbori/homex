@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	whereStoreUser      = "store_id = ? AND user_id = ?"
-	queryCreatedAtDesc  = "created_at desc"
+	whereStoreUser     = "store_id = ? AND user_id = ?"
+	queryCreatedAtDesc = "created_at desc"
 )
 
 // wrapNotFound converts gorm.ErrRecordNotFound to domain.ErrNotFound
@@ -71,6 +71,74 @@ func (r *gormUserRepository) Update(ctx context.Context, user *domain.User) erro
 func (r *gormUserRepository) ListUsers(ctx context.Context) ([]domain.User, error) {
 	var users []domain.User
 	if err := r.db.WithContext(ctx).Where("type = ?", domain.UserTypeUser).Order(queryCreatedAtDesc).Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (r *gormUserRepository) ListVisibleUsersByStore(ctx context.Context, storeID uint) ([]domain.StoreUserSummary, error) {
+	var users []domain.StoreUserSummary
+	query := `
+		SELECT
+			u.id,
+			u.full_name AS name,
+			COALESCE(u.email, '') AS email,
+			COALESCE(NULLIF(u.phone, ''), '-') AS phone,
+			COALESCE(
+				NULLIF(up.preferred_area, ''),
+				NULLIF((
+					SELECT j.area_label
+					FROM jobs j
+					WHERE j.store_id = ? AND j.user_id = u.id
+					ORDER BY j.created_at DESC
+					LIMIT 1
+				), ''),
+				NULLIF((
+					SELECT l.area_label
+					FROM leads l
+					WHERE l.store_id = ? AND l.user_id = u.id
+					ORDER BY l.created_at DESC
+					LIMIT 1
+				), ''),
+				'-'
+			) AS area,
+			COALESCE(up.total_spend, 0) AS total_spend,
+			COALESCE((
+				SELECT COUNT(*)
+				FROM jobs j2
+				WHERE j2.store_id = ? AND j2.user_id = u.id
+			), 0) AS jobs_count,
+			COALESCE(up.note, '') AS note
+		FROM users u
+		LEFT JOIN user_profiles up ON up.store_id = ? AND up.user_id = u.id
+		WHERE u.id IN (
+			SELECT user_id FROM user_profiles WHERE store_id = ?
+			UNION
+			SELECT user_id FROM leads WHERE store_id = ?
+			UNION
+			SELECT user_id FROM jobs WHERE store_id = ?
+		)
+		AND u.type IN (?, ?)
+		AND NOT EXISTS (
+			SELECT 1
+			FROM store_memberships sm
+			WHERE sm.store_id = ? AND sm.user_id = u.id
+		)
+		ORDER BY jobs_count DESC, u.created_at DESC
+	`
+	if err := r.db.WithContext(ctx).Raw(
+		query,
+		storeID,
+		storeID,
+		storeID,
+		storeID,
+		storeID,
+		storeID,
+		storeID,
+		domain.UserTypeUser,
+		domain.UserTypeHybrid,
+		storeID,
+	).Scan(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -143,6 +211,10 @@ func (r *gormStoreRepository) GetByID(ctx context.Context, id uint) (*domain.Sto
 	return &store, nil
 }
 
+func (r *gormStoreRepository) Create(ctx context.Context, store *domain.Store) error {
+	return r.db.WithContext(ctx).Create(store).Error
+}
+
 func (r *gormStoreRepository) GetMembership(ctx context.Context, storeID, userID uint) (*domain.StoreMembership, error) {
 	var mem domain.StoreMembership
 	err := r.db.WithContext(ctx).Where(whereStoreUser, storeID, userID).First(&mem).Error
@@ -152,9 +224,24 @@ func (r *gormStoreRepository) GetMembership(ctx context.Context, storeID, userID
 	return &mem, nil
 }
 
+func (r *gormStoreRepository) GetAnyMembershipByUser(ctx context.Context, userID uint) (*domain.StoreMembership, error) {
+	var mem domain.StoreMembership
+	err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order(queryCreatedAtDesc).First(&mem).Error
+	if err != nil {
+		return nil, wrapNotFound(err)
+	}
+	return &mem, nil
+}
+
 func (r *gormStoreRepository) GetTechnicianProfile(ctx context.Context, memID uint) (*domain.TechnicianProfile, error) {
 	var tech domain.TechnicianProfile
-	err := r.db.WithContext(ctx).Where("membership_id = ?", memID).First(&tech).Error
+	err := r.db.WithContext(ctx).
+		Preload("User").
+		Preload("Store").
+		Preload("Services").
+		Preload("Areas").
+		Where("membership_id = ?", memID).
+		First(&tech).Error
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
@@ -163,7 +250,13 @@ func (r *gormStoreRepository) GetTechnicianProfile(ctx context.Context, memID ui
 
 func (r *gormStoreRepository) GetTechnicianByUserID(ctx context.Context, storeID, userID uint) (*domain.TechnicianProfile, error) {
 	var tech domain.TechnicianProfile
-	err := r.db.WithContext(ctx).Where(whereStoreUser, storeID, userID).First(&tech).Error
+	err := r.db.WithContext(ctx).
+		Preload("User").
+		Preload("Store").
+		Preload("Services").
+		Preload("Areas").
+		Where(whereStoreUser, storeID, userID).
+		First(&tech).Error
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
@@ -172,7 +265,13 @@ func (r *gormStoreRepository) GetTechnicianByUserID(ctx context.Context, storeID
 
 func (r *gormStoreRepository) GetTechnicianBySlug(ctx context.Context, slug string) (*domain.TechnicianProfile, error) {
 	var tech domain.TechnicianProfile
-	err := r.db.WithContext(ctx).Where("slug = ?", slug).First(&tech).Error
+	err := r.db.WithContext(ctx).
+		Preload("User").
+		Preload("Store").
+		Preload("Services").
+		Preload("Areas").
+		Where("slug = ?", slug).
+		First(&tech).Error
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
@@ -181,11 +280,30 @@ func (r *gormStoreRepository) GetTechnicianBySlug(ctx context.Context, slug stri
 
 func (r *gormStoreRepository) ListPublicTechnicians(ctx context.Context, query string) ([]domain.TechnicianProfile, error) {
 	var techs []domain.TechnicianProfile
-	db := r.db.WithContext(ctx)
+	db := r.db.WithContext(ctx).
+		Preload("User").
+		Preload("Store").
+		Preload("Services").
+		Preload("Areas")
 	if query != "" {
 		db = db.Where("headline LIKE ? OR slug LIKE ?", "%"+query+"%", "%"+query+"%")
 	}
 	if err := db.Find(&techs).Error; err != nil {
+		return nil, err
+	}
+	return techs, nil
+}
+
+func (r *gormStoreRepository) ListStoreTechnicians(ctx context.Context, storeID uint) ([]domain.TechnicianProfile, error) {
+	var techs []domain.TechnicianProfile
+	if err := r.db.WithContext(ctx).
+		Preload("User").
+		Preload("Store").
+		Preload("Services").
+		Preload("Areas").
+		Where("store_id = ?", storeID).
+		Order(queryCreatedAtDesc).
+		Find(&techs).Error; err != nil {
 		return nil, err
 	}
 	return techs, nil
@@ -197,6 +315,18 @@ func (r *gormStoreRepository) CreateMembership(ctx context.Context, mem *domain.
 
 func (r *gormStoreRepository) CreateTechnicianProfile(ctx context.Context, tech *domain.TechnicianProfile) error {
 	return r.db.WithContext(ctx).Create(tech).Error
+}
+
+func (r *gormStoreRepository) ReplaceTechnicianServices(ctx context.Context, technicianID uint, services []domain.TechnicianService) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("technician_id = ?", technicianID).Delete(&domain.TechnicianService{}).Error; err != nil {
+			return err
+		}
+		if len(services) == 0 {
+			return nil
+		}
+		return tx.Create(&services).Error
+	})
 }
 
 // ── Job Repository ──────────────────────────────────────────────────
@@ -228,6 +358,17 @@ func (r *gormJobRepository) ListByStore(ctx context.Context, id uint) ([]domain.
 func (r *gormJobRepository) ListByUser(ctx context.Context, profileID uint) ([]domain.Job, error) {
 	var jobs []domain.Job
 	if err := r.db.WithContext(ctx).Where("user_id = ?", profileID).Order(queryCreatedAtDesc).Find(&jobs).Error; err != nil {
+		return nil, err
+	}
+	return jobs, nil
+}
+
+func (r *gormJobRepository) ListByStoreAndUser(ctx context.Context, storeID, userID uint) ([]domain.Job, error) {
+	var jobs []domain.Job
+	if err := r.db.WithContext(ctx).
+		Where("store_id = ? AND user_id = ?", storeID, userID).
+		Order(queryCreatedAtDesc).
+		Find(&jobs).Error; err != nil {
 		return nil, err
 	}
 	return jobs, nil
@@ -267,6 +408,24 @@ func (r *gormJobRepository) ListLeadsByStore(ctx context.Context, id uint) ([]do
 
 func (r *gormJobRepository) CreateLead(ctx context.Context, lead *domain.Lead) error {
 	return r.db.WithContext(ctx).Create(lead).Error
+}
+
+func (r *gormJobRepository) CreateQuotation(ctx context.Context, quotation *domain.Quotation, items []domain.QuotationItem) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(quotation).Error; err != nil {
+			return err
+		}
+
+		if len(items) == 0 {
+			return nil
+		}
+
+		for index := range items {
+			items[index].QuotationID = quotation.ID
+		}
+
+		return tx.Create(&items).Error
+	})
 }
 
 func (r *gormJobRepository) GetQuotationByJobID(ctx context.Context, id uint) (*domain.Quotation, error) {

@@ -61,7 +61,7 @@ export async function POST() {
       setActorCookie(nextResponse, "homex_user_id", actor?.user_id);
       setActorCookie(nextResponse, "homex_store_id", actor?.store_id);
       setActorCookie(nextResponse, "homex_role", actor?.role);
-      setActorCookie(nextResponse, "homex_user_id", actor?.user_id);
+      setActorCookie(nextResponse, "homex_profile_id", actor?.profile_id);
       setActorCookie(nextResponse, "homex_technician_id", actor?.technician_id);
     } else if (response.status >= 400 && response.status < 500) {
       nextResponse.cookies.delete("homex_signup_token");

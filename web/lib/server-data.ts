@@ -184,6 +184,7 @@ function normalizeTechnician(raw: unknown): TechnicianSummary {
     slug: stringValue(item.slug),
     name: displayName,
     shopName,
+    storeKind: stringValue(item.store_kind) === "solo" ? "solo" : "shop",
     rating: numberValue(item.rating, 0),
     reviewCount: numberValue(item.reviews ?? item.review_count, 0),
     experienceYears: numberValue(item.experience ?? item.experience_years, 0),
@@ -318,6 +319,7 @@ function normalizeUser(raw: unknown): UserSummary {
   return {
     id: stringValue(item.id),
     name: stringValue(item.name, stringValue(item.full_name, "ลูกค้า")),
+    email: stringValue(item.email),
     phone: stringValue(item.phone, "-"),
     area: stringValue(item.area, "-"),
     totalSpend: numberValue(item.total_spend, 0),
@@ -541,6 +543,10 @@ export async function getJobsForTechnician(id: string) {
 }
 
 export async function getJobsForUser(id: string) {
-  const jobs = await getJobs();
-  return jobs.filter((job) => job.userId === id);
+  try {
+    const payload = await fetchApiJson<{ items?: unknown[] }>(`/v1/app/users/${id}/jobs`);
+    return Array.isArray(payload.items) ? payload.items.map((item) => normalizeJob(item)) : [];
+  } catch {
+    return [];
+  }
 }

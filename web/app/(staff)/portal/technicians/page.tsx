@@ -5,6 +5,7 @@ import { getTechnicians } from "@/lib/server-data";
 
 export default async function TechniciansPage() {
   const technicians = await getTechnicians();
+  const isSoloStore = technicians[0]?.storeKind === "solo";
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col bg-surface-container-lowest">
@@ -16,17 +17,24 @@ export default async function TechniciansPage() {
           </span>
         }
         right={
-          <Link
-            href="/portal/technicians/new"
-            className="flex h-8 items-center gap-1.5 rounded-full bg-on-surface px-3 text-[11px] font-bold text-white transition-all hover:bg-on-surface/90 active:scale-95"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            เพิ่มช่าง
-          </Link>
+          isSoloStore ? null : (
+            <Link
+              href="/portal/technicians/new"
+              className="flex h-8 items-center gap-1.5 rounded-full bg-on-surface px-3 text-[11px] font-bold text-white transition-all hover:bg-on-surface/90 active:scale-95"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              เพิ่มทีมช่าง
+            </Link>
+          )
         }
       />
 
       <main className="px-4 py-4 space-y-2">
+        {isSoloStore ? (
+          <div className="rounded-2xl bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
+            บัญชีนี้เป็นช่างอิสระ จึงแสดงเฉพาะโปรไฟล์ของคุณเอง หากต้องการมีหลายคนในทีม ให้สร้างร้านในโหมดร้าน/บริษัทแทน
+          </div>
+        ) : null}
         {technicians.length > 0 ? (
           technicians.map((technician) => (
             <Link
@@ -36,7 +44,10 @@ export default async function TechniciansPage() {
             >
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-container">
                 {technician.image ? (
-                  <img src={technician.image} alt={technician.name} className="h-full w-full object-cover" />
+                  <div
+                    className="h-full w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${technician.image})` }}
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-sm font-bold text-primary/30">
                     {technician.name.charAt(0)}

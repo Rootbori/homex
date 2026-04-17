@@ -9,6 +9,7 @@ import {
   normalizeRedirectPath,
   redirectForAccountType,
   roleForAccountType,
+  staffOnboardingPath,
 } from "@/lib/auth-flow";
 
 const userOnlyPaths = new Set(["/my-requests", "/profile"]);
@@ -44,12 +45,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
       authorized({ auth, request }) {
         const pathname = request.nextUrl.pathname;
         const accountType = auth?.accountType ?? auth?.user?.accountType;
+        const hasStoreContext = Boolean(request.cookies.get("homex_store_id")?.value);
+        const hasActorUser = Boolean(request.cookies.get("homex_user_id")?.value);
+        const hasActorRole = Boolean(request.cookies.get("homex_role")?.value);
+        const hasInviteContext = Boolean(request.cookies.get("homex_invite_store_id")?.value);
+        const onboardingPath = staffOnboardingPath();
 
         if (pathname === "/login" && auth) {
           const destination =
             auth.redirectTo ??
             (accountType === "staff" ? "/portal/dashboard" : "/search");
           return NextResponse.redirect(new URL(destination, request.nextUrl));
+        }
+
+        if (pathname.startsWith(onboardingPath)) {
+          if (!auth) {
+            return NextResponse.redirect(new URL("/login/staff", request.nextUrl));
+          }
+
+          if (accountType !== "staff") {
+            return NextResponse.redirect(new URL("/search", request.nextUrl));
+          }
+
+          if (hasStoreContext) {
+            if (!hasActorUser || !hasActorRole) {
+              return NextResponse.redirect(new URL("/auth/complete", request.nextUrl));
+            }
+            return NextResponse.redirect(new URL("/portal/dashboard", request.nextUrl));
+          }
         }
 
         if (pathname.startsWith("/portal")) {
@@ -59,6 +82,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
 
           if (accountType !== "staff") {
             return NextResponse.redirect(new URL("/search", request.nextUrl));
+          }
+
+          if (!hasStoreContext) {
+            const destination = hasInviteContext ? "/auth/complete" : onboardingPath;
+            return NextResponse.redirect(new URL(destination, request.nextUrl));
+          }
+
+          if (!hasActorUser || !hasActorRole) {
+            return NextResponse.redirect(new URL("/auth/complete", request.nextUrl));
           }
         }
 

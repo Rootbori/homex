@@ -4,14 +4,22 @@ import (
 	"net/http"
 
 	"github.com/rootbeer/homex/api/internal/domain"
+	"github.com/rootbeer/homex/api/internal/usecase"
 )
 
 type oauthSyncPayload struct {
 	Provider       string `json:"provider"`
 	ProviderUserID string `json:"provider_user_id"`
 	Email          string `json:"email"`
+	FullName       string `json:"full_name"`
+	AvatarURL      string `json:"avatar_url"`
 	AccountType    string `json:"account_type"`
 	InviteStoreID  string `json:"invite_store_id"`
+}
+
+type staffOnboardingPayload struct {
+	Mode      string `json:"mode"`
+	StoreName string `json:"store_name"`
 }
 
 func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
@@ -27,18 +35,45 @@ func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
 		Email:          payload.Email,
 	}
 
-	user, mem, store, tech, err := h.authUC.SyncOAuthUser(r.Context(), ident, domain.UserType(payload.AccountType), payload.InviteStoreID)
+	result, err := h.authUC.SyncOAuthUser(
+		r.Context(),
+		ident,
+		domain.UserType(payload.AccountType),
+		payload.InviteStoreID,
+		payload.FullName,
+		payload.AvatarURL,
+	)
 	if err != nil {
 		h.errJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, map[string]any{
-		"user":       user,
-		"membership": mem,
-		"store":      store,
-		"technician": tech,
+	h.writeJSON(w, http.StatusOK, authPayload(result))
+}
+
+func (h *Handler) handleStaffOnboarding(w http.ResponseWriter, r *http.Request) {
+	actor := actorFromRequest(r)
+	if actor.UserID == "" {
+		h.errJSON(w, http.StatusUnauthorized, "login required")
+		return
+	}
+
+	var payload staffOnboardingPayload
+	if err := h.readJSON(r, &payload); err != nil {
+		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		return
+	}
+
+	result, err := h.authUC.CompleteStaffOnboarding(r.Context(), actor.UintUserID(), usecase.StaffOnboardingInput{
+		Mode:      payload.Mode,
+		StoreName: payload.StoreName,
 	})
+	if err != nil {
+		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, authPayload(result))
 }
 
 func (h *Handler) handleCompleteSignup(w http.ResponseWriter, r *http.Request) {
