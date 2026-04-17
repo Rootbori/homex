@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, PhoneCall } from "lucide-react";
-import { StatusChip } from "@/components/shared/status-chip";
+import { StatusChip } from "@/components/ui/status-chip";
 import { formatCurrency } from "@/lib/format";
 import { getUserByID, getJobsForUser } from "@/lib/server-data";
 

@@ -24,6 +24,7 @@ export async function POST() {
   const cookieStore = await cookies();
   const cookieAccountType = cookieStore.get("homex_account_type")?.value;
   const signupToken = cookieStore.get("homex_signup_token")?.value ?? "";
+  const inviteStoreId = cookieStore.get("homex_invite_store_id")?.value ?? "";
   const accountType =
     (cookieAccountType && isAuthAccountType(cookieAccountType) ? cookieAccountType : session.accountType) ??
     "user";
@@ -39,6 +40,7 @@ export async function POST() {
         full_name: session.user.name ?? "",
         avatar_url: session.user.image ?? "",
         signup_token: signupToken,
+        invite_store_id: inviteStoreId,
       }),
     });
     const payload = await readProxyPayload(response);
@@ -54,6 +56,7 @@ export async function POST() {
       nextResponse.cookies.set("homex_account_type", accountType, actorCookieOptions);
       nextResponse.cookies.set("homex_redirect_to", nextPath, actorCookieOptions);
       nextResponse.cookies.delete("homex_signup_token");
+      nextResponse.cookies.delete("homex_invite_store_id");
 
       setActorCookie(nextResponse, "homex_user_id", actor?.user_id);
       setActorCookie(nextResponse, "homex_store_id", actor?.store_id);
@@ -82,5 +85,15 @@ function setActorCookie(response: NextResponse, name: string, value: unknown) {
     return;
   }
 
-  response.cookies.set(name, String(value), actorCookieOptions);
+  const stringValue =
+    typeof value === "string" || typeof value === "number" || typeof value === "boolean"
+      ? String(value)
+      : "";
+
+  if (!stringValue) {
+    response.cookies.delete(name);
+    return;
+  }
+
+  response.cookies.set(name, stringValue, actorCookieOptions);
 }

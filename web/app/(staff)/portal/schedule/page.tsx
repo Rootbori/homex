@@ -1,4 +1,4 @@
-import { StatusChip } from "@/components/shared/status-chip";
+import { StatusChip } from "@/components/ui/status-chip";
 import { getSchedule } from "@/lib/server-data";
 
 export default async function SchedulePage() {

@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ChevronRight, Snowflake } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { LeadCard } from "@/components/shop/lead-card";
 import { JobCard } from "@/components/shop/job-card";
+import { Logo } from "@/components/ui/logo";
 import { formatCurrency } from "@/lib/format";
 import { getDashboard } from "@/lib/server-data";
 
@@ -22,7 +23,7 @@ export default async function DashboardPage() {
       <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
         <div className="flex h-14 items-center gap-3 px-4">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
-            <Snowflake className="h-4 w-4 text-white" />
+            <Logo className="h-5 w-5 text-white" />
           </div>
           <span className="text-base font-bold text-on-surface">Homex Portal</span>
         </div>

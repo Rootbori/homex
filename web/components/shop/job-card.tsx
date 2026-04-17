@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronRight, PhoneCall } from "lucide-react";
-import { StatusChip } from "@/components/shared/status-chip";
+import { StatusChip } from "@/components/ui/status-chip";
 import type { JobSummary } from "@/lib/api-types";
 import { formatCurrency } from "@/lib/format";
 

@@ -8,11 +8,11 @@ import {
   Mail,
   MessageCircle,
   Shield,
-  Snowflake,
   UserRound,
   Wrench,
 } from "lucide-react";
 import { beginOAuthLogin } from "@/app/login/actions";
+import { Logo } from "@/components/ui/logo";
 import {
   authProviderOptions,
   loginPathForAccountType,
@@ -108,7 +108,7 @@ export function LoginForm({
               )}
             >
               {isUser ? (
-                <Snowflake className="h-8 w-8 text-white" />
+                <Logo className="h-8 w-8 text-white" />
               ) : (
                 <Wrench className="h-8 w-8 text-white" />
               )}
@@ -191,7 +191,7 @@ export function LoginTypeChooser() {
           {/* Brand */}
           <div className="mb-12 text-center">
             <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl shadow-blue-500/20">
-              <Snowflake className="h-10 w-10 text-white" />
+              <Logo className="h-10 w-10 text-white" />
             </div>
             <h1 className="headline-font text-3xl font-extrabold tracking-tight text-on-surface">
               Homex

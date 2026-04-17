@@ -11,6 +11,7 @@ type oauthSyncPayload struct {
 	ProviderUserID string `json:"provider_user_id"`
 	Email          string `json:"email"`
 	AccountType    string `json:"account_type"`
+	InviteStoreID  string `json:"invite_store_id"`
 }
 
 func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +27,7 @@ func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
 		Email:          payload.Email,
 	}
 
-	user, mem, store, tech, err := h.authUC.SyncOAuthUser(r.Context(), ident, domain.UserType(payload.AccountType))
+	user, mem, store, tech, err := h.authUC.SyncOAuthUser(r.Context(), ident, domain.UserType(payload.AccountType), payload.InviteStoreID)
 	if err != nil {
 		h.errJSON(w, http.StatusInternalServerError, err.Error())
 		return

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, MessageCircle, PhoneCall } from "lucide-react";
-import { Timeline } from "@/components/shared/timeline";
+import { Timeline } from "@/components/ui/timeline";
 import { formatCurrency, jobStatusLabel } from "@/lib/format";
 import { getUserJob } from "@/lib/server-data";
 

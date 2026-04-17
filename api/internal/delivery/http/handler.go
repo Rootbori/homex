@@ -119,11 +119,3 @@ func (h *Handler) requireStaff(actor domain.Actor, w http.ResponseWriter) bool {
 	h.errJSON(w, http.StatusUnauthorized, "staff access required")
 	return false
 }
-
-func (h *Handler) requireAdmin(actor domain.Actor, w http.ResponseWriter) bool {
-	if actor.IsAdminLike() {
-		return true
-	}
-	h.errJSON(w, http.StatusForbidden, "admin access required")
-	return false
-}

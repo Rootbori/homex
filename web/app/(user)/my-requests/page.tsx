@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, Clock3 } from "lucide-react";
-import { StatusChip } from "@/components/shared/status-chip";
+import { StatusChip } from "@/components/ui/status-chip";
 import { formatCurrency } from "@/lib/format";
 import { getUserJobs } from "@/lib/server-data";
 

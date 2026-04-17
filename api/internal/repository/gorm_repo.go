@@ -191,6 +191,14 @@ func (r *gormStoreRepository) ListPublicTechnicians(ctx context.Context, query s
 	return techs, nil
 }
 
+func (r *gormStoreRepository) CreateMembership(ctx context.Context, mem *domain.StoreMembership) error {
+	return r.db.WithContext(ctx).Create(mem).Error
+}
+
+func (r *gormStoreRepository) CreateTechnicianProfile(ctx context.Context, tech *domain.TechnicianProfile) error {
+	return r.db.WithContext(ctx).Create(tech).Error
+}
+
 // ── Job Repository ──────────────────────────────────────────────────
 
 type gormJobRepository struct {

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LoaderCircle, LogOut, RefreshCcw, ShieldCheck, Snowflake, TriangleAlert } from "lucide-react";
+import { LoaderCircle, LogOut, RefreshCcw, ShieldCheck, TriangleAlert } from "lucide-react";
 import { signOutAction } from "@/app/login/actions";
+import { Logo } from "@/components/ui/logo";
 
 type AuthCompleteViewProps = {
   fallbackPath: string;
@@ -86,8 +87,8 @@ export function AuthCompleteView({ fallbackPath }: Readonly<AuthCompleteViewProp
               <div className="flex flex-col items-center">
                 <div className="relative mb-6">
                   <div className="absolute inset-0 animate-ping rounded-2xl bg-primary/20" />
-                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
-                    <Snowflake className="h-8 w-8 animate-spin-slow text-white" />
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25 animate-pulse">
+                    <Logo className="h-8 w-8 text-white" />
                   </div>
                 </div>
                 

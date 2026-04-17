@@ -28,6 +28,8 @@ type StoreRepository interface {
 	GetTechnicianByUserID(ctx context.Context, storeID, userID uint) (*TechnicianProfile, error)
 	GetTechnicianBySlug(ctx context.Context, slug string) (*TechnicianProfile, error)
 	ListPublicTechnicians(ctx context.Context, query string) ([]TechnicianProfile, error)
+	CreateMembership(ctx context.Context, mem *StoreMembership) error
+	CreateTechnicianProfile(ctx context.Context, tech *TechnicianProfile) error
 }
 
 type JobRepository interface {

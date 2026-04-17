@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BottomNav } from "@/components/shared/bottom-nav";
+import { BottomNav } from "@/components/ui/bottom-nav";
 
 export function AppShell({
   mode,

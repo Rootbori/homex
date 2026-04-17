@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Star } from "lucide-react";
-import { StatusChip } from "@/components/shared/status-chip";
+import { StatusChip } from "@/components/ui/status-chip";
 import { formatCurrency } from "@/lib/format";
 import { getJobsForTechnician, getStaffTechnicianByID } from "@/lib/server-data";
 

@@ -20,8 +20,10 @@ const temporaryCookieOptions = {
 };
 
 export async function beginOAuthLogin(formData: FormData) {
-  const provider = String(formData.get("provider") ?? "");
-  const accountType = String(formData.get("account_type") ?? "");
+  const providerRaw = formData.get("provider");
+  const accountTypeRaw = formData.get("account_type");
+  const provider = typeof providerRaw === "string" ? providerRaw : "";
+  const accountType = typeof accountTypeRaw === "string" ? accountTypeRaw : "";
 
   if (!isAuthProviderId(provider)) {
     redirect("/login?error=unsupported-provider");
@@ -44,7 +46,8 @@ export async function beginOAuthLogin(formData: FormData) {
 }
 
 export async function signOutAction(formData: FormData) {
-  const requestedRedirect = normalizeRedirectPath(String(formData.get("redirectTo") ?? ""));
+  const redirectToRaw = formData.get("redirectTo");
+  const requestedRedirect = normalizeRedirectPath(typeof redirectToRaw === "string" ? redirectToRaw : "");
   const cookieStore = await cookies();
   cookieStore.delete("homex_account_type");
   cookieStore.delete("homex_redirect_to");

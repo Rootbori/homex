@@ -7,7 +7,7 @@ import (
 )
 
 type AuthUsecase interface {
-	SyncOAuthUser(ctx context.Context, ident domain.UserIdentity, accountType domain.UserType) (*domain.User, *domain.StoreMembership, *domain.Store, *domain.TechnicianProfile, error)
+	SyncOAuthUser(ctx context.Context, ident domain.UserIdentity, accountType domain.UserType, inviteStoreID string) (*domain.User, *domain.StoreMembership, *domain.Store, *domain.TechnicianProfile, error)
 	GetSignupSession(ctx context.Context, token string) (*domain.AuthSignupSession, error)
 	CompleteSignup(ctx context.Context, token string, fullName, phone string) (*domain.User, *domain.StoreMembership, *domain.Store, error)
 }

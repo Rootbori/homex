@@ -1,5 +1,7 @@
 import { ArrowLeft, Send } from "lucide-react";
 import Link from "next/link";
+import { InputField } from "@/components/ui/input-field";
+import { TextareaField } from "@/components/ui/textarea-field";
 
 const presets = [
   { label: "ล้างแอร์ 9-12k BTU", price: "฿600" },
@@ -12,12 +14,17 @@ export default function QuotationPage() {
     <div className="mx-auto max-w-3xl">
       <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
         <div className="flex h-14 items-center gap-3 px-4">
-          <Link href="/portal/leads" className="text-on-surface-variant/50 hover:text-on-surface">
+          <Link
+            href="/portal/leads"
+            className="text-on-surface-variant/50 hover:text-on-surface"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="min-w-0 flex-1">
             <h1 className="text-base font-bold text-on-surface">ใบเสนอราคา</h1>
-            <p className="text-[11px] text-on-surface-variant/40">QT-20231027</p>
+            <p className="text-[11px] text-on-surface-variant/40">
+              QT-20231027
+            </p>
           </div>
         </div>
       </header>
@@ -32,8 +39,12 @@ export default function QuotationPage() {
                 key={preset.label}
                 className="flex min-w-[140px] shrink-0 flex-col gap-1 rounded-xl bg-surface-container-low p-3 text-left transition-colors hover:bg-surface-container"
               >
-                <span className="text-sm font-semibold text-on-surface">{preset.label}</span>
-                <span className="text-xs font-bold text-primary">{preset.price}</span>
+                <span className="text-sm font-semibold text-on-surface">
+                  {preset.label}
+                </span>
+                <span className="text-xs font-bold text-primary">
+                  {preset.price}
+                </span>
               </button>
             ))}
           </div>
@@ -43,14 +54,20 @@ export default function QuotationPage() {
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-on-surface">รายการ</h2>
-            <button className="text-xs font-semibold text-primary">+ เพิ่มรายการ</button>
+            <button className="text-xs font-semibold text-primary">
+              + เพิ่มรายการ
+            </button>
           </div>
 
           <div className="rounded-2xl bg-surface-container-low p-4 space-y-3">
             <div className="flex items-center justify-between text-sm">
               <div>
-                <p className="font-semibold text-on-surface">ล้างแอร์ 9000-12000 BTU</p>
-                <p className="text-xs text-on-surface-variant/40">2 เครื่อง x ฿600</p>
+                <p className="font-semibold text-on-surface">
+                  ล้างแอร์ 9000-12000 BTU
+                </p>
+                <p className="text-xs text-on-surface-variant/40">
+                  2 เครื่อง x ฿600
+                </p>
               </div>
               <div className="text-right">
                 <p className="font-bold text-on-surface">฿1,200</p>
@@ -59,7 +76,9 @@ export default function QuotationPage() {
             </div>
             <div className="flex items-center justify-between border-t border-black/[0.04] pt-3 text-sm">
               <div>
-                <p className="font-semibold text-on-surface">เติมน้ำยาแอร์ R32</p>
+                <p className="font-semibold text-on-surface">
+                  เติมน้ำยาแอร์ R32
+                </p>
                 <p className="text-xs text-on-surface-variant/40">1 รายการ</p>
               </div>
               <div className="text-right">
@@ -72,22 +91,24 @@ export default function QuotationPage() {
 
         {/* Options */}
         <section className="grid grid-cols-2 gap-2">
+          <InputField
+            id="discount"
+            type="number"
+            label="ส่วนลด (฿)"
+            placeholder="0.00"
+            containerClassName="w-full"
+          />
           <div className="space-y-1.5">
-            <label htmlFor="discount" className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/40">
-              ส่วนลด (฿)
-            </label>
-            <input
-              id="discount"
-              type="number"
-              placeholder="0.00"
-              className="h-10 w-full rounded-xl bg-surface-container-low px-3 text-sm outline-none focus:ring-2 focus:ring-primary/10"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="tax" className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/40">
+            <label
+              htmlFor="tax"
+              className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/40"
+            >
               ภาษี
             </label>
-            <select id="tax" className="h-10 w-full rounded-xl bg-surface-container-low px-3 text-sm outline-none focus:ring-2 focus:ring-primary/10">
+            <select
+              id="tax"
+              className="h-10 w-full rounded-xl bg-surface-container-low px-3 text-sm outline-none focus:ring-2 focus:ring-primary/10"
+            >
               <option>7%</option>
               <option>0%</option>
               <option>หัก ณ ที่จ่าย 3%</option>
@@ -95,17 +116,12 @@ export default function QuotationPage() {
           </div>
         </section>
 
-        <div className="space-y-1.5">
-          <label htmlFor="note" className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/40">
-            บันทึกภายใน
-          </label>
-          <textarea
-            id="note"
-            placeholder="หมายเหตุสำหรับทีมงาน..."
-            rows={2}
-            className="w-full rounded-xl bg-surface-container-low p-3 text-sm outline-none resize-none focus:ring-2 focus:ring-primary/10"
-          />
-        </div>
+        <TextareaField
+          id="note"
+          label="บันทึกภายใน"
+          placeholder="หมายเหตุสำหรับทีมงาน..."
+          rows={2}
+        />
 
         {/* Total */}
         <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-5 text-white">

@@ -2,10 +2,17 @@
 
 import React, { useMemo, useState, useTransition } from "react";
 import type { ChangeEvent } from "react";
-import { CalendarDays, CheckCircle2, ImagePlus, MapPin, Send, Wrench } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  ImagePlus,
+  MapPin,
+  Send,
+  Wrench,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { InputField } from "@/components/ui/input-field";
+import { TextareaField } from "@/components/ui/textarea-field";
 
 const serviceOptions = ["ล้างแอร์", "ซ่อมแอร์", "เติมน้ำยา", "ติดตั้ง"];
 const btuOptions = ["9,000", "12,000", "18,000", "24,000+"];
@@ -55,7 +62,9 @@ export function CreateRequestForm({
   defaultName,
   selectedTechnician,
 }: Readonly<CreateRequestFormProps>) {
-  const [form, setForm] = useState<RequestState>(() => initialState(defaultName));
+  const [form, setForm] = useState<RequestState>(() =>
+    initialState(defaultName),
+  );
   const [result, setResult] = useState<{
     status: "idle" | "success" | "error";
     message?: string;
@@ -70,7 +79,10 @@ export function CreateRequestForm({
     return `คำขอนี้จะถูกส่งไปยัง ${selectedTechnician.shopName} (${selectedTechnician.name})`;
   }, [selectedTechnician]);
 
-  function updateField<K extends keyof RequestState>(key: K, value: RequestState[K]) {
+  function updateField<K extends keyof RequestState>(
+    key: K,
+    value: RequestState[K],
+  ) {
     setForm((current) => ({
       ...current,
       [key]: value,
@@ -85,7 +97,7 @@ export function CreateRequestForm({
     );
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.BaseSyntheticEvent) {
     event.preventDefault();
     setResult({ status: "idle" });
 
@@ -108,7 +120,12 @@ export function CreateRequestForm({
             symptom: form.symptom,
             preferred_date: form.preferredDate,
             preferred_time: form.preferredTime,
-            notes: [form.notes, selectedTechnician ? `ช่างที่เลือก: ${selectedTechnician.slug}` : ""]
+            notes: [
+              form.notes,
+              selectedTechnician
+                ? `ช่างที่เลือก: ${selectedTechnician.slug}`
+                : "",
+            ]
               .filter(Boolean)
               .join("\n"),
             images: form.images,
@@ -151,8 +168,12 @@ export function CreateRequestForm({
               <Wrench className="h-6 w-6" />
             </div>
             <div>
-              <p className="headline-font text-2xl font-black tracking-tight text-on-surface">ข้อมูลบริการ</p>
-              <p className="mt-1 text-sm font-medium text-on-surface-variant/70">{previewLabel}</p>
+              <p className="headline-font text-2xl font-black tracking-tight text-on-surface">
+                ข้อมูลบริการ
+              </p>
+              <p className="mt-1 text-sm font-medium text-on-surface-variant/70">
+                {previewLabel}
+              </p>
             </div>
           </div>
 
@@ -165,7 +186,9 @@ export function CreateRequestForm({
               }`}
             >
               <div className="flex items-center gap-2">
-                {result.status === "success" ? <CheckCircle2 className="h-4 w-4" /> : null}
+                {result.status === "success" ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : null}
                 <span>{result.message}</span>
               </div>
             </div>
@@ -177,78 +200,60 @@ export function CreateRequestForm({
         <div className="section-stack">
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
-            <h2 className="headline-font text-lg font-bold text-on-surface">ข้อมูลผู้ติดต่อ</h2>
+            <h2 className="headline-font text-lg font-bold text-on-surface">
+              ข้อมูลผู้ติดต่อ
+            </h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="field-stack">
-              <label htmlFor="name" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                ชื่อ
-              </label>
-              <Input
-                id="name"
-                value={form.name}
-                onChange={(event) => updateField("name", event.target.value)}
-                placeholder="ชื่อผู้ติดต่อ"
-                required
-              />
-            </div>
-            <div className="field-stack">
-              <label htmlFor="phone" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                เบอร์โทร
-              </label>
-              <Input
-                id="phone"
-                value={form.phone}
-                onChange={(event) => updateField("phone", event.target.value)}
-                placeholder="08x-xxx-xxxx"
-                type="tel"
-                required
-              />
-            </div>
+            <InputField
+              id="name"
+              label="ชื่อ"
+              value={form.name}
+              onChange={(event) => updateField("name", event.target.value)}
+              placeholder="ชื่อผู้ติดต่อ"
+              required
+            />
+            <InputField
+              id="phone"
+              label="เบอร์โทร"
+              value={form.phone}
+              onChange={(event) => updateField("phone", event.target.value)}
+              placeholder="08x-xxx-xxxx"
+              type="tel"
+              required
+            />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="field-stack">
-              <label htmlFor="area" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                พื้นที่
-              </label>
-              <Input
-                id="area"
-                value={form.area}
-                onChange={(event) => updateField("area", event.target.value)}
-                placeholder="เช่น ลาดพร้าว, บางนา"
-                required
-              />
-            </div>
-            <div className="field-stack">
-              <label htmlFor="units" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                จำนวนเครื่อง
-              </label>
-              <Input
-                id="units"
-                value={form.units}
-                onChange={(event) => updateField("units", event.target.value)}
-                placeholder="1"
-                inputMode="numeric"
-                required
-              />
-            </div>
+            <InputField
+              id="area"
+              label="พื้นที่"
+              value={form.area}
+              onChange={(event) => updateField("area", event.target.value)}
+              placeholder="เช่น ลาดพร้าว, บางนา"
+              required
+            />
+            <InputField
+              id="units"
+              label="จำนวนเครื่อง"
+              value={form.units}
+              onChange={(event) => updateField("units", event.target.value)}
+              placeholder="1"
+              inputMode="numeric"
+              required
+            />
           </div>
 
-          <div className="field-stack">
-            <label htmlFor="address" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-              ที่อยู่
-            </label>
-            <Textarea
+            <TextareaField
               id="address"
+              label="ที่อยู่"
               value={form.address}
-              onChange={(event) => updateField("address", event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => updateField("address", event.target.value)}
               placeholder="บ้านเลขที่ อาคาร ชั้น หรือจุดสังเกต"
               rows={3}
               required
             />
-          </div>
         </div>
       </section>
 
@@ -256,7 +261,9 @@ export function CreateRequestForm({
         <div className="section-stack">
           <div className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-primary" />
-            <h2 className="headline-font text-lg font-bold text-on-surface">รายละเอียดเครื่องและอาการ</h2>
+            <h2 className="headline-font text-lg font-bold text-on-surface">
+              รายละเอียดเครื่องและอาการ
+            </h2>
           </div>
 
           <div className="section-stack-sm">
@@ -272,7 +279,7 @@ export function CreateRequestForm({
                   className={
                     form.serviceType === service
                       ? "rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary"
-                      : "rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant"
+                      : "rounded-full bg-white ring-1 ring-slate-200/60 px-4 py-2 text-sm font-semibold text-on-surface-variant hover:bg-slate-50"
                   }
                 >
                   {service}
@@ -294,7 +301,7 @@ export function CreateRequestForm({
                   className={
                     form.btu === item
                       ? "rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary"
-                      : "rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant"
+                      : "rounded-full bg-white ring-1 ring-slate-200/60 px-4 py-2 text-sm font-semibold text-on-surface-variant hover:bg-slate-50"
                   }
                 >
                   {item}
@@ -304,61 +311,58 @@ export function CreateRequestForm({
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="field-stack">
-              <label htmlFor="brand" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                ยี่ห้อ
-              </label>
-              <Input
-                id="brand"
-                value={form.brand}
-                onChange={(event) => updateField("brand", event.target.value)}
-                placeholder="Daikin, Mitsubishi, Carrier"
-              />
-            </div>
-            <div className="field-stack">
-              <span className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+            <InputField
+              id="brand"
+              label="ยี่ห้อ"
+              value={form.brand}
+              onChange={(event) => updateField("brand", event.target.value)}
+              placeholder="Daikin, Mitsubishi, Carrier"
+            />
+            <div className="space-y-1.5">
+              <span className="text-xs font-semibold text-on-surface">
                 รูปประกอบ
               </span>
-              <label htmlFor="file-upload" className="flex h-[3.25rem] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
+              <label
+                htmlFor="file-upload"
+                className="flex h-[3.25rem] cursor-pointer items-center justify-center gap-2 rounded-xl bg-white ring-1 ring-slate-200/60 px-4 text-sm font-semibold text-on-surface transition-all hover:bg-slate-50"
+              >
                 <ImagePlus className="h-4 w-4 text-primary" />
                 เลือกไฟล์
-                <input id="file-upload" className="hidden" type="file" multiple onChange={handleFileChange} />
+                <input
+                  id="file-upload"
+                  className="hidden"
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                />
               </label>
             </div>
           </div>
 
           {form.images.length > 0 ? (
-            <div className="rounded-[1.5rem] bg-surface-container-low p-4 text-sm text-on-surface-variant">
+            <div className="rounded-[1.5rem] bg-white ring-1 ring-slate-200/60 p-4 text-sm text-on-surface-variant">
               แนบไฟล์แล้ว {form.images.length} รายการ: {form.images.join(", ")}
             </div>
           ) : null}
 
-          <div className="field-stack">
-            <label htmlFor="symptom" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-              อาการ
-            </label>
-            <Textarea
-              id="symptom"
-              value={form.symptom}
-              onChange={(event) => updateField("symptom", event.target.value)}
-              placeholder="เช่น แอร์ไม่เย็น มีน้ำหยด เปิดไม่ติด"
-              rows={4}
-              required
-            />
-          </div>
+          <TextareaField
+            id="symptom"
+            label="อาการ"
+            value={form.symptom}
+            onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => updateField("symptom", event.target.value)}
+            placeholder="เช่น แอร์ไม่เย็น มีน้ำหยด เปิดไม่ติด"
+            rows={4}
+            required
+          />
 
-          <div className="field-stack">
-            <label htmlFor="notes" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-              หมายเหตุเพิ่มเติม
-            </label>
-            <Textarea
-              id="notes"
-              value={form.notes}
-              onChange={(event) => updateField("notes", event.target.value)}
-              placeholder="เช่น สะดวกติดต่อผ่าน LINE หรือมีจุดจอดรถ"
-              rows={3}
-            />
-          </div>
+          <TextareaField
+            id="notes"
+            label="หมายเหตุเพิ่มเติม"
+            value={form.notes}
+            onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => updateField("notes", event.target.value)}
+            placeholder="เช่น สะดวกติดต่อผ่าน LINE หรือมีจุดจอดรถ"
+            rows={3}
+          />
         </div>
       </section>
 
@@ -366,42 +370,40 @@ export function CreateRequestForm({
         <div className="section-stack">
           <div className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-primary" />
-            <h2 className="headline-font text-lg font-bold text-on-surface">วันและเวลาที่สะดวก</h2>
+            <h2 className="headline-font text-lg font-bold text-on-surface">
+              วันและเวลาที่สะดวก
+            </h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="field-stack">
-              <label htmlFor="preferredDate" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                วันที่
-              </label>
-              <Input
-                id="preferredDate"
-                value={form.preferredDate}
-                onChange={(event) => updateField("preferredDate", event.target.value)}
-                type="date"
-              />
-            </div>
-            <div className="field-stack">
-              <label htmlFor="preferredTime" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                เวลา
-              </label>
-              <Input
-                id="preferredTime"
-                value={form.preferredTime}
-                onChange={(event) => updateField("preferredTime", event.target.value)}
-                type="time"
-              />
-            </div>
+            <InputField
+              id="preferredDate"
+              label="วันที่"
+              value={form.preferredDate}
+              onChange={(event) =>
+                updateField("preferredDate", event.target.value)
+              }
+              type="date"
+            />
+            <InputField
+              id="preferredTime"
+              label="เวลา"
+              value={form.preferredTime}
+              onChange={(event) =>
+                updateField("preferredTime", event.target.value)
+              }
+              type="time"
+            />
           </div>
         </div>
       </section>
 
       <div className="glass-bar fixed bottom-0 left-0 z-50 w-full px-5 py-4">
         <div className="mx-auto w-full max-w-[42rem]">
-          <Button 
-            type="submit" 
-            size="lg" 
-            className="interactive-scale h-14 w-full bg-tertiary text-lg font-black uppercase tracking-wider text-on-tertiary shadow-xl hover:brightness-110 active:scale-95 transition-all" 
+          <Button
+            type="submit"
+            size="lg"
+            className="interactive-scale h-14 w-full bg-tertiary text-lg font-black uppercase tracking-wider text-on-tertiary shadow-xl hover:brightness-110 active:scale-95 transition-all"
             disabled={isPending}
           >
             {isPending ? "กำลังบันทึกข้อมูล..." : "ยืนยันส่งคำขอช่าง"}

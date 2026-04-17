@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import type { ComponentType, CSSProperties, FormEvent, ReactNode } from "react";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import type { ComponentType, CSSProperties, ReactNode } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -28,11 +28,13 @@ import { loginPathForAccountType } from "@/lib/auth-flow";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { InputField } from "@/components/ui/input-field";
+import { CheckboxField } from "@/components/ui/checkbox-field";
 
 const fallbackOptions: SignupOptionsResponse = {
   title: "สมัครใช้งาน Homex",
-  subtitle: "เลือกประเภทผู้ใช้ตามโครง users ของระบบ แล้วเริ่มสมัครผ่าน LINE หรือ Gmail",
+  subtitle:
+    "เลือกประเภทผู้ใช้ตามโครง users ของระบบ แล้วเริ่มสมัครผ่าน LINE หรือ Gmail",
   defaults: {
     account_type: "user",
     provider: "line",
@@ -41,7 +43,8 @@ const fallbackOptions: SignupOptionsResponse = {
     {
       id: "user",
       label: "ลูกค้า",
-      description: "สร้างผู้ใช้ประเภท user สำหรับค้นหาช่างแอร์และติดตามงานของตัวเอง",
+      description:
+        "สร้างผู้ใช้ประเภท user สำหรับค้นหาช่างแอร์และติดตามงานของตัวเอง",
       user_type: "user",
       next_path: "/search",
     },
@@ -57,7 +60,8 @@ const fallbackOptions: SignupOptionsResponse = {
     {
       id: "line",
       label: "LINE",
-      description: "เหมาะกับผู้ใช้ที่ต้องการสมัครผ่าน LINE และทำงานต่อผ่าน LINE OA",
+      description:
+        "เหมาะกับผู้ใช้ที่ต้องการสมัครผ่าน LINE และทำงานต่อผ่าน LINE OA",
       accent: "#06C755",
     },
     {
@@ -103,8 +107,11 @@ function getAccountCopy(option?: SignupOption | null) {
   };
 }
 
-export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAccountType?: SignupAccountType }>) {
-  const [options, setOptions] = useState<SignupOptionsResponse>(fallbackOptions);
+export function SignupForm({
+  initialAccountType = "user",
+}: Readonly<{ initialAccountType?: SignupAccountType }>) {
+  const [options, setOptions] =
+    useState<SignupOptionsResponse>(fallbackOptions);
   const [form, setForm] = useState<SignupPayload>({
     ...initialForm,
     account_type: initialAccountType,
@@ -142,19 +149,10 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
     };
   }, []);
 
-  const selectedAccount = useMemo(
-    () => options.account_types.find((item) => item.id === form.account_type) ?? options.account_types[0],
-    [form.account_type, options.account_types],
-  );
-
-  const selectedProvider = useMemo(
-    () => options.providers.find((item) => item.id === form.provider) ?? options.providers[0],
-    [form.provider, options.providers],
-  );
-
-  const accountCopy = getAccountCopy(selectedAccount);
-
-  function setField<Key extends keyof SignupPayload>(key: Key, value: SignupPayload[Key]) {
+  function setField<Key extends keyof SignupPayload>(
+    key: Key,
+    value: SignupPayload[Key],
+  ) {
     setForm((current) => ({
       ...current,
       [key]: value,
@@ -169,7 +167,7 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
     setField("provider", provider);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.BaseSyntheticEvent) {
     event.preventDefault();
     setSubmitResult(null);
     setSubmitError(null);
@@ -212,8 +210,12 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
             <ArrowLeft className="h-6 w-6" />
           </Link>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Homex Platform</p>
-            <h1 className="headline-font text-3xl font-black tracking-tight text-on-surface">เริ่มใช้งาน</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">
+              Homex Platform
+            </p>
+            <h1 className="headline-font text-3xl font-black tracking-tight text-on-surface">
+              เริ่มใช้งาน
+            </h1>
           </div>
         </div>
 
@@ -221,9 +223,7 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
           เลือกประเภทผู้ใช้และวิธีสมัครก่อน แล้วกรอกข้อมูลเท่าที่จำเป็น
         </p>
 
-        {loadError ? (
-          <NoticeBox tone="error">{loadError}</NoticeBox>
-        ) : null}
+        {loadError ? <NoticeBox tone="error">{loadError}</NoticeBox> : null}
 
         <form className="page-stack" onSubmit={handleSubmit}>
           <Card className="rounded-[1.75rem] border border-border/20">
@@ -240,7 +240,9 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
                         active={form.account_type === option.id}
                         caption={copy.caption}
                         icon={option.id === "user" ? Search : Wrench}
-                        onClick={() => selectAccount(option.id as SignupAccountType)}
+                        onClick={() =>
+                          selectAccount(option.id as SignupAccountType)
+                        }
                         title={copy.title}
                       />
                     );
@@ -258,75 +260,79 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
                       accent={option.accent}
                       icon={option.id === "line" ? MessageCircle : Mail}
                       label={option.label}
-                      onClick={() => selectProvider(option.id as SignupProvider)}
+                      onClick={() =>
+                        selectProvider(option.id as SignupProvider)
+                      }
                     />
                   ))}
                 </div>
               </section>
 
               <div className="space-y-3 border-t border-border/20 pt-3">
-                <div className="field-stack">
-                  <FieldLabel>ชื่อผู้สมัคร</FieldLabel>
-                  <Input
-                    value={form.full_name}
-                    onChange={(event) => setField("full_name", event.target.value)}
-                    placeholder="สมชาย มั่นใจ"
-                  />
-                </div>
+                <InputField
+                  label="ชื่อผู้สมัคร"
+                  id="full_name"
+                  value={form.full_name}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setField("full_name", event.target.value)
+                  }
+                  placeholder="สมชาย มั่นใจ"
+                />
 
-                <div className="field-stack">
-                  <FieldLabel>เบอร์โทร</FieldLabel>
-                  <Input
-                    value={form.phone}
-                    onChange={(event) => setField("phone", event.target.value)}
-                    placeholder="08x-xxx-xxxx"
-                    type="tel"
-                  />
-                </div>
+                <InputField
+                  label="เบอร์โทร"
+                  id="phone"
+                  value={form.phone}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setField("phone", event.target.value)
+                  }
+                  placeholder="08x-xxx-xxxx"
+                  type="tel"
+                />
 
                 {form.provider === "google" ? (
-                  <div className="field-stack">
-                    <FieldLabel>Gmail</FieldLabel>
-                    <Input
-                      value={form.email}
-                      onChange={(event) => setField("email", event.target.value)}
-                      placeholder="you@gmail.com"
-                      type="email"
-                    />
-                  </div>
+                  <InputField
+                    label="Gmail"
+                    id="email"
+                    value={form.email}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      setField("email", event.target.value)
+                    }
+                    placeholder="you@gmail.com"
+                    type="email"
+                  />
                 ) : null}
 
-                {form.account_type === "staff" ? (
-                  <div className="field-stack">
-                    <FieldLabel>ชื่อร้าน / ทีมช่าง</FieldLabel>
-                    <div className="relative">
-                      <Building2 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
-                      <Input
-                        className="pl-11"
-                        value={form.store_name}
-                        onChange={(event) => setField("store_name", event.target.value)}
-                        placeholder="Cool Care Bangkok"
-                      />
-                    </div>
-                  </div>
-                ) : null}
+                <div className="space-y-1.5 pt-1">
+                  <InputField
+                    label="ชื่อร้าน / ทีมช่าง"
+                    id="store_name"
+                    className="pl-11"
+                    value={form.store_name}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      setField("store_name", event.target.value)
+                    }
+                    placeholder="Cool Care Bangkok"
+                  />
+                  <Building2 className="pointer-events-none absolute left-4 bottom-[13px] h-4 w-4 text-on-surface-variant" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <label className="flex items-start gap-3 rounded-2xl bg-surface-container-low px-4 py-3">
-            <input
-              checked={form.accept_terms}
-              onChange={(event) => setField("accept_terms", event.target.checked)}
-              className="mt-1 h-4 w-4 accent-[var(--primary)] text-primary"
-              type="checkbox"
-            />
-            <span className="text-sm leading-6 text-on-surface-variant">
-              ยอมรับเงื่อนไขการใช้งานและเริ่มสมัครต่อได้
-            </span>
-          </label>
+          <CheckboxField
+            id="accept_terms"
+            label="ยอมรับเงื่อนไขการใช้งานและเริ่มสมัครต่อได้"
+            checked={form.accept_terms}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setField("accept_terms", event.target.checked)
+            }
+            containerClassName="bg-surface-container-low px-4 py-3"
+          />
 
-          {submitError ? <NoticeBox tone="error">{submitError}</NoticeBox> : null}
+          {submitError ? (
+            <NoticeBox tone="error">{submitError}</NoticeBox>
+          ) : null}
 
           {submitResult ? (
             <NoticeBox tone="success">
@@ -336,10 +342,15 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
                     <Check className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="font-bold text-on-surface text-lg">{submitResult.message}</p>
+                    <p className="font-bold text-on-surface text-lg">
+                      {submitResult.message}
+                    </p>
                     <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">
                       ระบบสร้างบัญชีจริงแล้ว เหลือเพียงยืนยันตัวตนด้วย{" "}
-                      <span className="font-bold text-on-surface">{submitResult.next.provider_ui}</span> เพื่อเปิดใช้งาน
+                      <span className="font-bold text-on-surface">
+                        {submitResult.next.provider_ui}
+                      </span>{" "}
+                      เพื่อเปิดใช้งาน
                     </p>
                   </div>
                 </div>
@@ -356,8 +367,13 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                   <Link
-                    href={loginPathForAccountType(submitResult.profile.account_type)}
-                    className={cn(buttonVariants({ variant: "outline" }), "w-full rounded-xl border-none bg-surface-container-low")}
+                    href={loginPathForAccountType(
+                      submitResult.profile.account_type,
+                    )}
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "w-full rounded-xl border-none bg-white ring-1 ring-slate-200/60",
+                    )}
                   >
                     ไปหน้าเข้าสู่ระบบ
                   </Link>
@@ -368,9 +384,9 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
 
           <div className="glass-bar fixed bottom-0 left-0 z-50 w-full px-5 py-4">
             <div className="mx-auto w-full max-w-md">
-              <Button 
+              <Button
                 type="submit"
-                className="interactive-scale h-14 w-full bg-tertiary text-lg font-black uppercase tracking-wider text-on-tertiary shadow-xl hover:brightness-110 active:scale-95 transition-all" 
+                className="interactive-scale h-14 w-full bg-tertiary text-lg font-black uppercase tracking-wider text-on-tertiary shadow-xl hover:brightness-110 active:scale-95 transition-all"
                 disabled={isPending || isOAuthPending}
               >
                 {isPending ? "กำลังบันทึกข้อมูล..." : "สมัครใช้งาน"}
@@ -379,9 +395,12 @@ export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAc
             </div>
           </div>
 
-          <div className="mb-24 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+          <div className="mb-24 rounded-2xl bg-white ring-1 ring-slate-200/60 px-4 py-3 text-sm text-on-surface-variant">
             มีบัญชีอยู่แล้ว?{" "}
-            <Link href={loginPathForAccountType(form.account_type)} className="font-semibold text-primary">
+            <Link
+              href={loginPathForAccountType(form.account_type)}
+              className="font-semibold text-primary"
+            >
               เข้าสู่ระบบด้วย LINE / Gmail
             </Link>
           </div>
@@ -400,7 +419,11 @@ function SectionLabel({ children }: Readonly<{ children: ReactNode }>) {
 }
 
 function FieldLabel({ children }: Readonly<{ children: ReactNode }>) {
-  return <label className="px-1 text-sm font-medium text-on-surface">{children}</label>;
+  return (
+    <label className="px-1 text-sm font-medium text-on-surface">
+      {children}
+    </label>
+  );
 }
 
 function NoticeBox({
@@ -430,13 +453,13 @@ function ChoiceButton({
   icon: Icon,
   onClick,
   title,
-}: {
+}: Readonly<{
   active: boolean;
   caption: string;
   icon: ComponentType<{ className?: string }>;
   onClick: () => void;
   title: string;
-}) {
+}>) {
   return (
     <button
       type="button"
@@ -445,20 +468,26 @@ function ChoiceButton({
         "flex items-center gap-4 rounded-2xl border px-4 py-4 text-left transition-all active:scale-[0.98]",
         active
           ? "border-primary bg-primary/5 shadow-inner"
-          : "border-border/30 bg-surface-container-low",
+          : "border-border/30 bg-white ring-1 ring-slate-200/60",
       )}
     >
       <span
         className={cn(
           "inline-flex h-12 w-12 items-center justify-center rounded-xl shadow-inner",
-          active ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant",
+          active
+            ? "bg-primary text-on-primary"
+            : "bg-surface-container-high text-on-surface-variant",
         )}
       >
         <Icon className="h-6 w-6" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold text-on-surface">{title}</span>
-        <span className="block text-xs font-medium text-on-surface-variant/70">{caption}</span>
+        <span className="block text-base font-bold text-on-surface">
+          {title}
+        </span>
+        <span className="block text-xs font-medium text-on-surface-variant/70">
+          {caption}
+        </span>
       </span>
       {active ? (
         <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary shadow-soft">
@@ -475,13 +504,13 @@ function ProviderButton({
   icon: Icon,
   label,
   onClick,
-}: {
+}: Readonly<{
   active: boolean;
   accent?: string;
   icon: ComponentType<{ className?: string; style?: CSSProperties }>;
   label: string;
   onClick: () => void;
-}) {
+}>) {
   return (
     <button
       type="button"
@@ -490,7 +519,7 @@ function ProviderButton({
         "flex items-center justify-center gap-3 rounded-2xl border px-4 py-4 text-sm font-bold transition-all active:scale-[0.98]",
         active
           ? "border-primary bg-primary/5 text-on-surface shadow-inner"
-          : "border-border/30 bg-surface-container-low text-on-surface-variant/60",
+          : "border-border/30 bg-white ring-1 ring-slate-200/60 text-on-surface-variant/60",
       )}
     >
       <Icon className="h-5 w-5" style={{ color: accent ?? "#0058bc" }} />
