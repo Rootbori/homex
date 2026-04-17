@@ -26,7 +26,7 @@ export async function POST() {
   const signupToken = cookieStore.get("homex_signup_token")?.value ?? "";
   const accountType =
     (cookieAccountType && isAuthAccountType(cookieAccountType) ? cookieAccountType : session.accountType) ??
-    "customer";
+    "user";
 
   try {
     const response = await proxyToApi("/v1/public/auth/oauth-sync", {
@@ -58,7 +58,7 @@ export async function POST() {
       setActorCookie(nextResponse, "homex_user_id", actor?.user_id);
       setActorCookie(nextResponse, "homex_store_id", actor?.store_id);
       setActorCookie(nextResponse, "homex_role", actor?.role);
-      setActorCookie(nextResponse, "homex_customer_id", actor?.customer_id);
+      setActorCookie(nextResponse, "homex_user_id", actor?.user_id);
       setActorCookie(nextResponse, "homex_technician_id", actor?.technician_id);
     } else if (response.status >= 400 && response.status < 500) {
       nextResponse.cookies.delete("homex_signup_token");

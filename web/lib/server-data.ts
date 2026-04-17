@@ -2,12 +2,13 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import type {
-  CustomerSummary,
+  UserSummary,
   DashboardData,
   JobStatus,
   JobSummary,
   LeadDetail,
   LeadSource,
+  LeadStatus,
   LeadSummary,
   ScheduleDay,
   TechnicianDetail,
@@ -45,13 +46,13 @@ async function actorHeaders() {
   const role = cookieStore.get("homex_role")?.value;
   const userId = cookieStore.get("homex_user_id")?.value;
   const storeId = cookieStore.get("homex_store_id")?.value;
-  const customerId = cookieStore.get("homex_customer_id")?.value;
+  const profileId = cookieStore.get("homex_profile_id")?.value;
   const technicianId = cookieStore.get("homex_technician_id")?.value;
 
   if (role) headers["X-Actor-Role"] = role;
   if (userId) headers["X-Actor-User-ID"] = userId;
   if (storeId) headers["X-Store-ID"] = storeId;
-  if (customerId) headers["X-Customer-ID"] = customerId;
+  if (profileId) headers["X-User-ID"] = profileId;
   if (technicianId) headers["X-Technician-ID"] = technicianId;
 
   return headers;
@@ -62,7 +63,7 @@ async function fetchApiJson<T>(path: string, init?: RequestInit) {
     ...init,
     headers: {
       ...(await actorHeaders()),
-      ...(init?.headers ?? {}),
+      ...(init?.headers),
     },
   });
   const payload = (await readProxyPayload(response)) as T & {
@@ -80,7 +81,10 @@ async function fetchApiJson<T>(path: string, init?: RequestInit) {
 function stringValue(value: unknown, fallback = "") {
   if (typeof value === "string") {
     const trimmed = value.trim();
-    return trimmed !== "" ? trimmed : fallback;
+    if (trimmed === "") {
+      return fallback;
+    }
+    return trimmed;
   }
 
   if (typeof value === "number" || typeof value === "boolean") {
@@ -156,11 +160,18 @@ function buildTimeline(status: JobStatus, rawTimeline: unknown, createdAt = ""):
         })
       : fallbackTimeline;
 
-  return source.map((item, index) => ({
-    label: item.label,
-    time: index <= progressIndex && createdAt ? formatTimeLabel(createdAt) : index <= progressIndex ? "อัปเดตแล้ว" : "รออัปเดต",
-    done: index <= progressIndex,
-  }));
+  return source.map((item, index) => {
+    let timeValue = "รออัปเดต";
+    if (index <= progressIndex) {
+      timeValue = createdAt ? formatTimeLabel(createdAt) : "อัปเดตแล้ว";
+    }
+
+    return {
+      label: item.label,
+      time: timeValue,
+      done: index <= progressIndex,
+    };
+  });
 }
 
 function normalizeTechnician(raw: unknown): TechnicianSummary {
@@ -191,19 +202,28 @@ function normalizeTechnician(raw: unknown): TechnicianSummary {
 function normalizeLead(raw: unknown): LeadSummary {
   const item = (raw ?? {}) as Record<string, unknown>;
 
-  return {
-    id: stringValue(item.id),
-    customerName: stringValue(item.customer_name, "ลูกค้า"),
-    phone: stringValue(item.phone, "-"),
-    area: stringValue(item.area),
-    serviceType: stringValue(item.service_type),
-    units: numberValue(item.units, 0),
-    symptom: stringValue(item.symptom),
-    source: normalizeLeadSource(item.source),
-    time: formatTimeLabel(stringValue(item.created_at)),
-    status: stringValue(item.status) === "quoted" ? "quoted" : stringValue(item.status) === "converted" ? "converted" : stringValue(item.status) === "cancelled" ? "cancelled" : "new",
-    assignedTechnicianId: stringValue(item.assigned_technician),
-  };
+    let leadStatus: LeadStatus = "new";
+    if (item.status === "quoted") {
+      leadStatus = "quoted";
+    } else if (item.status === "converted") {
+      leadStatus = "converted";
+    } else if (item.status === "cancelled") {
+      leadStatus = "cancelled";
+    }
+
+    return {
+      id: stringValue(item.id),
+      userName: stringValue(item.user_name, "ลูกค้า"),
+      phone: stringValue(item.phone, "-"),
+      area: stringValue(item.area),
+      serviceType: stringValue(item.service_type),
+      units: numberValue(item.units, 0),
+      symptom: stringValue(item.symptom),
+      source: normalizeLeadSource(item.source),
+      time: formatTimeLabel(stringValue(item.created_at)),
+      status: leadStatus,
+      assignedTechnicianId: stringValue(item.assigned_technician),
+    };
 }
 
 function normalizeJob(raw: unknown, extras?: Record<string, unknown>): JobSummary {
@@ -237,9 +257,9 @@ function normalizeJob(raw: unknown, extras?: Record<string, unknown>): JobSummar
   return {
     id: stringValue(item.id),
     code: stringValue(item.job_code, stringValue(item.id)),
-    customerId: stringValue(item.customer_user_id),
-    customerName: stringValue(item.customer_name, "ลูกค้า"),
-    phone: stringValue(item.customer_phone, "-"),
+    userId: stringValue(item.user_user_id),
+    userName: stringValue(item.user_name, "ลูกค้า"),
+    phone: stringValue(item.user_phone, "-"),
     area: stringValue(item.area, stringValue(item.area_label)),
     address: stringValue(item.address_line, "-"),
     serviceType: stringValue(item.service_type),
@@ -270,7 +290,7 @@ function normalizeDashboard(raw: unknown): DashboardData {
         const entry = (job ?? {}) as Record<string, unknown>;
         return {
           code: stringValue(entry.job_code, stringValue(entry.id)),
-          customer: stringValue(entry.customer, "ลูกค้า"),
+          user: stringValue(entry.user, "ลูกค้า"),
           time: stringValue(entry.time, "-"),
           status: stringValue(entry.status, "-"),
           assignedTechnicianId: stringValue(entry.assigned_technician),
@@ -292,7 +312,7 @@ function normalizeDashboard(raw: unknown): DashboardData {
   };
 }
 
-function normalizeCustomer(raw: unknown): CustomerSummary {
+function normalizeUser(raw: unknown): UserSummary {
   const item = (raw ?? {}) as Record<string, unknown>;
 
   return {
@@ -320,7 +340,9 @@ export async function getPublicTechnicians(searchParams?: URLSearchParams | Reco
       }
     }
 
-    const path = `/v1/public/technicians${query.toString() ? `?${query.toString()}` : ""}`;
+    const queryString = query.toString();
+    const pathSuffix = queryString ? `?${queryString}` : "";
+    const path = `/v1/public/technicians${pathSuffix}`;
     const payload = await fetchApiJson<{ items?: unknown[] }>(path);
     return Array.isArray(payload.items) ? payload.items.map((item) => normalizeTechnician(item)) : [];
   } catch {
@@ -333,7 +355,7 @@ export async function getPublicTechnicianDetail(slug: string): Promise<Technicia
     const payload = await fetchApiJson<{
       technician?: unknown;
       gallery?: Array<{ image_url?: string }>;
-      reviews?: Array<{ customer?: string; rating?: number; comment?: string }>;
+      reviews?: Array<{ user?: string; rating?: number; comment?: string }>;
     }>(`/v1/public/technicians/${slug}`);
 
     if (!payload.technician) {
@@ -348,7 +370,7 @@ export async function getPublicTechnicianDetail(slug: string): Promise<Technicia
         : [],
       reviews: Array.isArray(payload.reviews)
         ? payload.reviews.map((item) => ({
-            customer: stringValue(item.customer, "ลูกค้า"),
+            user: stringValue(item.user, "ลูกค้า"),
             rating: numberValue(item.rating, 5),
             comment: stringValue(item.comment),
           }))
@@ -359,22 +381,22 @@ export async function getPublicTechnicianDetail(slug: string): Promise<Technicia
   }
 }
 
-export async function getCustomerJobs() {
+export async function getUserJobs() {
   try {
-    const payload = await fetchApiJson<{ items?: unknown[] }>("/v1/customer/jobs");
+    const payload = await fetchApiJson<{ items?: unknown[] }>("/v1/user/jobs");
     return Array.isArray(payload.items) ? payload.items.map((item) => normalizeJob(item)) : [];
   } catch {
     return [];
   }
 }
 
-export async function getCustomerJob(id: string) {
+export async function getUserJob(id: string) {
   try {
     const payload = await fetchApiJson<{
       job?: unknown;
       quotation?: Record<string, unknown>;
       photos?: unknown[];
-    }>(`/v1/customer/jobs/${id}`);
+    }>(`/v1/user/jobs/${id}`);
 
     if (!payload.job) {
       return null;
@@ -494,10 +516,10 @@ export async function getTechnicians() {
   }
 }
 
-export async function getCustomers() {
+export async function getUsers() {
   try {
-    const payload = await fetchApiJson<{ items?: unknown[] }>("/v1/app/customers");
-    return Array.isArray(payload.items) ? payload.items.map((item) => normalizeCustomer(item)) : [];
+    const payload = await fetchApiJson<{ items?: unknown[] }>("/v1/app/users");
+    return Array.isArray(payload.items) ? payload.items.map((item) => normalizeUser(item)) : [];
   } catch {
     return [];
   }
@@ -508,9 +530,9 @@ export async function getStaffTechnicianByID(id: string) {
   return technicians.find((item) => item.id === id) ?? null;
 }
 
-export async function getCustomerByID(id: string) {
-  const customers = await getCustomers();
-  return customers.find((item) => item.id === id) ?? null;
+export async function getUserByID(id: string) {
+  const users = await getUsers();
+  return users.find((item) => item.id === id) ?? null;
 }
 
 export async function getJobsForTechnician(id: string) {
@@ -518,7 +540,7 @@ export async function getJobsForTechnician(id: string) {
   return jobs.filter((job) => job.assignedTechnicianId === id);
 }
 
-export async function getJobsForCustomer(id: string) {
+export async function getJobsForUser(id: string) {
   const jobs = await getJobs();
-  return jobs.filter((job) => job.customerId === id);
+  return jobs.filter((job) => job.userId === id);
 }

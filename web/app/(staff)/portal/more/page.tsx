@@ -5,20 +5,20 @@ import { buttonVariants } from "@/components/ui/button";
 import { ProfileBubble } from "@/components/shared/profile-bubble";
 import { TopAppBar } from "@/components/shared/top-app-bar";
 import { providerLabel } from "@/lib/auth-flow";
-import { getCustomers, getJobs, getTechnicians } from "@/lib/server-data";
+import { getUsers, getJobs, getTechnicians } from "@/lib/server-data";
 
 const links = [
   { href: "/portal/quotation", label: "Quotation", description: "เตรียมใบเสนอราคาและส่งผ่าน LINE" },
   { href: "/portal/technicians", label: "Technicians", description: "ดูโปรไฟล์ทีมช่างและ performance" },
   { href: "/portal/my-jobs", label: "Technician My Jobs", description: "หน้ามุมมองของช่างที่เห็นเฉพาะงานตัวเอง" },
-  { href: "/portal/customers", label: "Customers", description: "ข้อมูลลูกค้าและประวัติการใช้บริการ" },
+  { href: "/portal/users", label: "Users", description: "ข้อมูลลูกค้าและประวัติการใช้บริการ" },
 ];
 
 export default async function MorePage() {
-  const [session, technicians, customers, jobs] = await Promise.all([
+  const [session, technicians, users, jobs] = await Promise.all([
     auth(),
     getTechnicians(),
-    getCustomers(),
+    getUsers(),
     getJobs(),
   ]);
   const displayName = session?.user?.name ?? "ทีมช่าง Homex";
@@ -43,7 +43,7 @@ export default async function MorePage() {
               </p>
             </div>
             <p className="text-sm text-on-surface-variant">
-              สิทธิ์ปัจจุบัน: {session?.accountType === "staff" ? "staff / ทีมช่าง" : "customer"}
+              สิทธิ์ปัจจุบัน: {session?.accountType === "staff" ? "staff / ทีมช่าง" : "user"}
             </p>
           </div>
         </section>
@@ -54,8 +54,8 @@ export default async function MorePage() {
             <p className="mt-2 text-3xl font-extrabold">{technicians.length}</p>
           </div>
           <div className="rounded-[1.5rem] bg-surface-container-low p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">Customers</p>
-            <p className="mt-2 text-3xl font-extrabold text-on-surface">{customers.length}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">Users</p>
+            <p className="mt-2 text-3xl font-extrabold text-on-surface">{users.length}</p>
           </div>
           <div className="rounded-[1.5rem] bg-surface-container-low p-4">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">Jobs</p>

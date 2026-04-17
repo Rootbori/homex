@@ -60,7 +60,7 @@ export default async function SchedulePage() {
                             <div>
                               <p className="text-sm font-bold text-on-surface">{job.appointmentTime}</p>
                               <p className="mt-1 text-sm text-on-surface-variant">
-                                {job.customerName} • {job.serviceType}
+                                {job.userName} • {job.serviceType}
                               </p>
                               <p className="mt-1 text-sm text-on-surface-variant">{job.assignedTechnicianName}</p>
                             </div>

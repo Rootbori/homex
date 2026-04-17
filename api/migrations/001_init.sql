@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL PRIMARY KEY,
-  type VARCHAR(32) NOT NULL DEFAULT 'customer',
+  type VARCHAR(32) NOT NULL DEFAULT 'user',
   full_name VARCHAR(120) NOT NULL,
   phone VARCHAR(32),
   email VARCHAR(160),
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS service_areas (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS customer_profiles (
+CREATE TABLE IF NOT EXISTS user_profiles (
   id BIGSERIAL PRIMARY KEY,
   store_id BIGINT NOT NULL REFERENCES stores(id),
   user_id BIGINT NOT NULL REFERENCES users(id),
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS customer_profiles (
   note VARCHAR(800),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT uq_customer_profiles_store_user UNIQUE (store_id, user_id)
+  CONSTRAINT uq_user_profiles_store_user UNIQUE (store_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS user_addresses (
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS user_addresses (
 CREATE TABLE IF NOT EXISTS leads (
   id BIGSERIAL PRIMARY KEY,
   store_id BIGINT NOT NULL REFERENCES stores(id),
-  customer_user_id BIGINT NOT NULL REFERENCES users(id),
+  user_id BIGINT NOT NULL REFERENCES users(id),
   assigned_technician_id BIGINT REFERENCES technician_profiles(id),
   source VARCHAR(32) NOT NULL,
   status VARCHAR(32) NOT NULL,
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   id BIGSERIAL PRIMARY KEY,
   store_id BIGINT NOT NULL REFERENCES stores(id),
   lead_id BIGINT REFERENCES leads(id),
-  customer_user_id BIGINT NOT NULL REFERENCES users(id),
+  user_id BIGINT NOT NULL REFERENCES users(id),
   assigned_technician_id BIGINT REFERENCES technician_profiles(id),
   quotation_id BIGINT REFERENCES quotations(id),
   job_code VARCHAR(48) NOT NULL UNIQUE,
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   id BIGSERIAL PRIMARY KEY,
   store_id BIGINT NOT NULL REFERENCES stores(id),
   technician_id BIGINT NOT NULL REFERENCES technician_profiles(id),
-  customer_user_id BIGINT NOT NULL REFERENCES users(id),
+  user_id BIGINT NOT NULL REFERENCES users(id),
   job_id BIGINT NOT NULL REFERENCES jobs(id),
   rating INT NOT NULL,
   comment VARCHAR(500),
@@ -247,11 +247,11 @@ CREATE INDEX IF NOT EXISTS idx_technician_user ON technician_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_technician_service_technician ON technician_services(technician_id);
 CREATE INDEX IF NOT EXISTS idx_service_area_store ON service_areas(store_id);
 CREATE INDEX IF NOT EXISTS idx_service_area_technician ON service_areas(technician_id);
-CREATE INDEX IF NOT EXISTS idx_customer_profile_store ON customer_profiles(store_id);
-CREATE INDEX IF NOT EXISTS idx_customer_profile_user ON customer_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_profile_store ON user_profiles(store_id);
+CREATE INDEX IF NOT EXISTS idx_user_profile_user ON user_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_address_user ON user_addresses(user_id);
 CREATE INDEX IF NOT EXISTS idx_lead_store ON leads(store_id);
-CREATE INDEX IF NOT EXISTS idx_lead_customer_user ON leads(customer_user_id);
+CREATE INDEX IF NOT EXISTS idx_lead_user ON leads(user_id);
 CREATE INDEX IF NOT EXISTS idx_lead_assigned_technician ON leads(assigned_technician_id);
 CREATE INDEX IF NOT EXISTS idx_lead_source ON leads(source);
 CREATE INDEX IF NOT EXISTS idx_lead_status ON leads(status);
@@ -263,7 +263,7 @@ CREATE INDEX IF NOT EXISTS idx_quotation_status ON quotations(status);
 CREATE INDEX IF NOT EXISTS idx_quotation_item_quotation ON quotation_items(quotation_id);
 CREATE INDEX IF NOT EXISTS idx_job_store ON jobs(store_id);
 CREATE INDEX IF NOT EXISTS idx_job_lead ON jobs(lead_id);
-CREATE INDEX IF NOT EXISTS idx_job_customer_user ON jobs(customer_user_id);
+CREATE INDEX IF NOT EXISTS idx_job_user ON jobs(user_id);
 CREATE INDEX IF NOT EXISTS idx_job_assigned_technician ON jobs(assigned_technician_id);
 CREATE INDEX IF NOT EXISTS idx_job_quotation ON jobs(quotation_id);
 CREATE INDEX IF NOT EXISTS idx_job_status ON jobs(status);
@@ -271,5 +271,5 @@ CREATE INDEX IF NOT EXISTS idx_job_photo_job ON job_photos(job_id);
 CREATE INDEX IF NOT EXISTS idx_job_timeline_job ON job_timeline_events(job_id);
 CREATE INDEX IF NOT EXISTS idx_review_store ON reviews(store_id);
 CREATE INDEX IF NOT EXISTS idx_review_technician ON reviews(technician_id);
-CREATE INDEX IF NOT EXISTS idx_review_customer_user ON reviews(customer_user_id);
+CREATE INDEX IF NOT EXISTS idx_review_user ON reviews(user_id);
 CREATE INDEX IF NOT EXISTS idx_review_job ON reviews(job_id);

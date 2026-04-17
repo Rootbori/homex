@@ -1,7 +1,8 @@
 package domain
 
-import "net/http"
+import "strconv"
 
+// Role defines the access level of a user within the system.
 type Role string
 
 const (
@@ -9,38 +10,25 @@ const (
 	RoleAdmin      Role = "admin"
 	RoleDispatcher Role = "dispatcher"
 	RoleTechnician Role = "technician"
-	RoleCustomer   Role = "customer"
+	RoleUser       Role = "user"
 	RoleAnonymous  Role = "anonymous"
 )
 
+// Actor represents the authenticated identity making a request.
 type Actor struct {
 	UserID       string `json:"user_id"`
 	StoreID      string `json:"store_id"`
 	TechnicianID string `json:"technician_id,omitempty"`
-	CustomerID   string `json:"customer_id,omitempty"`
+	ProfileID    string `json:"profile_id,omitempty"`
 	Role         Role   `json:"role"`
 }
 
+// VisibilityScope determines what data an actor is allowed to see.
 type VisibilityScope struct {
 	StoreID              string `json:"store_id,omitempty"`
-	CustomerID           string `json:"customer_id,omitempty"`
+	ProfileID            string `json:"profile_id,omitempty"`
 	AssignedTechnicianID string `json:"assigned_technician_id,omitempty"`
 	CanSeeEntireStore    bool   `json:"can_see_entire_store"`
-}
-
-func ActorFromRequest(r *http.Request) Actor {
-	role := Role(r.Header.Get("X-Actor-Role"))
-	if role == "" {
-		role = RoleAnonymous
-	}
-
-	return Actor{
-		UserID:       r.Header.Get("X-Actor-User-ID"),
-		StoreID:      r.Header.Get("X-Store-ID"),
-		TechnicianID: r.Header.Get("X-Technician-ID"),
-		CustomerID:   r.Header.Get("X-Customer-ID"),
-		Role:         role,
-	}
 }
 
 func (a Actor) IsStaff() bool {
@@ -80,9 +68,31 @@ func (a Actor) Scope() VisibilityScope {
 		scope.CanSeeEntireStore = true
 	case RoleTechnician:
 		scope.AssignedTechnicianID = a.TechnicianID
-	case RoleCustomer:
-		scope.CustomerID = a.CustomerID
+	case RoleUser:
+		scope.ProfileID = a.ProfileID
 	}
 
 	return scope
+}
+
+// ID conversion helpers
+
+func (a Actor) UintUserID() uint {
+	v, _ := strconv.ParseUint(a.UserID, 10, 32)
+	return uint(v)
+}
+
+func (a Actor) UintStoreID() uint {
+	v, _ := strconv.ParseUint(a.StoreID, 10, 32)
+	return uint(v)
+}
+
+func (a Actor) UintTechnicianID() uint {
+	v, _ := strconv.ParseUint(a.TechnicianID, 10, 32)
+	return uint(v)
+}
+
+func (a Actor) UintProfileID() uint {
+	v, _ := strconv.ParseUint(a.ProfileID, 10, 32)
+	return uint(v)
 }

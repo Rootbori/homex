@@ -34,7 +34,7 @@ export default async function LeadDetailPage({
           <div className="relative z-10">
             <p className="mb-1 text-sm font-medium text-on-surface-variant">Lead Details</p>
             <h1 className="headline-font mb-4 text-3xl font-extrabold leading-tight text-on-surface">
-              {lead.customerName}
+              {lead.userName}
             </h1>
             <div className="grid grid-cols-2 gap-3">
               <a href={`tel:${lead.phone}`} className="flex h-[56px] items-center justify-center rounded-xl bg-primary font-semibold text-on-primary">

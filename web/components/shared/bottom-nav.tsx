@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type NavMode = "customer" | "staff";
+type NavMode = "user" | "staff";
 
 const itemsByMode = {
-  customer: [
+  user: [
     { href: "/", label: "หน้าแรก", icon: Home },
     { href: "/search", label: "ค้นหา", icon: Search },
     { href: "/my-requests", label: "งานของฉัน", icon: ClipboardList },

@@ -11,7 +11,7 @@ import {
   roleForAccountType,
 } from "@/lib/auth-flow";
 
-const customerOnlyPaths = new Set(["/my-requests", "/profile"]);
+const userOnlyPaths = new Set(["/my-requests", "/profile"]);
 const developmentAuthSecret = "homex-dev-auth-secret";
 
 export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
@@ -62,12 +62,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
           }
         }
 
-        if (customerOnlyPaths.has(pathname)) {
+        if (userOnlyPaths.has(pathname)) {
           if (!auth) {
             return NextResponse.redirect(new URL("/login", request.nextUrl));
           }
 
-          if (accountType !== "customer") {
+          if (accountType !== "user") {
             return NextResponse.redirect(new URL("/portal/dashboard", request.nextUrl));
           }
         }
@@ -107,7 +107,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
           redirectForAccountType(accountType);
 
         session.accountType = accountType;
-        session.appRole = token.appRole === "staff" ? "staff" : "customer";
+        session.appRole = token.appRole === "staff" ? "staff" : "user";
         session.provider = typeof token.provider === "string" ? token.provider : undefined;
         session.redirectTo = redirectTo;
 
@@ -133,5 +133,5 @@ function resolveAccountType(...candidates: unknown[]): AuthAccountType {
     }
   }
 
-  return "customer";
+  return "user";
 }

@@ -34,15 +34,15 @@ const fallbackOptions: SignupOptionsResponse = {
   title: "สมัครใช้งาน Homex",
   subtitle: "เลือกประเภทผู้ใช้ตามโครง users ของระบบ แล้วเริ่มสมัครผ่าน LINE หรือ Gmail",
   defaults: {
-    account_type: "customer",
+    account_type: "user",
     provider: "line",
   },
   account_types: [
     {
-      id: "customer",
+      id: "user",
       label: "ลูกค้า",
-      description: "สร้างผู้ใช้ประเภท customer สำหรับค้นหาช่างแอร์และติดตามงานของตัวเอง",
-      user_type: "customer",
+      description: "สร้างผู้ใช้ประเภท user สำหรับค้นหาช่างแอร์และติดตามงานของตัวเอง",
+      user_type: "user",
       next_path: "/search",
     },
     {
@@ -74,7 +74,7 @@ const initialForm: SignupPayload = {
   phone: "",
   email: "",
   store_name: "",
-  account_type: "customer",
+  account_type: "user",
   provider: "line",
   accept_terms: false,
 };
@@ -98,12 +98,12 @@ function getAccountCopy(option?: SignupOption | null) {
 
   return {
     title: "ลูกค้า",
-    caption: "สำหรับผู้ใช้ประเภท customer",
+    caption: "สำหรับผู้ใช้ประเภท user",
     nextPath: option?.next_path ?? "/search",
   };
 }
 
-export function SignupForm({ initialAccountType = "customer" }: { initialAccountType?: SignupAccountType }) {
+export function SignupForm({ initialAccountType = "user" }: { initialAccountType?: SignupAccountType }) {
   const [options, setOptions] = useState<SignupOptionsResponse>(fallbackOptions);
   const [form, setForm] = useState<SignupPayload>({
     ...initialForm,
@@ -245,7 +245,7 @@ export function SignupForm({ initialAccountType = "customer" }: { initialAccount
                         key={option.id}
                         active={form.account_type === option.id}
                         caption={copy.caption}
-                        icon={option.id === "customer" ? Search : Wrench}
+                        icon={option.id === "user" ? Search : Wrench}
                         onClick={() => selectAccount(option.id as SignupAccountType)}
                         title={copy.title}
                       />

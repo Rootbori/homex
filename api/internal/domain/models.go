@@ -36,7 +36,7 @@ const (
 	ServiceRepair            ServiceType      = "repair"
 	ServiceRefill            ServiceType      = "refill"
 	ServiceInstallation      ServiceType      = "installation"
-	UserTypeCustomer         UserType         = "customer"
+	UserTypeUser         UserType         = "user"
 	UserTypeStaff            UserType         = "staff"
 	UserTypeHybrid           UserType         = "hybrid"
 	IdentityProviderLine     IdentityProvider = "line"
@@ -46,7 +46,7 @@ const (
 
 type User struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Type      UserType  `gorm:"size:32;index;not null;default:'customer'" json:"type"`
+	Type      UserType  `gorm:"size:32;index;not null;default:'user'" json:"type"`
 	FullName  string    `gorm:"size:120;not null" json:"full_name"`
 	Phone     string    `gorm:"size:32;index" json:"phone"`
 	Email     string    `gorm:"size:160;index" json:"email"`
@@ -140,10 +140,10 @@ type ServiceArea struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-type CustomerProfile struct {
+type UserProfile struct {
 	ID            uint      `gorm:"primaryKey" json:"id"`
-	StoreID       uint      `gorm:"uniqueIndex:idx_customer_profile_store_user;index;not null" json:"store_id"`
-	UserID        uint      `gorm:"uniqueIndex:idx_customer_profile_store_user;index;not null" json:"user_id"`
+	StoreID       uint      `gorm:"uniqueIndex:idx_user_profile_store_user;index;not null" json:"store_id"`
+	UserID        uint      `gorm:"uniqueIndex:idx_user_profile_store_user;index;not null" json:"user_id"`
 	PreferredArea string    `gorm:"size:160" json:"preferred_area"`
 	TotalSpend    int       `gorm:"default:0" json:"total_spend"`
 	Note          string    `gorm:"size:800" json:"note"`
@@ -168,7 +168,7 @@ type UserAddress struct {
 type Lead struct {
 	ID                   uint        `gorm:"primaryKey" json:"id"`
 	StoreID              uint        `gorm:"index;not null" json:"store_id"`
-	CustomerUserID       uint        `gorm:"index;not null" json:"customer_user_id"`
+	UserID               uint        `gorm:"index;not null" json:"user_id"`
 	AssignedTechnicianID *uint       `gorm:"index" json:"assigned_technician_id,omitempty"`
 	Source               LeadSource  `gorm:"size:32;index;not null" json:"source"`
 	Status               LeadStatus  `gorm:"size:32;index;not null" json:"status"`
@@ -225,7 +225,7 @@ type Job struct {
 	ID                   uint        `gorm:"primaryKey" json:"id"`
 	StoreID              uint        `gorm:"index;not null" json:"store_id"`
 	LeadID               *uint       `gorm:"index" json:"lead_id,omitempty"`
-	CustomerUserID       uint        `gorm:"index;not null" json:"customer_user_id"`
+	UserID               uint        `gorm:"index;not null" json:"user_id"`
 	AssignedTechnicianID *uint       `gorm:"index" json:"assigned_technician_id,omitempty"`
 	QuotationID          *uint       `gorm:"index" json:"quotation_id,omitempty"`
 	JobCode              string      `gorm:"uniqueIndex;size:48;not null" json:"job_code"`
@@ -266,7 +266,7 @@ type Review struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
 	StoreID        uint      `gorm:"index;not null" json:"store_id"`
 	TechnicianID   uint      `gorm:"index;not null" json:"technician_id"`
-	CustomerUserID uint      `gorm:"index;not null" json:"customer_user_id"`
+	UserID         uint      `gorm:"index;not null" json:"user_id"`
 	JobID          uint      `gorm:"index;not null" json:"job_id"`
 	Rating         int       `gorm:"not null" json:"rating"`
 	Comment        string    `gorm:"size:500" json:"comment"`

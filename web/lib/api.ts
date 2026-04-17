@@ -1,4 +1,4 @@
-export type SignupAccountType = "customer" | "staff";
+export type SignupAccountType = "user" | "staff";
 export type SignupProvider = "line" | "google";
 
 export type SignupOption = {

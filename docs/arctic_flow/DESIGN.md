@@ -74,7 +74,7 @@ Traditional drop shadows are too heavy for a "clean/air" theme. We use **Ambient
     - *Completed:* `primary_fixed_dim` with `on_primary_fixed_variant` (Success/Cool).
 
 ### Cards & Information Stacks
-- **Forbid Dividers:** Never use a horizontal line to separate "Job Date" from "Customer Name." 
+- **Forbid Dividers:** Never use a horizontal line to separate "Job Date" from "User Name." 
 - **The Solution:** Use `body-sm` in `on_surface_variant` for the label, stacked directly above `title-sm` in `on_surface`. Use 16px of vertical space between groups.
 
 ### Progress Timelines

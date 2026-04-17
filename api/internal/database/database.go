@@ -23,5 +23,9 @@ func Open(cfg config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
+	if err := Seed(db); err != nil {
+		log.Printf("warning: seed failed: %v", err)
+	}
+
 	return db, nil
 }

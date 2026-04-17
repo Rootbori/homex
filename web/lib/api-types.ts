@@ -50,7 +50,7 @@ export type TechnicianSummary = {
 };
 
 export type TechnicianReview = {
-  customer: string;
+  user: string;
   rating: number;
   comment: string;
 };
@@ -62,7 +62,7 @@ export type TechnicianDetail = TechnicianSummary & {
 
 export type LeadSummary = {
   id: string;
-  customerName: string;
+  userName: string;
   phone: string;
   area: string;
   serviceType: string;
@@ -85,8 +85,8 @@ export type LeadDetail = LeadSummary & {
 export type JobSummary = {
   id: string;
   code: string;
-  customerId: string;
-  customerName: string;
+  userId: string;
+  userName: string;
   phone: string;
   area: string;
   address: string;
@@ -114,7 +114,7 @@ export type DashboardData = {
   }>;
   urgentJobs: Array<{
     code: string;
-    customer: string;
+    user: string;
     time: string;
     status: string;
     assignedTechnicianId?: string;
@@ -128,7 +128,7 @@ export type ScheduleDay = {
   jobs: JobSummary[];
 };
 
-export type CustomerSummary = {
+export type UserSummary = {
   id: string;
   name: string;
   phone: string;

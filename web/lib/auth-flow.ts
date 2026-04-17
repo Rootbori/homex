@@ -1,6 +1,6 @@
-export type AuthAccountType = "customer" | "staff";
+export type AuthAccountType = "user" | "staff";
 export type AuthProviderId = "line" | "google";
-export type AppRole = "customer" | "staff";
+export type AppRole = "user" | "staff";
 
 export const authAccountOptions: Array<{
   id: AuthAccountType;
@@ -9,7 +9,7 @@ export const authAccountOptions: Array<{
   nextPath: string;
 }> = [
   {
-    id: "customer",
+    id: "user",
     label: "ลูกค้า",
     caption: "สำหรับคนที่ต้องการหาช่าง ส่งคำขอ และติดตามงานของตัวเอง",
     nextPath: "/search",
@@ -43,7 +43,7 @@ export const authProviderOptions: Array<{
 ];
 
 export function isAuthAccountType(value: string): value is AuthAccountType {
-  return value === "customer" || value === "staff";
+  return value === "user" || value === "staff";
 }
 
 export function isAuthProviderId(value: string): value is AuthProviderId {
@@ -55,11 +55,11 @@ export function redirectForAccountType(accountType: AuthAccountType) {
 }
 
 export function loginPathForAccountType(accountType: AuthAccountType) {
-  return accountType === "staff" ? "/login/staff" : "/login/customer";
+  return accountType === "staff" ? "/login/staff" : "/login/user";
 }
 
 export function roleForAccountType(accountType: AuthAccountType): AppRole {
-  return accountType === "staff" ? "staff" : "customer";
+  return accountType === "staff" ? "staff" : "user";
 }
 
 export function isProviderConfigured(provider: AuthProviderId) {

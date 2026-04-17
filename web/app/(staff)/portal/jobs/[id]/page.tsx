@@ -36,9 +36,9 @@ export default async function JobDetailPage({
       <main className="page-content page-stack-lg">
         <section className="relative overflow-hidden rounded-[1.75rem] bg-surface-container-low p-5 md:p-6">
           <div className="relative z-10">
-            <p className="mb-1 text-sm font-medium text-on-surface-variant">Customer Details</p>
+            <p className="mb-1 text-sm font-medium text-on-surface-variant">User Details</p>
             <h1 className="headline-font mb-4 text-3xl font-extrabold leading-tight text-on-surface">
-              {job.customerName}
+              {job.userName}
             </h1>
             <div className="grid grid-cols-2 gap-3">
               <a href={`tel:${job.phone}`} className="flex h-[56px] items-center justify-center rounded-xl bg-primary font-semibold text-on-primary">

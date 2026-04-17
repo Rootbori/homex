@@ -41,7 +41,7 @@ const errorMessages: Record<string, string> = {
 export function LoginForm({
   error,
   providerAvailability,
-  initialAccountType = "customer",
+  initialAccountType = "user",
   fixedAccountType,
   heading = "เข้าสู่ระบบ",
   subtitle = "เลือกประเภทผู้ใช้ตามโครง `users` ของระบบ แล้วเข้าสู่ระบบด้วย LINE หรือ Gmail",
@@ -92,7 +92,7 @@ export function LoginForm({
                         key={option.id}
                         active={option.id === accountType}
                         caption={option.caption}
-                        icon={option.id === "customer" ? Search : Wrench}
+                        icon={option.id === "user" ? Search : Wrench}
                         onClick={() => setAccountType(option.id)}
                         title={option.label}
                       />
@@ -279,14 +279,14 @@ export function LoginTypeChooser() {
         </div>
 
         <p className="mb-5 text-sm leading-6 text-on-surface-variant">
-          แยกเส้นทางเข้าใช้งานให้ชัดระหว่างผู้ใช้ประเภท customer กับทีมงานประเภท staff
+          แยกเส้นทางเข้าใช้งานให้ชัดระหว่างผู้ใช้ประเภท user กับทีมงานประเภท staff
         </p>
 
         <div className="page-stack">
           <Card className="rounded-[1.75rem] border border-border/20">
             <CardContent className="card-stack p-5">
               <Link
-                href={loginPathForAccountType("customer")}
+                href={loginPathForAccountType("user")}
                 className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "h-auto justify-between rounded-[1.5rem] px-4 py-4 text-left")}
               >
                 <span className="flex items-center gap-3">
@@ -296,7 +296,7 @@ export function LoginTypeChooser() {
                   <span>
                     <span className="block text-sm font-semibold">ลูกค้า</span>
                     <span className="mt-1 block text-xs opacity-80">
-                      สำหรับผู้ใช้ประเภท customer ที่ต้องการหาช่างแอร์ ส่งคำขอ และติดตามงาน
+                      สำหรับผู้ใช้ประเภท user ที่ต้องการหาช่างแอร์ ส่งคำขอ และติดตามงาน
                     </span>
                   </span>
                 </span>

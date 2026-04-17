@@ -4,12 +4,12 @@ Go + PostgreSQL + GORM skeleton for the mobile-first aircon technician finder an
 
 ## MVP Goals
 
-- Public customer discovery flow for finding technicians and submitting service requests
-- Internal shop CRM for leads, quotations, jobs, schedule, technicians, and customers
+- Public user discovery flow for finding technicians and submitting service requests
+- Internal shop CRM for leads, quotations, jobs, schedule, technicians, and users
 - Clear multi-tenant visibility rules by role:
   - `owner` / `admin`: full store access
   - `dispatcher`: full operational access inside the store
-  - `technician`: only assigned leads, jobs, and customer data for those assignments
+  - `technician`: only assigned leads, jobs, and user data for those assignments
 
 ## Folder Structure
 
@@ -35,11 +35,11 @@ api/
 
 The schema now uses a central `users` table plus role-specific tables:
 
-- `users`: canonical identity for both customers and staff, split by `type`
+- `users`: canonical identity for both users and staff, split by `type`
 - `user_identities`: LINE / Google / phone login identities for a user
 - `store_memberships`: store-scoped role for a staff user
 - `technician_profiles`: public/service profile for a technician membership
-- `customer_profiles`: store-scoped CRM profile for a customer user
+- `user_profiles`: store-scoped CRM profile for a user user
 - `user_addresses`: reusable addresses for a user across jobs
 
 This keeps auth/identity in one place while still allowing store-specific CRM data.
@@ -48,25 +48,25 @@ This keeps auth/identity in one place while still allowing store-specific CRM da
 
 For MVP, keep authentication simple:
 
-- Customer: phone OTP, LINE login, or Google login into `users`
+- User: phone OTP, LINE login, or Google login into `users`
 - Staff: LINE login or Google login into `users`, then authorize via `store_memberships`
 - Dev/demo mode in this scaffold:
   - role and visibility are simulated via headers
   - `X-Actor-Role`
   - `X-Store-ID`
   - `X-Technician-ID`
-  - `X-Customer-ID`
+  - `X-User-ID`
 
 ## Key Endpoints
 
-### Public customer flow
+### Public user flow
 
 - `GET /health`
 - `GET /v1/public/technicians`
 - `GET /v1/public/technicians/{slug}`
 - `POST /v1/public/service-requests`
-- `GET /v1/customer/jobs`
-- `GET /v1/customer/jobs/{id}`
+- `GET /v1/user/jobs`
+- `GET /v1/user/jobs/{id}`
 
 ### Internal CRM flow
 
@@ -81,12 +81,12 @@ For MVP, keep authentication simple:
 - `POST /v1/app/jobs/{id}/status`
 - `GET /v1/app/schedule`
 - `GET /v1/app/technicians`
-- `GET /v1/app/customers`
+- `GET /v1/app/users`
 
 ## Visibility Rules
 
 - All internal records carry `store_id`
-- Customer-facing records point back to `users.id` via `customer_user_id`
+- User-facing records point back to `users.id` via `user_id`
 - Technicians never query raw store-wide lists directly
 - All list/detail queries must pass through actor scope
 - If role is `technician`, filter by `assigned_technician_id = actor.technician_id`

@@ -148,7 +148,7 @@ Flow หลักของระบบ:
   - ราคารวม
 - กดดูรายละเอียดได้
 
-5. หน้า Job Tracking for Customer
+5. หน้า Job Tracking for User
 
 - แสดง:
   - ข้อมูลช่าง
@@ -313,7 +313,7 @@ Flow หลักของระบบ:
   - เปลี่ยนสถานะงาน
   - อัปโหลดรูปก่อน/หลัง
 
-8. Customers Page
+8. Users Page
 
 - สำหรับ admin เท่านั้น
 - list ลูกค้า

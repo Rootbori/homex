@@ -6,7 +6,9 @@ import (
 
 	"github.com/rootbeer/homex/api/internal/config"
 	"github.com/rootbeer/homex/api/internal/database"
-	"github.com/rootbeer/homex/api/internal/httpapi"
+	deliveryHTTP "github.com/rootbeer/homex/api/internal/delivery/http"
+	"github.com/rootbeer/homex/api/internal/repository"
+	"github.com/rootbeer/homex/api/internal/usecase"
 )
 
 func main() {
@@ -17,10 +19,22 @@ func main() {
 		log.Fatalf("open database: %v", err)
 	}
 
-	server := httpapi.NewServer(cfg, db)
+	// 1. Repositories
+	userRepo := repository.NewUserRepository(db)
+	storeRepo := repository.NewStoreRepository(db)
+	jobRepo := repository.NewJobRepository(db)
+
+	// 2. Usecases
+	authUC := usecase.NewAuthUsecase(userRepo, storeRepo)
+	userUC := usecase.NewUserUsecase(userRepo)
+	jobUC := usecase.NewJobUsecase(jobRepo)
+	storeUC := usecase.NewStoreUsecase(storeRepo)
+
+	// 3. HTTP Handler
+	handler := deliveryHTTP.NewHandler(cfg, authUC, userUC, jobUC, storeUC)
 
 	log.Printf("homex api listening on :%s", cfg.Port)
-	if err := http.ListenAndServe(":"+cfg.Port, server.Router()); err != nil {
+	if err := http.ListenAndServe(":"+cfg.Port, handler.Routes()); err != nil {
 		log.Fatalf("serve: %v", err)
 	}
 }

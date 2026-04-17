@@ -7,7 +7,7 @@ export function AppShell({
   children,
   className,
 }: {
-  mode: "customer" | "staff";
+  mode: "user" | "staff";
   children: ReactNode;
   className?: string;
 }) {

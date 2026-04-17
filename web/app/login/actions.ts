@@ -52,7 +52,7 @@ export async function signOutAction(formData: FormData) {
   cookieStore.delete("homex_user_id");
   cookieStore.delete("homex_store_id");
   cookieStore.delete("homex_role");
-  cookieStore.delete("homex_customer_id");
+  cookieStore.delete("homex_user_id");
   cookieStore.delete("homex_technician_id");
 
   await signOut({ redirectTo: requestedRedirect ?? "/login" });

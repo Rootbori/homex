@@ -97,7 +97,7 @@ export default async function TechnicianDetailPage({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-on-surface">{job.customerName}</p>
+                        <p className="font-semibold text-on-surface">{job.userName}</p>
                         <p className="mt-1 text-sm text-on-surface-variant">
                           {job.serviceType} • {job.appointmentDate}
                         </p>
