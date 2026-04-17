@@ -2,11 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LoaderCircle, RefreshCcw, ShieldCheck, TriangleAlert } from "lucide-react";
+import { LoaderCircle, LogOut, RefreshCcw, ShieldCheck, Snowflake, TriangleAlert } from "lucide-react";
 import { signOutAction } from "@/app/login/actions";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 type AuthCompleteViewProps = {
   fallbackPath: string;
@@ -21,7 +18,7 @@ type SyncPayload = {
   };
 };
 
-export function AuthCompleteView({ fallbackPath }: AuthCompleteViewProps) {
+export function AuthCompleteView({ fallbackPath }: Readonly<AuthCompleteViewProps>) {
   const [state, setState] = useState<{
     status: "loading" | "error";
     message?: string;
@@ -52,7 +49,7 @@ export function AuthCompleteView({ fallbackPath }: AuthCompleteViewProps) {
         }
 
         const nextPath = payload.next?.next_path ?? fallbackPath;
-        window.location.replace(nextPath);
+        globalThis.location.replace(nextPath);
       } catch {
         if (!active) {
           return;
@@ -74,86 +71,84 @@ export function AuthCompleteView({ fallbackPath }: AuthCompleteViewProps) {
   }, [fallbackPath]);
 
   return (
-    <div className="min-h-screen bg-surface">
-      <main className="mx-auto flex min-h-screen max-w-sm items-center px-5 py-8 sm:max-w-md md:max-w-lg">
-        <Card className="w-full rounded-[1.75rem] border border-border/20">
-          <CardContent className="space-y-5 p-5">
+    <div className="relative flex min-h-dvh flex-col overflow-hidden">
+      {/* Gradient background matching login */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100" />
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-blue-300 opacity-20 blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-indigo-300 opacity-15 blur-3xl" />
+      </div>
+
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-20">
+        <div className="w-full max-w-[22rem] animate-in">
+          <div className="rounded-3xl bg-white/70 p-8 text-center shadow-xl shadow-black/[0.03] ring-1 ring-white/80 backdrop-blur-xl">
             {state.status === "loading" ? (
-              <>
-                <span className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-primary/10 text-primary">
-                  <LoaderCircle className="h-6 w-6 animate-spin" />
-                </span>
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                    Homex Auth
-                  </p>
-                  <h1 className="headline-font text-2xl font-bold text-on-surface">
-                    กำลังยืนยันบัญชี
-                  </h1>
-                  <p className="text-sm leading-6 text-on-surface-variant">
-                    ระบบกำลังเชื่อม LINE หรือ Gmail เข้ากับบัญชีในฐานข้อมูลของคุณ
-                  </p>
+              <div className="flex flex-col items-center">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 animate-ping rounded-2xl bg-primary/20" />
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
+                    <Snowflake className="h-8 w-8 animate-spin-slow text-white" />
+                  </div>
                 </div>
-                <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
-                  ใช้เวลาเพียงไม่กี่วินาที แล้วระบบจะพาเข้าสู่หน้าถัดไปให้อัตโนมัติ
+                
+                <h1 className="headline-font mb-2 text-2xl font-extrabold tracking-tight text-on-surface">
+                  กำลังยืนยันตัวตน
+                </h1>
+                <p className="text-sm leading-relaxed text-on-surface-variant/60">
+                  ระบบกำลังเชื่อม LINE หรือ Gmail<br />เข้ากับบัญชี Homex ของคุณ
+                </p>
+                
+                <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/30">
+                  <LoaderCircle className="h-3 w-3 animate-spin" />
+                  <span>โปรดรอสักครู่</span>
                 </div>
-              </>
+              </div>
             ) : (
-              <>
-                <span className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-error/10 text-error">
-                  <TriangleAlert className="h-6 w-6" />
-                </span>
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-error">
-                    Sync Error
-                  </p>
-                  <h1 className="headline-font text-2xl font-bold text-on-surface">
-                    ยังเชื่อมบัญชีไม่สำเร็จ
-                  </h1>
-                  <p className="text-sm leading-6 text-on-surface-variant">
-                    {state.message ?? "กรุณาลองใหม่อีกครั้ง"}
-                  </p>
+              <div className="flex flex-col items-center">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500 shadow-lg shadow-red-500/25">
+                  <TriangleAlert className="h-8 w-8 text-white" />
                 </div>
 
-                <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
-                  หากเป็นการเข้าใช้ครั้งแรก ระบบจะพยายามสร้างบัญชีและผูกสิทธิ์ให้อัตโนมัติจากประเภทผู้ใช้ที่คุณเลือก
-                </div>
+                <h1 className="headline-font mb-2 text-2xl font-extrabold tracking-tight text-on-surface">
+                  พบข้อผิดพลาด
+                </h1>
+                <p className="mb-6 text-sm leading-relaxed text-on-surface-variant/60">
+                  {state.message ?? "ยังไม่สามารถเชื่อมบัญชีเข้าระบบได้"}
+                </p>
 
-                <div className="grid gap-3">
+                <div className="grid w-full gap-2">
                   <button
                     type="button"
-                    onClick={() => window.location.reload()}
-                    className={cn(
-                      buttonVariants({ size: "lg" }),
-                      "w-full rounded-[1.4rem]",
-                    )}
+                    onClick={() => globalThis.location.reload()}
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-white transition-all hover:brightness-110 active:scale-[0.97]"
                   >
-                    <RefreshCcw className="mr-2 h-4 w-4" />
+                    <RefreshCcw className="h-4 w-4" />
                     ลองอีกครั้ง
                   </button>
 
                   <Link
                     href="/login"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "lg" }),
-                      "w-full rounded-[1.4rem]",
-                    )}
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white text-sm font-bold text-on-surface ring-1 ring-black/[0.05] transition-all hover:bg-surface-container-low active:scale-[0.97]"
                   >
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    กลับไปหน้าเข้าสู่ระบบ
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    กลับไปหน้า Login
                   </Link>
-
-                  <form action={signOutAction}>
+                  
+                  <form action={signOutAction} className="mt-2">
                     <input name="redirectTo" type="hidden" value="/login" />
-                    <Button type="submit" size="lg" variant="ghost" className="w-full rounded-[1.4rem]">
-                      ออกจากระบบแล้วเปลี่ยนบัญชี
-                    </Button>
+                    <button
+                      type="submit"
+                      className="flex w-full items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/40 hover:text-on-surface-variant"
+                    >
+                      <LogOut className="h-3 w-3" />
+                      เปลี่ยนบัญชีใหม่
+                    </button>
                   </form>
                 </div>
-              </>
+              </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </main>
     </div>
   );

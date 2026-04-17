@@ -6,25 +6,25 @@ export function TopAppBar({
   left,
   right,
   className,
-}: {
+}: Readonly<{
   title: string;
   left?: ReactNode;
   right?: ReactNode;
   className?: string;
-}) {
+}>) {
   return (
     <header
       className={cn(
-        "glass-bar fixed top-0 z-50 w-full px-5 py-3.5 md:px-6 md:py-4",
+        "sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl",
         className,
       )}
     >
-      <div className="mx-auto flex w-full max-w-md items-center justify-between md:max-w-3xl lg:max-w-5xl">
-        <div className={cn("flex min-w-0 items-center", left ? "gap-4" : "")}>
+      <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
+        <div className={cn("flex min-w-0 items-center", left ? "gap-3" : "")}>
           {left}
-          <div className="headline-font truncate text-xl font-bold tracking-tight text-primary">
+          <span className="headline-font truncate text-base font-bold text-on-surface">
             {title}
-          </div>
+          </span>
         </div>
         <div className="flex items-center gap-2">{right}</div>
       </div>

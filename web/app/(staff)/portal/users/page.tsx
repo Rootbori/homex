@@ -1,79 +1,72 @@
 import Link from "next/link";
-import { auth } from "@/auth";
-import { buttonVariants } from "@/components/ui/button";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
-import { TopAppBar } from "@/components/shared/top-app-bar";
+import { ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { getUsers } from "@/lib/server-data";
 
 export default async function UsersPage() {
-  const [session, users] = await Promise.all([auth(), getUsers()]);
+  const users = await getUsers();
   const totalSpend = users.reduce((sum, user) => sum + user.totalSpend, 0);
 
   return (
-    <div>
-      <TopAppBar title="Users" right={<ProfileBubble image={session?.user?.image ?? undefined} />} />
-      <main className="page-content page-stack">
-        <section className="page-hero">
-          <span className="block text-sm font-bold uppercase tracking-widest text-primary">Admin Only</span>
-          <h1 className="headline-font text-3xl font-extrabold tracking-tight text-on-surface">ลูกค้าในระบบ</h1>
-          <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-            ดูข้อมูลติดต่อ, ยอดใช้จ่าย, และประวัติงานของลูกค้าแต่ละรายจาก CRM กลางของร้าน
-          </p>
-        </section>
+    <div className="mx-auto max-w-3xl">
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center px-4">
+          <h1 className="text-base font-bold text-on-surface">ลูกค้า</h1>
+          <span className="ml-2 rounded-full bg-primary/5 px-2 py-0.5 text-[11px] font-bold text-primary">
+            {users.length}
+          </span>
+        </div>
+      </header>
 
-        <section className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[1.5rem] bg-primary-container p-4 text-on-primary">
-            <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">ลูกค้าทั้งหมด</p>
-            <p className="mt-2 text-3xl font-extrabold">{users.length}</p>
+      <main className="px-4 py-6 space-y-6">
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-xl font-extrabold text-on-surface">{users.length}</p>
+            <p className="text-[10px] font-medium text-on-surface-variant/40">ลูกค้า</p>
           </div>
-          <div className="rounded-[1.5rem] bg-surface-container-low p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">ยอดใช้จ่ายรวม</p>
-            <p className="mt-2 text-2xl font-extrabold text-on-surface">{formatCurrency(totalSpend)}</p>
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-lg font-extrabold text-on-surface">{formatCurrency(totalSpend)}</p>
+            <p className="text-[10px] font-medium text-on-surface-variant/40">ยอดรวม</p>
           </div>
-          <div className="rounded-[1.5rem] bg-surface-container-low p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">เฉลี่ยต่อราย</p>
-            <p className="mt-2 text-2xl font-extrabold text-on-surface">
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-lg font-extrabold text-on-surface">
               {formatCurrency(users.length > 0 ? Math.round(totalSpend / users.length) : 0)}
             </p>
+            <p className="text-[10px] font-medium text-on-surface-variant/40">เฉลี่ย/ราย</p>
           </div>
-        </section>
+        </div>
 
-        <div className="card-stack">
+        {/* User list */}
+        <div className="space-y-2">
           {users.length > 0 ? (
             users.map((user) => (
-              <div key={user.id} className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-                <div className="section-stack-sm">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="headline-font text-lg font-bold text-on-surface">{user.name}</p>
-                      <p className="text-sm text-on-surface-variant">{user.phone}</p>
-                    </div>
-                    <p className="text-sm font-semibold text-on-surface">{formatCurrency(user.totalSpend)}</p>
+              <Link
+                key={user.id}
+                href={`/portal/users/${user.id}`}
+                className="group flex items-center gap-4 rounded-2xl bg-white p-4 ring-1 ring-black/[0.04] transition-all hover:shadow-md active:scale-[0.99]"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] font-bold text-on-surface">{user.name}</span>
+                    <span className="text-xs font-semibold text-on-surface-variant/40">
+                      {formatCurrency(user.totalSpend)}
+                    </span>
                   </div>
-
-                  <div className="grid gap-3 rounded-[1.25rem] bg-surface-container-low p-4 text-sm text-on-surface-variant sm:grid-cols-2">
-                    <p>พื้นที่: {user.area}</p>
-                    <p>งานที่ผ่านมา: {user.jobsCount} งาน</p>
-                  </div>
-
-                  <p className="rounded-[1.25rem] bg-surface-container-lowest p-4 text-sm leading-6 text-on-surface-variant">
-                    {user.note}
+                  <p className="mt-0.5 text-xs text-on-surface-variant/40">
+                    {user.phone} • {user.area} • {user.jobsCount} งาน
                   </p>
-
-                  <Link
-                    href={`/portal/users/${user.id}`}
-                    className={`${buttonVariants({ variant: "secondary" })} w-full sm:w-auto`}
-                  >
-                    เปิดโปรไฟล์ลูกค้า
-                  </Link>
+                  {user.note && (
+                    <p className="mt-1 line-clamp-1 text-xs text-on-surface-variant/30">{user.note}</p>
+                  )}
                 </div>
-              </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-on-surface-variant/20 transition-transform group-hover:translate-x-0.5" />
+              </Link>
             ))
           ) : (
-            <div className="surface-card rounded-[1.75rem] p-5 text-sm text-on-surface-variant">
-              ยังไม่มีข้อมูลลูกค้าในระบบ
-            </div>
+            <p className="py-16 text-center text-sm text-on-surface-variant/30">
+              ยังไม่มีลูกค้าในระบบ
+            </p>
           )}
         </div>
       </main>

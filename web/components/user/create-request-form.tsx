@@ -1,7 +1,7 @@
 "use client";
 
-import type { ChangeEvent, FormEvent } from "react";
-import { useMemo, useState, useTransition } from "react";
+import React, { useMemo, useState, useTransition } from "react";
+import type { ChangeEvent } from "react";
 import { CalendarDays, CheckCircle2, ImagePlus, MapPin, Send, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,7 +54,7 @@ const initialState = (defaultName = ""): RequestState => ({
 export function CreateRequestForm({
   defaultName,
   selectedTechnician,
-}: CreateRequestFormProps) {
+}: Readonly<CreateRequestFormProps>) {
   const [form, setForm] = useState<RequestState>(() => initialState(defaultName));
   const [result, setResult] = useState<{
     status: "idle" | "success" | "error";
@@ -85,7 +85,7 @@ export function CreateRequestForm({
     );
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setResult({ status: "idle" });
 
@@ -144,19 +144,19 @@ export function CreateRequestForm({
 
   return (
     <form className="page-stack-lg pb-28" onSubmit={handleSubmit}>
-      <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+      <section className="premium-card p-6 md:p-8">
         <div className="section-stack">
-          <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-container text-on-primary">
-              <Wrench className="h-5 w-5" />
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+              <Wrench className="h-6 w-6" />
             </div>
             <div>
-              <p className="headline-font text-xl font-bold text-on-surface">ข้อมูลบริการ</p>
-              <p className="mt-1 text-sm text-on-surface-variant">{previewLabel}</p>
+              <p className="headline-font text-2xl font-black tracking-tight text-on-surface">ข้อมูลบริการ</p>
+              <p className="mt-1 text-sm font-medium text-on-surface-variant/70">{previewLabel}</p>
             </div>
           </div>
 
-          {result.status !== "idle" ? (
+          {result.status === "idle" ? null : (
             <div
               className={`rounded-[1.5rem] px-4 py-3 text-sm ${
                 result.status === "success"
@@ -169,11 +169,11 @@ export function CreateRequestForm({
                 <span>{result.message}</span>
               </div>
             </div>
-          ) : null}
+          )}
         </div>
       </section>
 
-      <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+      <section className="premium-card p-6 md:p-8">
         <div className="section-stack">
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
@@ -182,10 +182,11 @@ export function CreateRequestForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <label htmlFor="name" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 ชื่อ
               </label>
               <Input
+                id="name"
                 value={form.name}
                 onChange={(event) => updateField("name", event.target.value)}
                 placeholder="ชื่อผู้ติดต่อ"
@@ -193,10 +194,11 @@ export function CreateRequestForm({
               />
             </div>
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <label htmlFor="phone" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 เบอร์โทร
               </label>
               <Input
+                id="phone"
                 value={form.phone}
                 onChange={(event) => updateField("phone", event.target.value)}
                 placeholder="08x-xxx-xxxx"
@@ -208,10 +210,11 @@ export function CreateRequestForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <label htmlFor="area" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 พื้นที่
               </label>
               <Input
+                id="area"
                 value={form.area}
                 onChange={(event) => updateField("area", event.target.value)}
                 placeholder="เช่น ลาดพร้าว, บางนา"
@@ -219,10 +222,11 @@ export function CreateRequestForm({
               />
             </div>
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <label htmlFor="units" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 จำนวนเครื่อง
               </label>
               <Input
+                id="units"
                 value={form.units}
                 onChange={(event) => updateField("units", event.target.value)}
                 placeholder="1"
@@ -233,10 +237,11 @@ export function CreateRequestForm({
           </div>
 
           <div className="field-stack">
-            <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+            <label htmlFor="address" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
               ที่อยู่
             </label>
             <Textarea
+              id="address"
               value={form.address}
               onChange={(event) => updateField("address", event.target.value)}
               placeholder="บ้านเลขที่ อาคาร ชั้น หรือจุดสังเกต"
@@ -247,7 +252,7 @@ export function CreateRequestForm({
         </div>
       </section>
 
-      <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+      <section className="premium-card p-6 md:p-8">
         <div className="section-stack">
           <div className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-primary" />
@@ -255,9 +260,9 @@ export function CreateRequestForm({
           </div>
 
           <div className="section-stack-sm">
-            <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+            <span className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
               ประเภทบริการ
-            </label>
+            </span>
             <div className="flex flex-wrap gap-2">
               {serviceOptions.map((service) => (
                 <button
@@ -277,9 +282,9 @@ export function CreateRequestForm({
           </div>
 
           <div className="section-stack-sm">
-            <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+            <span className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
               BTU
-            </label>
+            </span>
             <div className="flex flex-wrap gap-2">
               {btuOptions.map((item) => (
                 <button
@@ -300,23 +305,24 @@ export function CreateRequestForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <label htmlFor="brand" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 ยี่ห้อ
               </label>
               <Input
+                id="brand"
                 value={form.brand}
                 onChange={(event) => updateField("brand", event.target.value)}
                 placeholder="Daikin, Mitsubishi, Carrier"
               />
             </div>
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <span className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 รูปประกอบ
-              </label>
-              <label className="flex h-[3.25rem] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
+              </span>
+              <label htmlFor="file-upload" className="flex h-[3.25rem] cursor-pointer items-center justify-center gap-2 rounded-2xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
                 <ImagePlus className="h-4 w-4 text-primary" />
                 เลือกไฟล์
-                <input className="hidden" type="file" multiple onChange={handleFileChange} />
+                <input id="file-upload" className="hidden" type="file" multiple onChange={handleFileChange} />
               </label>
             </div>
           </div>
@@ -328,10 +334,11 @@ export function CreateRequestForm({
           ) : null}
 
           <div className="field-stack">
-            <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+            <label htmlFor="symptom" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
               อาการ
             </label>
             <Textarea
+              id="symptom"
               value={form.symptom}
               onChange={(event) => updateField("symptom", event.target.value)}
               placeholder="เช่น แอร์ไม่เย็น มีน้ำหยด เปิดไม่ติด"
@@ -341,10 +348,11 @@ export function CreateRequestForm({
           </div>
 
           <div className="field-stack">
-            <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+            <label htmlFor="notes" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
               หมายเหตุเพิ่มเติม
             </label>
             <Textarea
+              id="notes"
               value={form.notes}
               onChange={(event) => updateField("notes", event.target.value)}
               placeholder="เช่น สะดวกติดต่อผ่าน LINE หรือมีจุดจอดรถ"
@@ -354,7 +362,7 @@ export function CreateRequestForm({
         </div>
       </section>
 
-      <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
+      <section className="premium-card p-6 md:p-8">
         <div className="section-stack">
           <div className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-primary" />
@@ -363,20 +371,22 @@ export function CreateRequestForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <label htmlFor="preferredDate" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 วันที่
               </label>
               <Input
+                id="preferredDate"
                 value={form.preferredDate}
                 onChange={(event) => updateField("preferredDate", event.target.value)}
                 type="date"
               />
             </div>
             <div className="field-stack">
-              <label className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
+              <label htmlFor="preferredTime" className="px-1 text-[12px] font-semibold uppercase tracking-wider text-on-surface-variant">
                 เวลา
               </label>
               <Input
+                id="preferredTime"
                 value={form.preferredTime}
                 onChange={(event) => updateField("preferredTime", event.target.value)}
                 type="time"
@@ -386,11 +396,16 @@ export function CreateRequestForm({
         </div>
       </section>
 
-      <div className="glass-bar sticky-action-bar fixed bottom-0 left-0 z-50 w-full">
+      <div className="glass-bar fixed bottom-0 left-0 z-50 w-full px-5 py-4">
         <div className="mx-auto w-full max-w-[42rem]">
-          <Button type="submit" size="lg" className="h-14 w-full text-base font-bold" disabled={isPending}>
-            {isPending ? "กำลังส่งคำขอ..." : "ส่งคำขอใช้บริการ"}
-            <Send className="h-4 w-4" />
+          <Button 
+            type="submit" 
+            size="lg" 
+            className="interactive-scale h-14 w-full bg-tertiary text-lg font-black uppercase tracking-wider text-on-tertiary shadow-xl hover:brightness-110 active:scale-95 transition-all" 
+            disabled={isPending}
+          >
+            {isPending ? "กำลังบันทึกข้อมูล..." : "ยืนยันส่งคำขอช่าง"}
+            <Send className="ml-2 h-5 w-5" />
           </Button>
         </div>
       </div>

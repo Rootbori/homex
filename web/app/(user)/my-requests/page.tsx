@@ -1,73 +1,67 @@
 import Link from "next/link";
-import { Clock3, User } from "lucide-react";
-import { auth } from "@/auth";
-import { TopAppBar } from "@/components/shared/top-app-bar";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
+import { ArrowLeft, ChevronRight, Clock3 } from "lucide-react";
 import { StatusChip } from "@/components/shared/status-chip";
-import { buttonVariants } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
 import { getUserJobs } from "@/lib/server-data";
 
 export default async function MyRequestsPage() {
-  const [session, jobs] = await Promise.all([auth(), getUserJobs()]);
+  const jobs = await getUserJobs();
 
   return (
-    <div>
-      <TopAppBar title="Atmospheric" right={<ProfileBubble image={session?.user?.image ?? undefined} />} />
-      <main className="page-content page-stack">
-        <section className="page-hero">
-          <span className="block text-sm font-bold uppercase tracking-widest text-primary">
-            User Jobs
-          </span>
-          <h1 className="headline-font text-3xl font-extrabold tracking-tight">คำขอและงานของฉัน</h1>
-        </section>
+    <div className="mx-auto max-w-3xl">
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <Link href="/" className="text-on-surface-variant/50 hover:text-on-surface">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="text-base font-bold text-on-surface">งานของฉัน</h1>
+        </div>
+      </header>
 
-        <div className="card-stack">
-          {jobs.length > 0 ? (
-            jobs.map((job) => (
-              <div key={job.id} className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-                <div className="section-stack">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="headline-font text-lg font-bold text-on-surface">{job.assignedTechnicianName}</p>
-                      <p className="text-sm text-on-surface-variant">{job.serviceType}</p>
-                    </div>
+      <main className="px-4 py-6">
+        {jobs.length > 0 ? (
+          <div className="space-y-3">
+            {jobs.map((job) => (
+              <Link
+                key={job.id}
+                href={`/tracking/${job.id}`}
+                className="group flex items-center gap-4 rounded-2xl bg-white p-4 ring-1 ring-black/[0.04] transition-all hover:shadow-md active:scale-[0.99]"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-[15px] font-bold text-on-surface">
+                      {job.assignedTechnicianName}
+                    </span>
                     <StatusChip status={job.status} />
                   </div>
-
-                  <div className="grid gap-3 border-t border-border/15 pt-4 sm:grid-cols-2 sm:gap-4">
-                    <div>
-                      <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-widest text-on-surface-variant">
-                        Appointment
-                      </span>
-                      <span className="text-sm font-bold text-on-surface">{job.appointmentDate}</span>
-                    </div>
-                    <div>
-                      <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-widest text-on-surface-variant">
-                        Total
-                      </span>
-                      <span className="text-sm font-bold text-on-surface">{formatCurrency(job.total)}</span>
-                    </div>
+                  <p className="mt-0.5 text-xs text-on-surface-variant/50">{job.serviceType}</p>
+                  <div className="mt-2 flex items-center gap-4 text-xs text-on-surface-variant/40">
+                    <span className="flex items-center gap-1">
+                      <Clock3 className="h-3 w-3" />
+                      {job.appointmentDate} {job.appointmentTime}
+                    </span>
+                    <span className="font-semibold text-on-surface">{formatCurrency(job.total)}</span>
                   </div>
-
-                  <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                    <Clock3 className="h-4 w-4" />
-                    {job.appointmentTime}
-                  </div>
-
-                  <Link href={`/tracking/${job.id}`} className={buttonVariants({ variant: "ghost" })}>
-                    <User className="h-4 w-4" />
-                    ดูรายละเอียดงาน
-                  </Link>
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="surface-card rounded-[1.75rem] p-5 text-sm text-on-surface-variant">
-              ยังไม่มีคำขอหรือประวัติงานในตอนนี้
-            </div>
-          )}
-        </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-on-surface-variant/20 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center py-20 text-center">
+            <Clock3 className="mb-4 h-10 w-10 text-on-surface-variant/15" />
+            <p className="text-base font-bold text-on-surface">ยังไม่มีงาน</p>
+            <p className="mt-1 text-sm text-on-surface-variant/50">
+              เมื่อคุณส่งคำขอบริการ จะแสดงที่นี่
+            </p>
+            <Link
+              href="/request"
+              className="mt-6 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white"
+            >
+              สร้างคำขอ
+            </Link>
+          </div>
+        )}
       </main>
     </div>
   );

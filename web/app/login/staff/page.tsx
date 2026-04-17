@@ -5,9 +5,9 @@ import { isProviderConfigured, redirectForAccountType } from "@/lib/auth-flow";
 
 export default async function StaffLoginPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams?: Promise<{ error?: string }>;
-}) {
+}>) {
   const session = await auth();
   if (session?.accountType) {
     redirect(session.redirectTo ?? redirectForAccountType(session.accountType));
@@ -19,14 +19,13 @@ export default async function StaffLoginPage({
     <LoginForm
       backHref="/login"
       error={params?.error ?? null}
-      fixedAccountType="staff"
-      heading="ร้าน / ช่างเข้าสู่ระบบ"
       initialAccountType="staff"
+      heading="ร้าน / ช่าง"
+      subtitle="เข้าสู่ระบบเพื่อจัดการงานของคุณ"
       providerAvailability={{
         google: isProviderConfigured("google"),
         line: isProviderConfigured("line"),
       }}
-      subtitle="สำหรับผู้ใช้ประเภท staff ที่จะเข้าไปจัดการ store memberships, lead, jobs, quotation และ schedule โดยระบบจะสร้างบัญชีร้านให้อัตโนมัติในครั้งแรก"
     />
   );
 }

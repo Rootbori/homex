@@ -5,13 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarDays,
+  ClipboardList,
   Home,
   LayoutGrid,
   MoreHorizontal,
   Search,
   User,
   Wrench,
-  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,8 +28,8 @@ const itemsByMode = {
     { href: "/portal/dashboard", label: "แดชบอร์ด", icon: LayoutGrid },
     { href: "/portal/leads", label: "Leads", icon: ClipboardList },
     { href: "/portal/jobs", label: "Jobs", icon: Wrench },
-    { href: "/portal/schedule", label: "Schedule", icon: CalendarDays },
-    { href: "/portal/more", label: "More", icon: MoreHorizontal },
+    { href: "/portal/schedule", label: "ตาราง", icon: CalendarDays },
+    { href: "/portal/more", label: "เพิ่มเติม", icon: MoreHorizontal },
   ],
 } satisfies Record<
   NavMode,
@@ -43,7 +43,7 @@ const hiddenPatterns = [
   /^\/portal\/leads\/[^/]+$/,
 ];
 
-export function BottomNav({ mode }: { mode: NavMode }) {
+export function BottomNav({ mode }: Readonly<{ mode: NavMode }>) {
   const pathname = usePathname();
   const items = itemsByMode[mode];
 
@@ -52,8 +52,8 @@ export function BottomNav({ mode }: { mode: NavMode }) {
   }
 
   return (
-    <nav className="glass-bar fixed inset-x-0 bottom-0 z-40 rounded-t-3xl px-3 pb-5 pt-3 shadow-[0_-8px_32px_rgba(0,0,0,0.04)] md:inset-x-6 md:bottom-6 md:rounded-3xl md:px-4">
-      <div className="mx-auto flex w-full max-w-md items-center justify-around md:max-w-2xl">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-black/[0.04] bg-white/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
+      <div className="mx-auto flex h-14 max-w-lg items-stretch">
         {items.map((item) => {
           const Icon = item.icon;
           const active =
@@ -65,12 +65,14 @@ export function BottomNav({ mode }: { mode: NavMode }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant transition-all duration-300 md:flex-row md:gap-2 md:text-xs",
-                active && "scale-95 bg-secondary-container text-on-secondary-container",
+                "flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors",
+                active
+                  ? "text-primary"
+                  : "text-on-surface-variant/40 hover:text-on-surface-variant/70",
               )}
             >
-              <Icon className="h-4 w-4" />
-              <span className="truncate">{item.label}</span>
+              <Icon className={cn("h-5 w-5", active && "fill-current")} />
+              <span>{item.label}</span>
             </Link>
           );
         })}

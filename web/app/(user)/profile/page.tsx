@@ -1,8 +1,6 @@
-import { ArrowRight, User } from "lucide-react";
+import { ChevronRight, LogOut, User } from "lucide-react";
 import { auth } from "@/auth";
-import { LogoutButton } from "@/components/auth/logout-button";
-import { TopAppBar } from "@/components/shared/top-app-bar";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
+import { signOutAction } from "@/app/login/actions";
 import { providerLabel } from "@/lib/auth-flow";
 import { getUserJobs } from "@/lib/server-data";
 
@@ -13,42 +11,49 @@ export default async function ProfilePage() {
   const loginProvider = providerLabel(session?.provider ?? session?.user?.provider);
 
   return (
-    <div>
-      <TopAppBar title="Atmospheric" right={<ProfileBubble image={session?.user?.image ?? undefined} />} />
-      <main className="page-content page-stack">
-        <section className="page-hero">
-          <span className="block text-sm font-bold uppercase tracking-widest text-primary">Profile</span>
-          <h1 className="headline-font text-3xl font-extrabold tracking-tight">บัญชีของฉัน</h1>
-        </section>
+    <div className="mx-auto max-w-3xl">
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center px-4">
+          <h1 className="text-base font-bold text-on-surface">โปรไฟล์</h1>
+        </div>
+      </header>
 
-        <div className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack-sm">
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-fixed text-primary">
-                <User className="h-6 w-6" />
-              </div>
-              <div>
-                <h2 className="headline-font text-xl font-bold">{displayName}</h2>
-                <p className="text-sm text-on-surface-variant">
-                  {displayEmail} • เข้าสู่ระบบผ่าน {loginProvider}
-                </p>
-              </div>
-            </div>
-            <div className="space-y-2 text-sm text-on-surface-variant">
-              <p>ประเภทบัญชี: user</p>
-              <p>งานที่ผ่านมา: {jobs.length} งาน</p>
-            </div>
+      <main className="px-4 py-6 space-y-6">
+        {/* Profile card */}
+        <div className="flex items-center gap-4 rounded-2xl bg-surface-container-low p-5">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/5 text-primary">
+            <User className="h-6 w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-bold text-on-surface">{displayName}</h2>
+            <p className="text-sm text-on-surface-variant/50">
+              {displayEmail}
+            </p>
+            <p className="mt-0.5 text-xs text-on-surface-variant/30">
+              เข้าสู่ระบบผ่าน {loginProvider} • {jobs.length} งาน
+            </p>
           </div>
         </div>
 
-        <div className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <button className="flex w-full items-center justify-between gap-3 text-sm font-semibold text-primary">
-            แก้ไขข้อมูลส่วนตัว
-            <ArrowRight className="h-4 w-4" />
+        {/* Menu items */}
+        <div className="rounded-2xl bg-white ring-1 ring-black/[0.04]">
+          <button className="flex w-full items-center justify-between px-5 py-4 text-sm font-medium text-on-surface hover:bg-surface-container-low transition-colors rounded-2xl">
+            <span>แก้ไขข้อมูลส่วนตัว</span>
+            <ChevronRight className="h-4 w-4 text-on-surface-variant/20" />
           </button>
         </div>
 
-        <LogoutButton redirectTo="/login" />
+        {/* Logout */}
+        <form action={signOutAction}>
+          <input name="redirectTo" type="hidden" value="/login" />
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            ออกจากระบบ
+          </button>
+        </form>
       </main>
     </div>
   );

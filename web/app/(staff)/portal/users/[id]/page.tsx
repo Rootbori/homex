@@ -1,22 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { auth } from "@/auth";
+import { ArrowLeft, PhoneCall } from "lucide-react";
 import { StatusChip } from "@/components/shared/status-chip";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
-import { TopAppBar } from "@/components/shared/top-app-bar";
-import { buttonVariants } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format";
 import { getUserByID, getJobsForUser } from "@/lib/server-data";
 
 export default async function UserDetailPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ id: string }>;
-}) {
+}>) {
   const { id } = await params;
-  const [session, user, jobs] = await Promise.all([
-    auth(),
+  const [user, jobs] = await Promise.all([
     getUserByID(id),
     getJobsForUser(id),
   ]);
@@ -26,90 +21,82 @@ export default async function UserDetailPage({
   }
 
   return (
-    <div>
-      <TopAppBar
-        title="User"
-        left={
-          <Link href="/portal/users" className="rounded-full p-2 text-primary transition-transform active:scale-95">
+    <div className="mx-auto max-w-3xl">
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <Link href="/portal/users" className="text-on-surface-variant/50 hover:text-on-surface">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-        }
-        right={<ProfileBubble image={session?.user?.image ?? undefined} />}
-      />
-      <main className="page-content page-stack">
-        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="page-hero">
-            <p className="text-sm font-bold uppercase tracking-widest text-primary">User Profile</p>
-            <h1 className="headline-font text-3xl font-extrabold tracking-tight text-on-surface">{user.name}</h1>
-            <p className="text-sm text-on-surface-variant">
-              {user.phone} • {user.area}
-            </p>
-          </div>
-        </section>
+          <h1 className="truncate text-base font-bold text-on-surface">{user.name}</h1>
+        </div>
+      </header>
 
-        <section className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[1.5rem] bg-primary-container p-4 text-on-primary">
-            <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">ยอดใช้จ่ายรวม</p>
-            <p className="mt-2 text-2xl font-extrabold">{formatCurrency(user.totalSpend)}</p>
+      <main className="px-4 py-6 space-y-6">
+        {/* Customer info */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-extrabold text-on-surface">{user.name}</h2>
+            <p className="text-xs text-on-surface-variant/50">{user.phone} • {user.area}</p>
           </div>
-          <div className="rounded-[1.5rem] bg-surface-container-low p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">จำนวนงาน</p>
-            <p className="mt-2 text-3xl font-extrabold text-on-surface">{jobs.length}</p>
+          <a
+            href={`tel:${user.phone}`}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white"
+          >
+            <PhoneCall className="h-4 w-4" />
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-primary/5 p-3 text-center">
+            <p className="text-lg font-extrabold text-primary">{formatCurrency(user.totalSpend)}</p>
+            <p className="text-[10px] text-primary/60">ยอดรวม</p>
           </div>
-          <div className="rounded-[1.5rem] bg-surface-container-low p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">ค่าใช้จ่ายเฉลี่ย</p>
-            <p className="mt-2 text-2xl font-extrabold text-on-surface">
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-lg font-extrabold text-on-surface">{jobs.length}</p>
+            <p className="text-[10px] text-on-surface-variant/40">งาน</p>
+          </div>
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-lg font-extrabold text-on-surface">
               {formatCurrency(jobs.length > 0 ? Math.round(user.totalSpend / jobs.length) : 0)}
             </p>
+            <p className="text-[10px] text-on-surface-variant/40">เฉลี่ย</p>
           </div>
-        </section>
+        </div>
 
-        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack-sm">
-            <p className="text-sm font-semibold text-on-surface">บันทึกและการติดต่อ</p>
-            <p className="rounded-[1.25rem] bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
+        {/* Note */}
+        {user.note && (
+          <section className="space-y-2">
+            <h3 className="text-sm font-bold text-on-surface">บันทึก</h3>
+            <p className="rounded-xl bg-surface-container-low p-3 text-sm leading-relaxed text-on-surface-variant/60">
               {user.note}
             </p>
-            <div className="flex flex-wrap gap-3">
-              <a href={`tel:${user.phone}`} className={`${buttonVariants({ variant: "secondary" })} w-full sm:w-auto`}>
-                โทรหาลูกค้า
-              </a>
-              <Link href="/portal/jobs" className={`${buttonVariants({ variant: "outline" })} w-full sm:w-auto`}>
-                เปิดรายการงานทั้งหมด
-              </Link>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack">
-            <p className="text-sm font-semibold text-on-surface">ประวัติงาน</p>
-            <div className="card-stack">
-              {jobs.length > 0 ? (
-                jobs.map((job) => (
-                  <Link
-                    key={job.id}
-                    href={`/portal/jobs/${job.id}`}
-                    className="rounded-[1.5rem] bg-surface-container-low p-4 transition-transform active:scale-[0.99]"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-on-surface">{job.code}</p>
-                        <p className="mt-1 text-sm text-on-surface-variant">
-                          {job.serviceType} • {job.appointmentDate}
-                        </p>
-                        <p className="mt-1 text-sm text-on-surface-variant">{job.assignedTechnicianName}</p>
-                      </div>
-                      <StatusChip status={job.status} />
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className="rounded-[1.5rem] bg-surface-container-low p-4 text-sm text-on-surface-variant">
-                  ยังไม่มีประวัติงานของลูกค้ารายนี้
-                </div>
-              )}
-            </div>
+        {/* Job history */}
+        <section className="space-y-3">
+          <h3 className="text-sm font-bold text-on-surface">ประวัติงาน</h3>
+          <div className="space-y-2">
+            {jobs.length > 0 ? (
+              jobs.map((job) => (
+                <Link
+                  key={job.id}
+                  href={`/portal/jobs/${job.id}`}
+                  className="flex items-center justify-between rounded-xl bg-surface-container-low p-3 transition-all hover:bg-surface-container active:scale-[0.99]"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-on-surface">{job.code}</p>
+                    <p className="text-xs text-on-surface-variant/40">
+                      {job.serviceType} • {job.appointmentDate} • {job.assignedTechnicianName}
+                    </p>
+                  </div>
+                  <StatusChip status={job.status} />
+                </Link>
+              ))
+            ) : (
+              <p className="text-sm text-on-surface-variant/30">ยังไม่มีประวัติงาน</p>
+            )}
           </div>
         </section>
       </main>

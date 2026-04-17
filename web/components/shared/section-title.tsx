@@ -2,11 +2,11 @@ export function SectionTitle({
   eyebrow,
   title,
   description,
-}: {
+}: Readonly<{
   eyebrow?: string;
   title: string;
   description?: string;
-}) {
+}>) {
   return (
     <div className="space-y-1">
       {eyebrow ? (

@@ -1,170 +1,142 @@
 import { ArrowLeft, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { TopAppBar } from "@/components/shared/top-app-bar";
+import Link from "next/link";
 
 const presets = [
-  { label: "ล้างแอร์ 9-12k BTU", price: "฿600", tone: "primary" },
-  { label: "เติมน้ำยา R32/R410", price: "฿450", tone: "secondary" },
-  { label: "ซ่อมคอมฯ Compressor", price: "฿2,500", tone: "tertiary" },
+  { label: "ล้างแอร์ 9-12k BTU", price: "฿600" },
+  { label: "เติมน้ำยา R32/R410", price: "฿450" },
+  { label: "ซ่อมคอมเพรสเซอร์", price: "฿2,500" },
 ];
 
 export default function QuotationPage() {
   return (
-    <div>
-      <TopAppBar
-        title="สร้างใบเสนอราคา"
-        left={
-          <button className="rounded-full p-2 text-on-surface transition-transform active:scale-95">
+    <div className="mx-auto max-w-3xl">
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <Link href="/portal/leads" className="text-on-surface-variant/50 hover:text-on-surface">
             <ArrowLeft className="h-5 w-5" />
-          </button>
-        }
-        right={
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-on-primary">
-            คน
+          </Link>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base font-bold text-on-surface">ใบเสนอราคา</h1>
+            <p className="text-[11px] text-on-surface-variant/40">QT-20231027</p>
           </div>
-        }
-      />
+        </div>
+      </header>
 
-      <main className="page-content-tight page-stack-lg">
-        <section className="page-hero">
-          <p className="font-medium text-on-surface-variant">เลขที่เอกสาร: QT-20231027</p>
-          <h2 className="headline-font text-4xl font-extrabold leading-tight tracking-tight text-on-surface">
-            Precision
-            <br />
-            Quotation
-          </h2>
-        </section>
-
-        <section className="section-stack">
-          <h3 className="px-1 text-sm font-semibold uppercase tracking-widest text-on-surface-variant">
-            เลือกบริการด่วน
-          </h3>
-          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
+      <main className="px-4 py-6 space-y-6">
+        {/* Quick presets */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold text-on-surface">เลือกบริการด่วน</h2>
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
             {presets.map((preset) => (
-              <div
+              <button
                 key={preset.label}
-                className="w-40 flex-shrink-0 rounded-[1.5rem] bg-surface-container-lowest p-4 shadow-sm"
+                className="flex min-w-[140px] shrink-0 flex-col gap-1 rounded-xl bg-surface-container-low p-3 text-left transition-colors hover:bg-surface-container"
               >
-                <div
-                  className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${
-                    preset.tone === "primary"
-                      ? "bg-primary-fixed text-primary"
-                      : preset.tone === "secondary"
-                        ? "bg-secondary-container text-secondary"
-                        : "bg-tertiary-fixed text-tertiary"
-                  }`}
-                >
-                  ◎
-                </div>
-                <p className="text-sm font-bold leading-tight text-on-surface">{preset.label}</p>
-                <p
-                  className={`mt-2 font-bold ${
-                    preset.tone === "primary"
-                      ? "text-primary"
-                      : preset.tone === "secondary"
-                        ? "text-secondary"
-                        : "text-tertiary"
-                  }`}
-                >
-                  {preset.price}
-                </p>
-              </div>
+                <span className="text-sm font-semibold text-on-surface">{preset.label}</span>
+                <span className="text-xs font-bold text-primary">{preset.price}</span>
+              </button>
             ))}
           </div>
         </section>
 
-        <section className="surface-sheet rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-on-surface">รายการที่เลือก</h3>
-              <button className="text-sm font-semibold text-primary">เพิ่มรายการเอง</button>
-            </div>
+        {/* Items */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-on-surface">รายการ</h2>
+            <button className="text-xs font-semibold text-primary">+ เพิ่มรายการ</button>
+          </div>
 
-            <div className="section-stack-sm">
-              <div className="flex items-start justify-between border-b border-border/15 pb-4">
-                <div className="space-y-1">
-                  <p className="font-bold text-on-surface">ล้างแอร์ 9000-12000 BTU</p>
-                  <p className="text-xs text-on-surface-variant">จำนวน: 2 เครื่อง x ฿600</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-on-surface">฿1,200</p>
-                  <button className="mt-1 text-xs text-error">ลบออก</button>
-                </div>
+          <div className="rounded-2xl bg-surface-container-low p-4 space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <div>
+                <p className="font-semibold text-on-surface">ล้างแอร์ 9000-12000 BTU</p>
+                <p className="text-xs text-on-surface-variant/40">2 เครื่อง x ฿600</p>
               </div>
-
-              <div className="flex items-start justify-between border-b border-border/15 pb-4">
-                <div className="space-y-1">
-                  <p className="font-bold text-on-surface">เติมน้ำยาแอร์ R32</p>
-                  <p className="text-xs text-on-surface-variant">จำนวน: 1 รายการ</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-on-surface">฿450</p>
-                  <button className="mt-1 text-xs text-error">ลบออก</button>
-                </div>
+              <div className="text-right">
+                <p className="font-bold text-on-surface">฿1,200</p>
+                <button className="text-[11px] text-red-400">ลบ</button>
               </div>
             </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="field-stack">
-                <label className="ml-1 text-xs font-semibold uppercase text-on-surface-variant">
-                  ส่วนลด (฿)
-                </label>
-                <Input placeholder="0.00" type="number" />
+            <div className="flex items-center justify-between border-t border-black/[0.04] pt-3 text-sm">
+              <div>
+                <p className="font-semibold text-on-surface">เติมน้ำยาแอร์ R32</p>
+                <p className="text-xs text-on-surface-variant/40">1 รายการ</p>
               </div>
-
-              <div className="field-stack">
-                <label className="ml-1 text-xs font-semibold uppercase text-on-surface-variant">
-                  ภาษี (%)
-                </label>
-                <select className="h-[3.25rem] w-full rounded-2xl border-none bg-surface-container-lowest px-4 text-on-surface outline-none ring-offset-background focus:ring-2 focus:ring-primary">
-                  <option>7%</option>
-                  <option>0%</option>
-                  <option>หัก ณ ที่จ่าย 3%</option>
-                </select>
+              <div className="text-right">
+                <p className="font-bold text-on-surface">฿450</p>
+                <button className="text-[11px] text-red-400">ลบ</button>
               </div>
-            </div>
-
-            <div className="field-stack">
-              <label className="ml-1 text-xs font-semibold uppercase text-on-surface-variant">
-                บันทึกภายใน
-              </label>
-              <Textarea placeholder="ระบุรายละเอียดเพิ่มเติมสำหรับทีมงาน..." rows={2} />
             </div>
           </div>
         </section>
 
-        <section className="rounded-[1.75rem] bg-primary p-6 text-on-primary shadow-xl md:p-8">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between opacity-80">
-              <span className="text-sm">ยอดรวมรายการ</span>
-              <span className="font-semibold">฿1,650.00</span>
-            </div>
-            <div className="flex items-center justify-between opacity-80">
-              <span className="text-sm">ส่วนลด</span>
-              <span className="font-semibold">-฿0.00</span>
-            </div>
-            <div className="flex items-center justify-between opacity-80">
-              <span className="text-sm">ภาษีมูลค่าเพิ่ม (7%)</span>
-              <span className="font-semibold">฿115.50</span>
-            </div>
-            <div className="flex items-end justify-between border-t border-white/20 pt-4">
-              <span className="text-lg font-bold">ยอดรวมทั้งสิ้น</span>
-              <span className="text-3xl font-extrabold tracking-tight">฿1,765.50</span>
-            </div>
+        {/* Options */}
+        <section className="grid grid-cols-2 gap-2">
+          <div className="space-y-1.5">
+            <label htmlFor="discount" className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/40">
+              ส่วนลด (฿)
+            </label>
+            <input
+              id="discount"
+              type="number"
+              placeholder="0.00"
+              className="h-10 w-full rounded-xl bg-surface-container-low px-3 text-sm outline-none focus:ring-2 focus:ring-primary/10"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="tax" className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/40">
+              ภาษี
+            </label>
+            <select id="tax" className="h-10 w-full rounded-xl bg-surface-container-low px-3 text-sm outline-none focus:ring-2 focus:ring-primary/10">
+              <option>7%</option>
+              <option>0%</option>
+              <option>หัก ณ ที่จ่าย 3%</option>
+            </select>
           </div>
         </section>
-      </main>
 
-      <div className="glass-bar sticky-action-bar fixed bottom-0 left-0 z-50 w-full">
-        <div className="mx-auto w-full max-w-[42rem]">
-          <Button className="h-14 w-full font-bold">
-            <Send className="h-5 w-5" />
-            ส่งใบเสนอราคา (Send via LINE)
-          </Button>
+        <div className="space-y-1.5">
+          <label htmlFor="note" className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/40">
+            บันทึกภายใน
+          </label>
+          <textarea
+            id="note"
+            placeholder="หมายเหตุสำหรับทีมงาน..."
+            rows={2}
+            className="w-full rounded-xl bg-surface-container-low p-3 text-sm outline-none resize-none focus:ring-2 focus:ring-primary/10"
+          />
         </div>
-      </div>
+
+        {/* Total */}
+        <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-5 text-white">
+          <div className="space-y-1.5 text-sm opacity-80">
+            <div className="flex justify-between">
+              <span>ยอดรวมรายการ</span>
+              <span>฿1,650.00</span>
+            </div>
+            <div className="flex justify-between">
+              <span>ส่วนลด</span>
+              <span>-฿0.00</span>
+            </div>
+            <div className="flex justify-between">
+              <span>ภาษี (7%)</span>
+              <span>฿115.50</span>
+            </div>
+          </div>
+          <div className="mt-3 flex items-end justify-between border-t border-white/20 pt-3">
+            <span className="font-bold">ยอดรวมทั้งสิ้น</span>
+            <span className="text-2xl font-extrabold">฿1,765.50</span>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="pb-4">
+          <button className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-on-surface text-sm font-bold text-white transition-all hover:bg-on-surface/90 active:scale-[0.98]">
+            <Send className="h-4 w-4" />
+            ส่งใบเสนอราคา
+          </button>
+        </div>
+      </main>
     </div>
   );
 }

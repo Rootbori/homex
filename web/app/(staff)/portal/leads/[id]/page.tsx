@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ImagePlus } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
-import { TopAppBar } from "@/components/shared/top-app-bar";
+import { ArrowLeft, ImagePlus, MapPin, PhoneCall } from "lucide-react";
 import { getLead } from "@/lib/server-data";
 
 export default async function LeadDetailPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ id: string }>;
-}) {
+}>) {
   const { id } = await params;
   const lead = await getLead(id);
 
@@ -19,113 +16,102 @@ export default async function LeadDetailPage({
   }
 
   return (
-    <div>
-      <TopAppBar
-        title="Lead Detail"
-        left={
-          <Link href="/portal/leads" className="rounded-full p-2 text-on-surface transition-transform active:scale-95">
+    <div className="mx-auto max-w-3xl">
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <Link href="/portal/leads" className="text-on-surface-variant/50 hover:text-on-surface">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-        }
-        right={<ProfileBubble />}
-      />
-      <main className="page-content page-stack-lg">
-        <section className="relative overflow-hidden rounded-[1.75rem] bg-surface-container-low p-6">
-          <div className="relative z-10">
-            <p className="mb-1 text-sm font-medium text-on-surface-variant">Lead Details</p>
-            <h1 className="headline-font mb-4 text-3xl font-extrabold leading-tight text-on-surface">
-              {lead.userName}
-            </h1>
-            <div className="grid grid-cols-2 gap-3">
-              <a href={`tel:${lead.phone}`} className="flex h-[56px] items-center justify-center rounded-xl bg-primary font-semibold text-on-primary">
-                โทรออก
-              </a>
-              <button className="flex h-[56px] items-center justify-center rounded-xl bg-surface-container-lowest font-semibold text-primary shadow-sm">
-                นำทาง
-              </button>
+          <h1 className="text-base font-bold text-on-surface">{lead.userName}</h1>
+        </div>
+      </header>
+
+      <main className="px-4 py-6 space-y-6">
+        {/* Contact actions */}
+        <div className="grid grid-cols-2 gap-2">
+          <a
+            href={`tel:${lead.phone}`}
+            className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-white"
+          >
+            <PhoneCall className="h-4 w-4" />
+            โทรออก
+          </a>
+          <button className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-surface-container-low text-sm font-semibold text-on-surface">
+            <MapPin className="h-4 w-4" />
+            นำทาง
+          </button>
+        </div>
+
+        {/* Request details */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold text-on-surface">รายละเอียดคำขอ</h2>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-surface-container-low p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/30">บริการ</p>
+              <p className="mt-1 text-sm font-bold text-on-surface">{lead.serviceType}</p>
+            </div>
+            <div className="rounded-xl bg-surface-container-low p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/30">จำนวน</p>
+              <p className="mt-1 text-sm font-bold text-on-surface">{lead.units || "-"} เครื่อง</p>
             </div>
           </div>
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
-        </section>
-
-        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack">
-            <h2 className="text-lg font-bold text-on-surface">รายละเอียดคำขอ</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-3xl bg-surface-container-low p-5">
-                <p className="mb-1 text-xs font-medium uppercase tracking-widest text-on-surface-variant">บริการ</p>
-                <p className="text-xl font-bold text-on-surface">{lead.serviceType}</p>
-              </div>
-              <div className="rounded-3xl bg-surface-container-low p-5">
-                <p className="mb-1 text-xs font-medium uppercase tracking-widest text-on-surface-variant">จำนวนเครื่อง</p>
-                <p className="text-xl font-bold text-on-surface">{lead.units || "-"} เครื่อง</p>
-              </div>
-              <div className="col-span-2 rounded-3xl border border-border/10 bg-surface-container-lowest p-5">
-                <p className="mb-2 text-xs font-medium uppercase tracking-widest text-on-surface-variant">อาการเบื้องต้น</p>
-                <p className="text-lg leading-relaxed text-on-surface">{lead.symptom}</p>
-              </div>
-            </div>
+          <div className="rounded-xl bg-surface-container-low p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/30">อาการเบื้องต้น</p>
+            <p className="mt-1 text-sm leading-relaxed text-on-surface">{lead.symptom}</p>
           </div>
         </section>
 
-        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack">
-            <h2 className="text-lg font-bold text-on-surface">ข้อมูลเครื่องปรับอากาศ</h2>
-            {lead.airUnits.length > 0 ? (
-              <div className="card-stack">
-                {lead.airUnits.map((unit, index) => (
-                  <div key={`${unit.brand}-${index}`} className="grid grid-cols-2 gap-4 rounded-3xl bg-surface-container-low p-5">
-                    <div>
-                      <p className="text-xs uppercase tracking-widest text-on-surface-variant">แบรนด์</p>
-                      <p className="mt-1 text-lg font-bold text-on-surface">{unit.brand}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-widest text-on-surface-variant">ขนาด</p>
-                      <p className="mt-1 text-lg font-bold text-on-surface">{unit.btu}</p>
-                    </div>
-                    <div className="col-span-2 text-sm text-on-surface-variant">{unit.symptom}</div>
+        {/* Air units */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold text-on-surface">ข้อมูลเครื่องปรับอากาศ</h2>
+          {lead.airUnits.length > 0 ? (
+            <div className="space-y-2">
+              {lead.airUnits.map((unit, index) => (
+                <div key={`${unit.brand}-${index}`} className="rounded-xl bg-surface-container-low p-3">
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="font-bold text-on-surface">{unit.brand}</span>
+                    <span className="text-on-surface-variant/50">{unit.btu}</span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-3xl bg-surface-container-low p-5 text-sm text-on-surface-variant">ยังไม่มีข้อมูลแอร์แยกรายเครื่อง</div>
-            )}
-            <div className="relative flex h-28 items-center justify-center rounded-3xl bg-surface-container-highest">
-              <ImagePlus className="h-8 w-8 text-on-surface-variant" />
+                  <p className="mt-1 text-xs text-on-surface-variant/50">{unit.symptom}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-on-surface-variant/30">ยังไม่มีข้อมูลแยกรายเครื่อง</p>
+          )}
+          <div className="flex h-20 items-center justify-center rounded-xl bg-surface-container-low">
+            <ImagePlus className="h-6 w-6 text-on-surface-variant/20" />
+          </div>
+        </section>
+
+        {/* Notes */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold text-on-surface">บันทึก</h2>
+          <div className="space-y-2">
+            <div className="rounded-xl bg-surface-container-low p-3">
+              <p className="text-sm font-medium text-on-surface">รับ Lead แล้ว</p>
+              <p className="mt-0.5 text-xs text-on-surface-variant/40">{lead.time} • {lead.source}</p>
+            </div>
+            <div className="rounded-xl bg-surface-container-low p-3">
+              <p className="text-sm font-medium text-on-surface">พื้นที่ให้บริการ</p>
+              <p className="mt-0.5 text-xs text-on-surface-variant/40">{lead.area}</p>
             </div>
           </div>
         </section>
 
-        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack">
-            <h2 className="text-lg font-bold text-on-surface">บันทึก lead</h2>
-            <div className="rounded-3xl bg-surface-container-low p-6">
-              <div className="space-y-4">
-                <div className="rounded-2xl bg-surface-container-lowest p-4">
-                  <p className="text-sm font-bold text-on-surface">รับ lead แล้ว</p>
-                  <p className="mt-1 text-xs text-on-surface-variant">
-                    {lead.time} • {lead.source}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-surface-container-lowest p-4">
-                  <p className="text-sm font-bold text-on-surface">พื้นที่ให้บริการ</p>
-                  <p className="mt-1 text-xs text-on-surface-variant">{lead.area}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <div className="glass-bar fixed bottom-0 left-0 z-50 w-full p-6 pb-10">
-        <div className="mx-auto grid max-w-md grid-cols-1 gap-3 sm:grid-cols-3">
-          <Link href="/portal/quotation" className={buttonVariants({ size: "lg" })}>
+        {/* Actions */}
+        <div className="grid gap-2 pb-4">
+          <Link
+            href="/portal/quotation"
+            className="flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-sm font-bold text-white shadow-lg shadow-amber-500/20 transition-all hover:brightness-110 active:scale-[0.98]"
+          >
             สร้างใบเสนอราคา
           </Link>
-          <button className={buttonVariants({ size: "lg", variant: "secondary" })}>Assign ช่าง</button>
-          <button className={buttonVariants({ size: "lg", variant: "outline" })}>เปลี่ยนเป็น Job</button>
+          <button className="flex h-12 items-center justify-center rounded-2xl bg-surface-container-low text-sm font-semibold text-on-surface">
+            Assign ช่าง
+          </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

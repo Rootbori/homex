@@ -1,17 +1,15 @@
 import Link from "next/link";
+import { ChevronRight, LogOut, User } from "lucide-react";
 import { auth } from "@/auth";
-import { LogoutButton } from "@/components/auth/logout-button";
-import { buttonVariants } from "@/components/ui/button";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
-import { TopAppBar } from "@/components/shared/top-app-bar";
+import { signOutAction } from "@/app/login/actions";
 import { providerLabel } from "@/lib/auth-flow";
 import { getUsers, getJobs, getTechnicians } from "@/lib/server-data";
 
 const links = [
-  { href: "/portal/quotation", label: "Quotation", description: "เตรียมใบเสนอราคาและส่งผ่าน LINE" },
-  { href: "/portal/technicians", label: "Technicians", description: "ดูโปรไฟล์ทีมช่างและ performance" },
-  { href: "/portal/my-jobs", label: "Technician My Jobs", description: "หน้ามุมมองของช่างที่เห็นเฉพาะงานตัวเอง" },
-  { href: "/portal/users", label: "Users", description: "ข้อมูลลูกค้าและประวัติการใช้บริการ" },
+  { href: "/portal/quotation", label: "Quotation", description: "เตรียมใบเสนอราคา" },
+  { href: "/portal/technicians", label: "ทีมช่าง", description: "ดูโปรไฟล์และ performance" },
+  { href: "/portal/my-jobs", label: "งานของฉัน", description: "มุมมองช่าง — เห็นเฉพาะงานตัวเอง" },
+  { href: "/portal/users", label: "ลูกค้า", description: "ข้อมูลและประวัติการใช้บริการ" },
 ];
 
 export default async function MorePage() {
@@ -26,60 +24,72 @@ export default async function MorePage() {
   const loginProvider = providerLabel(session?.provider ?? session?.user?.provider);
 
   return (
-    <div>
-      <TopAppBar title="More" right={<ProfileBubble image={session?.user?.image ?? undefined} />} />
-      <main className="page-content page-stack">
-        <section className="page-hero">
-          <span className="block text-sm font-bold uppercase tracking-widest text-primary">More</span>
-          <h1 className="headline-font text-3xl font-extrabold tracking-tight text-on-surface">การตั้งค่าและเมนูเสริม</h1>
-        </section>
+    <div className="mx-auto max-w-3xl">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center px-4">
+          <h1 className="text-base font-bold text-on-surface">เพิ่มเติม</h1>
+        </div>
+      </header>
 
-        <section className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-          <div className="section-stack-sm">
-            <div>
-              <p className="headline-font text-lg font-bold text-on-surface">{displayName}</p>
-              <p className="text-sm text-on-surface-variant">
-                {displayEmail} • เข้าสู่ระบบผ่าน {loginProvider}
-              </p>
-            </div>
-            <p className="text-sm text-on-surface-variant">
-              สิทธิ์ปัจจุบัน: {session?.accountType === "staff" ? "staff / ทีมช่าง" : "user"}
+      <main className="px-4 py-6 space-y-6">
+        {/* Profile card */}
+        <div className="flex items-center gap-4 rounded-2xl bg-surface-container-low p-5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <User className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="font-bold text-on-surface">{displayName}</h2>
+            <p className="text-xs text-on-surface-variant/50">
+              {displayEmail} • {loginProvider}
             </p>
           </div>
-        </section>
+        </div>
 
-        <section className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[1.5rem] bg-primary-container p-4 text-on-primary">
-            <p className="text-[11px] font-semibold uppercase tracking-widest opacity-80">Technicians</p>
-            <p className="mt-2 text-3xl font-extrabold">{technicians.length}</p>
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-xl font-extrabold text-on-surface">{technicians.length}</p>
+            <p className="text-[10px] font-medium text-on-surface-variant/40">ช่าง</p>
           </div>
-          <div className="rounded-[1.5rem] bg-surface-container-low p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">Users</p>
-            <p className="mt-2 text-3xl font-extrabold text-on-surface">{users.length}</p>
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-xl font-extrabold text-on-surface">{users.length}</p>
+            <p className="text-[10px] font-medium text-on-surface-variant/40">ลูกค้า</p>
           </div>
-          <div className="rounded-[1.5rem] bg-surface-container-low p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-on-surface-variant">Jobs</p>
-            <p className="mt-2 text-3xl font-extrabold text-on-surface">{jobs.length}</p>
+          <div className="rounded-xl bg-surface-container-low p-3 text-center">
+            <p className="text-xl font-extrabold text-on-surface">{jobs.length}</p>
+            <p className="text-[10px] font-medium text-on-surface-variant/40">งาน</p>
           </div>
-        </section>
+        </div>
 
-        <div className="card-stack">
+        {/* Menu links */}
+        <div className="rounded-2xl bg-white ring-1 ring-black/[0.04] divide-y divide-black/[0.04]">
           {links.map((item) => (
-            <div key={item.href} className="surface-card rounded-[1.75rem] p-5 ambient-shadow md:p-6">
-              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="headline-font text-lg font-bold text-on-surface">{item.label}</p>
-                  <p className="mt-1 text-sm text-on-surface-variant">{item.description}</p>
-                </div>
-                <Link href={item.href} className={`${buttonVariants({ variant: "secondary" })} w-full sm:w-auto`}>
-                  เปิด
-                </Link>
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-surface-container-low"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-on-surface">{item.label}</p>
+                <p className="text-xs text-on-surface-variant/40">{item.description}</p>
               </div>
-            </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-on-surface-variant/20" />
+            </Link>
           ))}
         </div>
 
-        <LogoutButton redirectTo="/login" />
+        {/* Logout */}
+        <form action={signOutAction}>
+          <input name="redirectTo" type="hidden" value="/login" />
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            ออกจากระบบ
+          </button>
+        </form>
       </main>
     </div>
   );

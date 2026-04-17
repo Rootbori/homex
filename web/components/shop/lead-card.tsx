@@ -1,69 +1,48 @@
 import Link from "next/link";
-import { Clock3, MessageCircle, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Clock3, MessageCircle, Search } from "lucide-react";
 import type { LeadSummary } from "@/lib/api-types";
 
 export function LeadCard({ lead }: Readonly<{ lead: LeadSummary }>) {
   const isNew = lead.status === "new";
-  const isQuoted = lead.status === "quoted";
-
-  const getStatusInfo = () => {
-    if (isNew) return { variant: "warning" as const, label: "New Lead" };
-    if (isQuoted) return { variant: "default" as const, label: "Pending" };
-    return { variant: "success" as const, label: "Converted" };
-  };
-
-  const { variant: statusVariant, label: statusLabel } = getStatusInfo();
 
   return (
-    <div className="premium-card p-6 border-none ring-1 ring-black/[0.03] transition-all hover:scale-[1.01]">
-      <div className="space-y-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <Badge variant={statusVariant} className="h-5 px-2 text-[9px] font-black uppercase tracking-tighter">
-                {statusLabel}
-              </Badge>
-              <span className="flex items-center gap-1 text-[10px] font-bold text-on-surface-variant/40">
-                <Clock3 className="h-3.5 w-3.5" />
-                {lead.time}
-              </span>
-            </div>
-            <p className="headline-font text-xl font-extrabold tracking-tight text-on-surface">คุณ{lead.userName}</p>
-            <p className="text-xs font-bold text-primary mt-0.5">{lead.phone}</p>
-          </div>
-          <div
-            className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-inner ${
-              lead.source === "line_oa" ? "bg-emerald-50" : "bg-primary/5"
-            }`}
-          >
-            {lead.source === "line_oa" ? (
-              <MessageCircle className="h-6 w-6 text-emerald-500" />
-            ) : (
-              <Search className="h-6 w-6 text-primary" />
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 border-t border-black/5 pt-4">
-          <div>
-            <span className="mb-0.5 block text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40">
-              Service
-            </span>
-            <span className="text-sm font-bold text-on-surface">{lead.serviceType}</span>
-          </div>
-          <div>
-            <span className="mb-0.5 block text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40">
-              Quantity
-            </span>
-            <span className="text-sm font-bold text-on-surface">{lead.units} เครื่อง</span>
-          </div>
-        </div>
-
-        <Link href={`/portal/leads/${lead.id}`} className="flex h-11 w-full items-center justify-center rounded-xl bg-surface-container text-xs font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">
-          ดูรายละเอียดลีดนี้
-        </Link>
+    <Link
+      href={`/portal/leads/${lead.id}`}
+      className="group flex items-center gap-4 rounded-2xl bg-white p-4 ring-1 ring-black/[0.04] transition-all hover:shadow-md active:scale-[0.99]"
+    >
+      {/* Source icon */}
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+          lead.source === "line_oa" ? "bg-emerald-50 text-emerald-500" : "bg-primary/5 text-primary"
+        }`}
+      >
+        {lead.source === "line_oa" ? (
+          <MessageCircle className="h-5 w-5" />
+        ) : (
+          <Search className="h-5 w-5" />
+        )}
       </div>
-    </div>
+
+      {/* Info */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-[15px] font-bold text-on-surface">คุณ{lead.userName}</span>
+          {isNew && (
+            <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-600">
+              NEW
+            </span>
+          )}
+        </div>
+        <p className="mt-0.5 text-xs text-on-surface-variant/50">
+          {lead.serviceType} • {lead.units} เครื่อง
+        </p>
+        <div className="mt-1 flex items-center gap-1 text-[11px] text-on-surface-variant/30">
+          <Clock3 className="h-3 w-3" />
+          {lead.time}
+        </div>
+      </div>
+
+      <ChevronRight className="h-4 w-4 shrink-0 text-on-surface-variant/20 transition-transform group-hover:translate-x-0.5" />
+    </Link>
   );
 }

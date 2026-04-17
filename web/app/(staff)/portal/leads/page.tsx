@@ -1,53 +1,56 @@
-import { CalendarDays, Filter, Globe2, MapPin, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { LeadCard } from "@/components/shop/lead-card";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
-import { TopAppBar } from "@/components/shared/top-app-bar";
-import { Input } from "@/components/ui/input";
 import { getLeads } from "@/lib/server-data";
 
 export default async function LeadsPage() {
   const leads = await getLeads();
 
   return (
-    <div>
-      <TopAppBar title="Atmospheric" right={<ProfileBubble />} />
-      <main className="page-content page-stack">
-        <div className="page-hero">
-          <span className="mb-1 block text-sm font-bold uppercase tracking-widest text-primary">Sales Funnel</span>
-          <h2 className="headline-font text-3xl font-extrabold tracking-tight text-on-surface">Leads รายใหม่</h2>
-          <p className="mt-1 text-sm text-on-surface-variant">จัดการรายชื่อลูกค้าที่สนใจบริการของคุณ</p>
+    <div className="mx-auto max-w-3xl">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center px-4">
+          <h1 className="text-base font-bold text-on-surface">Leads</h1>
+          <span className="ml-2 rounded-full bg-primary/5 px-2 py-0.5 text-[11px] font-bold text-primary">
+            {leads.length}
+          </span>
+        </div>
+      </header>
+
+      <main className="px-4 py-4 space-y-4">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/30" />
+          <input
+            className="h-10 w-full rounded-xl bg-surface-container-low pl-10 pr-4 text-sm outline-none placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/10"
+            placeholder="ค้นหาชื่อลูกค้าหรือเบอร์โทร..."
+          />
         </div>
 
-        <section className="section-stack">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
-            <Input className="pl-12" placeholder="ค้นหาชื่อลูกค้าหรือเบอร์โทร..." />
-          </div>
-          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-2">
-            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-primary-container px-4 text-on-primary">
-              <Filter className="h-4 w-4" />
-              กรองข้อมูล
+        {/* Quick filters */}
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+          {["ทั้งหมด", "ใหม่", "ส่งใบเสนอราคาแล้ว", "LINE OA", "เว็บ"].map((label, i) => (
+            <button
+              key={label}
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                i === 0
+                  ? "bg-on-surface text-white"
+                  : "bg-surface-container-low text-on-surface-variant/50 hover:bg-surface-container"
+              }`}
+            >
+              {label}
             </button>
-            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 text-sm font-medium text-on-surface-variant">
-              <Globe2 className="h-4 w-4" />
-              LINE/Web
-            </button>
-            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 text-sm font-medium text-on-surface-variant">
-              <MapPin className="h-4 w-4" />
-              พื้นที่
-            </button>
-            <button className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-surface-container-high px-4 text-sm font-medium text-on-surface-variant">
-              <CalendarDays className="h-4 w-4" />
-              วันที่
-            </button>
-          </div>
-        </section>
+          ))}
+        </div>
 
-        <div className="card-stack">
+        {/* Lead list */}
+        <div className="space-y-2">
           {leads.length > 0 ? (
             leads.map((lead) => <LeadCard key={lead.id} lead={lead} />)
           ) : (
-            <div className="surface-card rounded-[1.75rem] p-5 text-sm text-on-surface-variant">ยังไม่มี lead ในระบบ</div>
+            <p className="py-16 text-center text-sm text-on-surface-variant/30">
+              ยังไม่มี Lead ในระบบ
+            </p>
           )}
         </div>
       </main>

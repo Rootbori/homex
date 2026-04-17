@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { JobStatus } from "@/lib/api-types";
 
 const jobStatusLabel: Record<JobStatus, string> = {
@@ -23,6 +23,19 @@ const jobStatusVariant: Record<JobStatus, "default" | "success" | "warning" | "m
   cancelled: "muted",
 };
 
-export function StatusChip({ status }: { status: JobStatus }) {
-  return <Badge variant={jobStatusVariant[status]}>{jobStatusLabel[status]}</Badge>;
+export function StatusChip({ status }: Readonly<{ status: JobStatus }>) {
+  const variant = jobStatusVariant[status];
+  const label = jobStatusLabel[status];
+
+  return (
+    <span className={cn(
+      "inline-flex h-6 items-center px-2.5 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm",
+      variant === "success" && "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/10",
+      variant === "warning" && "bg-amber-50 text-amber-700 ring-1 ring-amber-600/10",
+      variant === "default" && "bg-primary/5 text-primary ring-1 ring-primary/20",
+      variant === "muted" && "bg-slate-50 text-slate-500 ring-1 ring-slate-400/10",
+    )}>
+      {label}
+    </span>
+  );
 }

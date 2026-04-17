@@ -83,6 +83,9 @@ const config: Config = {
       backgroundImage: {
         "atmospheric-gradient": "linear-gradient(135deg, var(--primary-container) 0%, var(--primary) 100%)",
       },
+      animation: {
+        "spin-slow": "spin 3s linear infinite",
+      },
     },
   },
   plugins: [],

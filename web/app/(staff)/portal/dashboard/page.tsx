@@ -1,198 +1,134 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { ChevronRight, Snowflake } from "lucide-react";
 import { LeadCard } from "@/components/shop/lead-card";
 import { JobCard } from "@/components/shop/job-card";
-import { Badge } from "@/components/ui/badge";
-import { ProfileBubble } from "@/components/shared/profile-bubble";
-import { TopAppBar } from "@/components/shared/top-app-bar";
 import { formatCurrency } from "@/lib/format";
 import { getDashboard } from "@/lib/server-data";
 
 export default async function DashboardPage() {
   const dashboard = await getDashboard();
   const hour = new Date().getHours();
-  let greeting: string;
-  if (hour < 12) {
-    greeting = "อรุณสวัสดิ์";
-  } else if (hour < 18) {
+  
+  let greeting = "อรุณสวัสดิ์";
+  if (hour >= 12 && hour < 18) {
     greeting = "สวัสดีตอนบ่าย";
-  } else {
+  } else if (hour >= 18) {
     greeting = "สวัสดีตอนเย็น";
   }
 
   return (
-    <div className="animate-in">
-      <TopAppBar title="Homex Portal" right={<ProfileBubble />} />
-      <main className="page-content page-stack">
-        <section className="page-hero">
-          <Badge className="w-fit mb-2" variant="default">
-            Dashboard Mode
-          </Badge>
-          <h2 className="headline-font text-5xl font-extrabold leading-[1.05] tracking-tighter text-on-surface">
-            {greeting}
-            <br />
-            <span className="text-primary italic">ภาพรวมวันนี้ของคุณ</span>
-          </h2>
-        </section>
+    <div className="mx-auto max-w-3xl">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+            <Snowflake className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-base font-bold text-on-surface">Homex Portal</span>
+        </div>
+      </header>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
+      <main className="px-4 py-6 space-y-6">
+        {/* Greeting */}
+        <div>
+          <h1 className="text-2xl font-extrabold text-on-surface">{greeting}</h1>
+          <p className="mt-1 text-sm text-on-surface-variant/50">ภาพรวมธุรกิจของคุณวันนี้</p>
+        </div>
+
+        {/* KPIs */}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {dashboard.kpis.map((item, index) => {
-            const colors = [
-              "bg-primary text-white atmospheric-glow",
-              "bg-secondary text-white shadow-lg",
-              "bg-white text-on-surface ring-1 ring-black/5",
-              "bg-white text-on-surface ring-1 ring-black/5",
-              "bg-emerald-500 text-white shadow-lg sm:col-span-2 lg:col-span-1",
+            const styles = [
+              "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+              "bg-gradient-to-br from-amber-500 to-orange-600 text-white",
+              "bg-surface-container-low text-on-surface",
+              "bg-surface-container-low text-on-surface",
+              "bg-emerald-50 text-emerald-700",
             ];
-
-            const getIcon = (idx: number) => {
-              switch (idx) {
-                case 0:
-                  return "★";
-                case 1:
-                  return "⚡";
-                case 2:
-                  return "▧";
-                case 3:
-                  return "✓";
-                default:
-                  return "฿";
-              }
-            };
-
             return (
               <div
                 key={item.label}
-                className={`flex flex-col justify-between rounded-[2rem] p-6 transition-transform hover:scale-[1.02] ${colors[index] ?? "bg-white"}`}
+                className={`rounded-2xl p-4 ${styles[index] ?? "bg-surface-container-low text-on-surface"}`}
               >
-                <div className="text-2xl opacity-80">{getIcon(index)}</div>
-                <div className="mt-4">
-                  <p className="text-3xl font-black leading-none tracking-tighter">
-                    {index === 4
-                      ? formatCurrency(Number(item.value))
-                      : item.value}
-                  </p>
-                  <p className="mt-1 text-[10px] font-bold uppercase tracking-widest opacity-70">
-                    {item.label}
-                  </p>
-                </div>
+                <p className="text-2xl font-extrabold leading-none">
+                  {index === 4 ? formatCurrency(Number(item.value)) : item.value}
+                </p>
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider opacity-60">
+                  {item.label}
+                </p>
               </div>
             );
           })}
         </div>
 
-        <section className="mt-4">
-          <div className="mb-6 flex items-baseline justify-between px-1">
-            <h3 className="headline-font text-2xl font-extrabold tracking-tight">
-              งานด่วนต้องรีบทำ
-            </h3>
-            <Link
-              href="/portal/jobs"
-              className="text-sm font-bold text-primary hover:underline italic"
-            >
-              ดูงานทั้งหมด →
-            </Link>
-          </div>
-          <div className="no-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-6 md:-mx-8 md:px-8">
-            {dashboard.urgentJobs.length > 0 ? (
-              dashboard.urgentJobs.map((item) => (
+        {/* Urgent jobs carousel */}
+        {dashboard.urgentJobs.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-on-surface">งานเร่งด่วน</h2>
+              <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-500">
+                {dashboard.urgentJobs.length}
+              </span>
+            </div>
+            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+              {dashboard.urgentJobs.map((item) => (
                 <div
                   key={item.code}
-                  className="premium-card min-w-[300px] p-7 ring-1 ring-black/5"
+                  className="min-w-[240px] rounded-2xl bg-red-50 p-4 ring-1 ring-red-100"
                 >
-                  <div className="mb-8 flex items-start justify-between">
-                    <div className="flex flex-col gap-1">
-                      <Badge variant="warning" className="w-fit">
-                        Urgent Case
-                      </Badge>
-                      <span className="text-[10px] font-bold text-on-surface-variant/40 tracking-tighter uppercase">
-                        Needs action
-                      </span>
-                    </div>
-                    <p className="text-lg font-black text-primary">
-                      {item.time}
-                    </p>
-                  </div>
-                  <h4 className="mb-1 text-2xl font-extrabold tracking-tighter italic">
-                    {item.code}
-                  </h4>
-                  <p className="mb-8 text-base font-medium text-on-surface-variant leading-tight">
-                    คุณ{item.user}
-                    <br />
-                    <span className="text-sm font-bold text-amber-600 truncate max-w-[200px] block">
-                      สถานะ: {item.status}
-                    </span>
+                  <p className="text-xs font-bold text-red-400">{item.time}</p>
+                  <p className="mt-1 text-base font-extrabold text-on-surface">{item.code}</p>
+                  <p className="mt-0.5 text-sm text-on-surface-variant/60">
+                    คุณ{item.user} — {item.status}
                   </p>
-                  <div className="flex gap-2">
-                    <button className="flex-1 h-11 rounded-xl bg-surface-container text-xs font-bold hover:bg-surface-container-high transition-colors">
-                      ข้าม
-                    </button>
-                    <button className="flex-1 h-11 rounded-xl bg-on-surface text-white text-xs font-bold shadow-lg active:scale-95">
-                      ดูรายละเอียด
-                    </button>
-                  </div>
                 </div>
-              ))
-            ) : (
-              <div className="premium-card w-full p-10 flex flex-col items-center justify-center border-dashed border-2 border-black/5 bg-transparent shadow-none">
-                <p className="text-sm font-bold text-on-surface-variant/40">
-                  ยังไม่มีงานเร่งด่วนในตอนนี้
-                </p>
-              </div>
-            )}
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Today's jobs */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-on-surface">งานวันนี้</h2>
+            <Link href="/portal/jobs" className="flex items-center gap-1 text-xs font-semibold text-primary">
+              ทั้งหมด <ChevronRight className="h-3 w-3" />
+            </Link>
           </div>
+          {dashboard.todayJobs.length > 0 ? (
+            <div className="space-y-2">
+              {dashboard.todayJobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+          ) : (
+            <p className="py-8 text-center text-sm text-on-surface-variant/30">
+              วันนี้ยังไม่มีงาน
+            </p>
+          )}
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
-          <div className="card-stack">
-            <div className="flex items-center justify-between px-1">
-              <p className="text-sm font-black uppercase tracking-widest text-on-surface-variant/60">
-                งานในคิววันนี้
-              </p>
-              <span className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary">
-                {dashboard.todayJobs.length}
-              </span>
-            </div>
-            {dashboard.todayJobs.length > 0 ? (
-              dashboard.todayJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))
-            ) : (
-              <div className="premium-card p-10 text-center bg-surface-container-low border-none">
-                <p className="text-sm font-bold text-on-surface-variant">
-                  วันนี้ยังไม่มีงานในระบบ
-                </p>
-              </div>
-            )}
+        {/* Latest leads */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-on-surface">ลีดล่าสุด</h2>
+            <Link href="/portal/leads" className="flex items-center gap-1 text-xs font-semibold text-primary">
+              ทั้งหมด <ChevronRight className="h-3 w-3" />
+            </Link>
           </div>
-
-          <div className="card-stack">
-            <div className="flex items-center justify-between px-1">
-              <p className="text-sm font-black uppercase tracking-widest text-on-surface-variant/60">
-                ลีดล่าสุด
-              </p>
-              <span className="h-5 w-5 rounded-full bg-secondary/10 flex items-center justify-center text-[10px] font-black text-secondary">
-                {dashboard.latestLeads.length}
-              </span>
-            </div>
-            {dashboard.latestLeads.length > 0 ? (
-              dashboard.latestLeads.map((lead) => (
+          {dashboard.latestLeads.length > 0 ? (
+            <div className="space-y-2">
+              {dashboard.latestLeads.map((lead) => (
                 <LeadCard key={lead.id} lead={lead} />
-              ))
-            ) : (
-              <div className="premium-card p-10 text-center bg-surface-container-low border-none">
-                <p className="text-sm font-bold text-on-surface-variant">
-                  ยังไม่มีลีดใหม่ส่งมาให้นะครับ
-                </p>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="py-8 text-center text-sm text-on-surface-variant/30">
+              ยังไม่มีลีดใหม่
+            </p>
+          )}
         </section>
       </main>
-
-      <button className="atmospheric-glow fixed bottom-28 right-8 z-50 flex h-16 w-16 items-center justify-center rounded-2xl bg-on-surface text-white transition-all hover:scale-110">
-        <Plus className="h-8 w-8" />
-      </button>
     </div>
   );
 }

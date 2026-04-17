@@ -103,7 +103,7 @@ function getAccountCopy(option?: SignupOption | null) {
   };
 }
 
-export function SignupForm({ initialAccountType = "user" }: { initialAccountType?: SignupAccountType }) {
+export function SignupForm({ initialAccountType = "user" }: Readonly<{ initialAccountType?: SignupAccountType }>) {
   const [options, setOptions] = useState<SignupOptionsResponse>(fallbackOptions);
   const [form, setForm] = useState<SignupPayload>({
     ...initialForm,
@@ -155,8 +155,6 @@ export function SignupForm({ initialAccountType = "user" }: { initialAccountType
   const accountCopy = getAccountCopy(selectedAccount);
 
   function setField<Key extends keyof SignupPayload>(key: Key, value: SignupPayload[Key]) {
-    setSubmitResult(null);
-    setSubmitError(null);
     setForm((current) => ({
       ...current,
       [key]: value,
@@ -164,14 +162,10 @@ export function SignupForm({ initialAccountType = "user" }: { initialAccountType
   }
 
   function selectAccount(accountType: SignupAccountType) {
-    setSubmitResult(null);
-    setSubmitError(null);
     setField("account_type", accountType);
   }
 
   function selectProvider(provider: SignupProvider) {
-    setSubmitResult(null);
-    setSubmitError(null);
     setField("provider", provider);
   }
 
@@ -210,16 +204,16 @@ export function SignupForm({ initialAccountType = "user" }: { initialAccountType
   return (
     <div className="min-h-screen bg-surface">
       <main className="mx-auto max-w-sm px-5 pb-10 pt-6 sm:max-w-md md:max-w-lg">
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-8 flex items-center gap-4">
           <Link
             href="/"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface-container-low text-primary transition-transform active:scale-95"
+            className="interactive-scale inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-soft text-primary transition-all hover:bg-primary/5"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-6 w-6" />
           </Link>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Homex</p>
-            <h1 className="headline-font text-2xl font-bold text-on-surface">เริ่มใช้งาน</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Homex Platform</p>
+            <h1 className="headline-font text-3xl font-black tracking-tight text-on-surface">เริ่มใช้งาน</h1>
           </div>
         </div>
 
@@ -320,16 +314,11 @@ export function SignupForm({ initialAccountType = "user" }: { initialAccountType
             </CardContent>
           </Card>
 
-          <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
-            สมัครเป็น <span className="font-semibold text-on-surface">{accountCopy.title}</span> ผ่าน{" "}
-            <span className="font-semibold text-on-surface">{selectedProvider?.label ?? "LINE"}</span>
-          </div>
-
           <label className="flex items-start gap-3 rounded-2xl bg-surface-container-low px-4 py-3">
             <input
               checked={form.accept_terms}
               onChange={(event) => setField("accept_terms", event.target.checked)}
-              className="mt-1 h-4 w-4 accent-[var(--primary)]"
+              className="mt-1 h-4 w-4 accent-[var(--primary)] text-primary"
               type="checkbox"
             />
             <span className="text-sm leading-6 text-on-surface-variant">
@@ -341,54 +330,56 @@ export function SignupForm({ initialAccountType = "user" }: { initialAccountType
 
           {submitResult ? (
             <NoticeBox tone="success">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-on-primary">
-                    <Check className="h-4 w-4" />
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <span className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-on-primary shadow-soft">
+                    <Check className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="font-semibold text-on-surface">{submitResult.message}</p>
-                    <p className="mt-1 text-sm leading-6 text-on-surface-variant">
-                      ระบบสร้างบัญชีจริงในฐานข้อมูลแล้ว เหลือเพียงยืนยันตัวตนด้วย{" "}
-                      {submitResult.next.provider_ui} เพื่อเปิดใช้งานต่อ
+                    <p className="font-bold text-on-surface text-lg">{submitResult.message}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">
+                      ระบบสร้างบัญชีจริงแล้ว เหลือเพียงยืนยันตัวตนด้วย{" "}
+                      <span className="font-bold text-on-surface">{submitResult.next.provider_ui}</span> เพื่อเปิดใช้งาน
                     </p>
                   </div>
                 </div>
                 <div className="grid gap-2">
                   <Button
                     type="button"
-                    className="h-12 w-full rounded-[1.4rem]"
+                    className="interactive-scale h-12 w-full bg-primary text-on-primary rounded-xl font-bold"
                     disabled={isOAuthPending}
                     onClick={() => continueWithOAuth(submitResult)}
                   >
                     {isOAuthPending
                       ? `กำลังพาไป ${submitResult.next.provider_ui}...`
-                      : `ยืนยันตัวตนต่อด้วย ${submitResult.next.provider_ui}`}
-                    <ArrowRight className="h-4 w-4" />
+                      : `ยืนยันตัวตนด้วย ${submitResult.next.provider_ui}`}
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                   <Link
                     href={loginPathForAccountType(submitResult.profile.account_type)}
-                    className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+                    className={cn(buttonVariants({ variant: "outline" }), "w-full rounded-xl border-none bg-surface-container-low")}
                   >
                     ไปหน้าเข้าสู่ระบบ
                   </Link>
                 </div>
-                {submitResult.store ? (
-                  <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
-                    ร้านที่ผูกไว้:{" "}
-                    <span className="font-semibold text-on-surface">{submitResult.store.name}</span>
-                  </div>
-                ) : null}
               </div>
             </NoticeBox>
           ) : null}
 
-          <Button className="h-14 w-full text-base font-bold" disabled={isPending || isOAuthPending}>
-            {isPending ? "กำลังบันทึกข้อมูล..." : "สมัครใช้งาน"}
-            <ArrowRight className="h-5 w-5" />
-          </Button>
+          <div className="glass-bar fixed bottom-0 left-0 z-50 w-full px-5 py-4">
+            <div className="mx-auto w-full max-w-md">
+              <Button 
+                type="submit"
+                className="interactive-scale h-14 w-full bg-tertiary text-lg font-black uppercase tracking-wider text-on-tertiary shadow-xl hover:brightness-110 active:scale-95 transition-all" 
+                disabled={isPending || isOAuthPending}
+              >
+                {isPending ? "กำลังบันทึกข้อมูล..." : "สมัครใช้งาน"}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </div>
 
-          <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+          <div className="mb-24 rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
             มีบัญชีอยู่แล้ว?{" "}
             <Link href={loginPathForAccountType(form.account_type)} className="font-semibold text-primary">
               เข้าสู่ระบบด้วย LINE / Gmail
@@ -400,7 +391,7 @@ export function SignupForm({ initialAccountType = "user" }: { initialAccountType
   );
 }
 
-function SectionLabel({ children }: { children: ReactNode }) {
+function SectionLabel({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
       {children}
@@ -408,24 +399,24 @@ function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
-function FieldLabel({ children }: { children: ReactNode }) {
+function FieldLabel({ children }: Readonly<{ children: ReactNode }>) {
   return <label className="px-1 text-sm font-medium text-on-surface">{children}</label>;
 }
 
 function NoticeBox({
   children,
   tone,
-}: {
+}: Readonly<{
   children: ReactNode;
   tone: "error" | "success";
-}) {
+}>) {
   return (
     <div
       className={cn(
-        "rounded-2xl border px-4 py-3",
+        "rounded-2xl border px-5 py-4 shadow-soft",
         tone === "error"
           ? "border-error/10 bg-error-container text-on-error-container"
-          : "border-primary/10 bg-surface-container-lowest text-on-surface",
+          : "border-primary/10 bg-white text-on-surface",
       )}
     >
       {children}
@@ -451,27 +442,27 @@ function ChoiceButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-transform active:scale-[0.98]",
+        "flex items-center gap-4 rounded-2xl border px-4 py-4 text-left transition-all active:scale-[0.98]",
         active
-          ? "border-primary bg-surface-container-lowest"
+          ? "border-primary bg-primary/5 shadow-inner"
           : "border-border/30 bg-surface-container-low",
       )}
     >
       <span
         className={cn(
-          "inline-flex h-10 w-10 items-center justify-center rounded-xl",
-          active ? "bg-primary/10 text-primary" : "bg-surface-container-high text-on-surface-variant",
+          "inline-flex h-12 w-12 items-center justify-center rounded-xl shadow-inner",
+          active ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant",
         )}
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="h-6 w-6" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-on-surface">{title}</span>
-        <span className="block text-xs text-on-surface-variant">{caption}</span>
+        <span className="block text-base font-bold text-on-surface">{title}</span>
+        <span className="block text-xs font-medium text-on-surface-variant/70">{caption}</span>
       </span>
       {active ? (
-        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary">
-          <Check className="h-3.5 w-3.5" />
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary shadow-soft">
+          <Check className="h-4 w-4" />
         </span>
       ) : null}
     </button>
@@ -496,13 +487,13 @@ function ProviderButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition-transform active:scale-[0.98]",
+        "flex items-center justify-center gap-3 rounded-2xl border px-4 py-4 text-sm font-bold transition-all active:scale-[0.98]",
         active
-          ? "border-primary bg-surface-container-lowest text-on-surface"
-          : "border-border/30 bg-surface-container-low text-on-surface-variant",
+          ? "border-primary bg-primary/5 text-on-surface shadow-inner"
+          : "border-border/30 bg-surface-container-low text-on-surface-variant/60",
       )}
     >
-      <Icon className="h-4 w-4" style={{ color: accent ?? "#0058bc" }} />
+      <Icon className="h-5 w-5" style={{ color: accent ?? "#0058bc" }} />
       <span>{label}</span>
     </button>
   );
