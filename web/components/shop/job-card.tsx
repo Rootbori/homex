@@ -2,9 +2,10 @@ import Link from "next/link";
 import { ArrowUpRight, MapPin, PhoneCall } from "lucide-react";
 import { StatusChip } from "@/components/shared/status-chip";
 import { buttonVariants } from "@/components/ui/button";
-import { formatCurrency, type Job } from "@/lib/mock-data";
+import type { JobSummary } from "@/lib/api-types";
+import { formatCurrency } from "@/lib/format";
 
-export function JobCard({ job }: { job: Job }) {
+export function JobCard({ job }: { job: JobSummary }) {
   return (
     <div className="surface-card rounded-[1.75rem] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
       <div className="space-y-4">
@@ -29,7 +30,7 @@ export function JobCard({ job }: { job: Job }) {
           <a href={`tel:${job.phone}`} className={buttonVariants({ variant: "outline" })}>
             <PhoneCall className="h-4 w-4" />
           </a>
-          <a href="https://maps.google.com" className={buttonVariants({ variant: "outline" })}>
+          <a href={job.mapUrl ?? "https://maps.google.com"} className={buttonVariants({ variant: "outline" })}>
             <MapPin className="h-4 w-4" />
           </a>
           <Link href={`/portal/jobs/${job.id}`} className={buttonVariants()}>

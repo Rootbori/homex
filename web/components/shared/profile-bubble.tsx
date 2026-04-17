@@ -6,7 +6,9 @@ export function ProfileBubble({ image }: { image?: string }) {
           className="h-full w-full bg-cover bg-center"
           style={{ backgroundImage: `url(${image})` }}
         />
-      ) : null}
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-xs font-bold text-primary">HX</div>
+      )}
     </div>
   );
 }

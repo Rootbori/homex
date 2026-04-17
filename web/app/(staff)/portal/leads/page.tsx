@@ -3,26 +3,19 @@ import { LeadCard } from "@/components/shop/lead-card";
 import { ProfileBubble } from "@/components/shared/profile-bubble";
 import { TopAppBar } from "@/components/shared/top-app-bar";
 import { Input } from "@/components/ui/input";
-import { leads, technicians } from "@/lib/mock-data";
+import { getLeads } from "@/lib/server-data";
 
-export default function LeadsPage() {
+export default async function LeadsPage() {
+  const leads = await getLeads();
+
   return (
     <div>
-      <TopAppBar
-        title="Atmospheric"
-        right={<ProfileBubble image={technicians[0]?.heroImage} />}
-      />
+      <TopAppBar title="Atmospheric" right={<ProfileBubble />} />
       <main className="page-content page-stack">
         <div className="page-hero">
-          <span className="mb-1 block text-sm font-bold uppercase tracking-widest text-primary">
-            Sales Funnel
-          </span>
-          <h2 className="headline-font text-3xl font-extrabold tracking-tight text-on-surface">
-            Leads รายใหม่
-          </h2>
-          <p className="mt-1 text-sm text-on-surface-variant">
-            จัดการรายชื่อลูกค้าที่สนใจบริการของคุณ
-          </p>
+          <span className="mb-1 block text-sm font-bold uppercase tracking-widest text-primary">Sales Funnel</span>
+          <h2 className="headline-font text-3xl font-extrabold tracking-tight text-on-surface">Leads รายใหม่</h2>
+          <p className="mt-1 text-sm text-on-surface-variant">จัดการรายชื่อลูกค้าที่สนใจบริการของคุณ</p>
         </div>
 
         <section className="section-stack">
@@ -51,9 +44,11 @@ export default function LeadsPage() {
         </section>
 
         <div className="card-stack">
-          {leads.map((lead) => (
-            <LeadCard key={lead.id} lead={lead} />
-          ))}
+          {leads.length > 0 ? (
+            leads.map((lead) => <LeadCard key={lead.id} lead={lead} />)
+          ) : (
+            <div className="surface-card rounded-[1.75rem] p-5 text-sm text-on-surface-variant">ยังไม่มี lead ในระบบ</div>
+          )}
         </div>
       </main>
     </div>

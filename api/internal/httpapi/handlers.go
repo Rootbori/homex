@@ -3,16 +3,15 @@ package httpapi
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/rootbeer/homex/api/internal/domain"
 )
 
 const (
-	signupAccountTypeJobSeeker   = "job_seeker"
-	signupAccountTypeJobReceiver = "job_receiver"
-	signupProviderLine           = "line"
-	signupProviderGoogle         = "google"
+	signupAccountTypeCustomer = "customer"
+	signupAccountTypeStaff    = "staff"
+	signupProviderLine        = "line"
+	signupProviderGoogle      = "google"
 )
 
 type createServiceRequestPayload struct {
@@ -57,24 +56,24 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleSignupOptions(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
 		"title":    "สมัครใช้งาน Homex",
-		"subtitle": "เลือกว่าคุณต้องการหาช่างหรือรับงาน แล้วเริ่มสมัครผ่าน LINE หรือ Gmail",
+		"subtitle": "บันทึกข้อมูลผู้ใช้ก่อน แล้วค่อยยืนยันตัวตนด้วย LINE หรือ Gmail เพื่อเปิดใช้งานบัญชีจริง",
 		"defaults": map[string]string{
-			"account_type": signupAccountTypeJobSeeker,
+			"account_type": signupAccountTypeCustomer,
 			"provider":     signupProviderLine,
 		},
 		"account_types": []map[string]any{
 			{
-				"id":          signupAccountTypeJobSeeker,
-				"label":       "ผู้หางาน",
-				"description": "สำหรับลูกค้าที่ต้องการค้นหาช่างแอร์ ดูโปรไฟล์ และติดตามงานของตัวเอง",
-				"mapped_role": domain.RoleCustomer,
+				"id":          signupAccountTypeCustomer,
+				"label":       "ลูกค้า",
+				"description": "สร้างผู้ใช้ประเภท customer สำหรับค้นหาช่างแอร์ ดูโปรไฟล์ และติดตามงานของตัวเอง",
+				"user_type":   domain.UserTypeCustomer,
 				"next_path":   "/search",
 			},
 			{
-				"id":          signupAccountTypeJobReceiver,
-				"label":       "ผู้รับงาน",
-				"description": "สำหรับร้านช่างแอร์ แอดมิน หรือช่างที่ต้องการรับ lead และจัดการงาน",
-				"mapped_role": domain.RoleTechnician,
+				"id":          signupAccountTypeStaff,
+				"label":       "ร้าน / ทีมช่าง",
+				"description": "สร้างผู้ใช้ประเภท staff แล้วผูกสิทธิ์ผ่าน store_memberships และ technician_profiles",
+				"user_type":   domain.UserTypeStaff,
 				"next_path":   "/portal/dashboard",
 			},
 		},
@@ -96,88 +95,7 @@ func (s *Server) handleSignupOptions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
-	var payload signupPayload
-	if err := decodeJSON(r, &payload); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "invalid signup payload"})
-		return
-	}
-
-	payload.FullName = strings.TrimSpace(payload.FullName)
-	payload.Phone = strings.TrimSpace(payload.Phone)
-	payload.Email = strings.TrimSpace(strings.ToLower(payload.Email))
-	payload.StoreName = strings.TrimSpace(payload.StoreName)
-	payload.AccountType = strings.TrimSpace(payload.AccountType)
-	payload.Provider = strings.TrimSpace(payload.Provider)
-
-	if payload.FullName == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "full_name is required"})
-		return
-	}
-
-	if payload.Phone == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "phone is required"})
-		return
-	}
-
-	if !payload.AcceptTerms {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "accept_terms is required"})
-		return
-	}
-
-	if payload.AccountType != signupAccountTypeJobSeeker && payload.AccountType != signupAccountTypeJobReceiver {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "unsupported account_type"})
-		return
-	}
-
-	if payload.Provider != signupProviderLine && payload.Provider != signupProviderGoogle {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "unsupported provider"})
-		return
-	}
-
-	if payload.Provider == signupProviderGoogle && payload.Email == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "email is required for google signup"})
-		return
-	}
-
-	if payload.AccountType == signupAccountTypeJobReceiver && payload.StoreName == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "store_name is required for job_receiver"})
-		return
-	}
-
-	mappedRole := string(domain.RoleCustomer)
-	nextPath := "/search"
-	accountLabel := "ผู้หางาน"
-	if payload.AccountType == signupAccountTypeJobReceiver {
-		mappedRole = string(domain.RoleTechnician)
-		nextPath = "/portal/dashboard"
-		accountLabel = "ผู้รับงาน"
-	}
-
-	providerLabel := "LINE"
-	if payload.Provider == signupProviderGoogle {
-		providerLabel = "Gmail"
-	}
-
-	writeJSON(w, http.StatusCreated, map[string]any{
-		"id":      fmt.Sprintf("signup-%s-%s", payload.AccountType, payload.Provider),
-		"status":  "pending_oauth",
-		"message": fmt.Sprintf("เริ่มขั้นตอนสมัครสำหรับ%sผ่าน%sแล้ว", accountLabel, providerLabel),
-		"profile": map[string]any{
-			"full_name":    payload.FullName,
-			"phone":        payload.Phone,
-			"email":        payload.Email,
-			"store_name":   payload.StoreName,
-			"account_type": payload.AccountType,
-			"provider":     payload.Provider,
-			"mapped_role":  mappedRole,
-		},
-		"next": map[string]any{
-			"provider":    payload.Provider,
-			"provider_ui": providerLabel,
-			"next_path":   nextPath,
-			"hint":        "MVP นี้ยังเป็น mock OAuth flow แต่ front-end และ API เชื่อมกันแล้ว",
-		},
-	})
+	s.handleSignupCreate(w, r)
 }
 
 func (s *Server) handlePublicTechnicians(w http.ResponseWriter, r *http.Request) {

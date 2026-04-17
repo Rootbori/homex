@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Clock3, MessageCircle, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import type { Lead } from "@/lib/mock-data";
+import type { LeadSummary } from "@/lib/api-types";
 
-export function LeadCard({ lead }: { lead: Lead }) {
+export function LeadCard({ lead }: { lead: LeadSummary }) {
   return (
     <div className="surface-card rounded-[1.75rem] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-transform active:scale-[0.98]">
       <div className="space-y-4">

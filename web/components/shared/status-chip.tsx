@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { JobStatus } from "@/lib/mock-data";
+import type { JobStatus } from "@/lib/api-types";
 
 const jobStatusLabel: Record<JobStatus, string> = {
   awaiting_shop: "รอร้านรับงาน",

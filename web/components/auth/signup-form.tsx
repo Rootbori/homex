@@ -13,6 +13,7 @@ import {
   Search,
   Wrench,
 } from "lucide-react";
+import { beginOAuthLogin } from "@/app/login/actions";
 import {
   getSignupOptions,
   submitSignup,
@@ -23,6 +24,7 @@ import {
   type SignupProvider,
   type SignupResponse,
 } from "@/lib/api";
+import { loginPathForAccountType } from "@/lib/auth-flow";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,24 +32,24 @@ import { Input } from "@/components/ui/input";
 
 const fallbackOptions: SignupOptionsResponse = {
   title: "สมัครใช้งาน Homex",
-  subtitle: "เลือกว่าคุณต้องการหาช่างหรือรับงาน แล้วเริ่มสมัครผ่าน LINE หรือ Gmail",
+  subtitle: "เลือกประเภทผู้ใช้ตามโครง users ของระบบ แล้วเริ่มสมัครผ่าน LINE หรือ Gmail",
   defaults: {
-    account_type: "job_seeker",
+    account_type: "customer",
     provider: "line",
   },
   account_types: [
     {
-      id: "job_seeker",
-      label: "ผู้หางาน",
-      description: "สำหรับลูกค้าที่ต้องการค้นหาช่างแอร์และติดตามงานของตัวเอง",
-      mapped_role: "customer",
+      id: "customer",
+      label: "ลูกค้า",
+      description: "สร้างผู้ใช้ประเภท customer สำหรับค้นหาช่างแอร์และติดตามงานของตัวเอง",
+      user_type: "customer",
       next_path: "/search",
     },
     {
-      id: "job_receiver",
-      label: "ผู้รับงาน",
-      description: "สำหรับร้านช่างแอร์ แอดมิน หรือช่างที่ต้องการรับ lead และจัดการงาน",
-      mapped_role: "technician",
+      id: "staff",
+      label: "ร้าน / ทีมช่าง",
+      description: "สร้างผู้ใช้ประเภท staff สำหรับเข้าระบบร้านและจัดการงาน",
+      user_type: "staff",
       next_path: "/portal/dashboard",
     },
   ],
@@ -72,7 +74,7 @@ const initialForm: SignupPayload = {
   phone: "",
   email: "",
   store_name: "",
-  account_type: "job_seeker",
+  account_type: "customer",
   provider: "line",
   accept_terms: false,
 };
@@ -86,28 +88,32 @@ function errorMessage(error: unknown) {
 }
 
 function getAccountCopy(option?: SignupOption | null) {
-  if (option?.id === "job_receiver") {
+  if (option?.id === "staff") {
     return {
-      title: "รับงานร้าน/ช่าง",
-      caption: "สำหรับร้านและทีมช่าง",
+      title: "ร้าน / ทีมช่าง",
+      caption: "สำหรับผู้ใช้ประเภท staff",
       nextPath: option.next_path ?? "/portal/dashboard",
     };
   }
 
   return {
-    title: "หาช่างแอร์",
-    caption: "สำหรับลูกค้าที่ต้องการเรียกใช้บริการ",
+    title: "ลูกค้า",
+    caption: "สำหรับผู้ใช้ประเภท customer",
     nextPath: option?.next_path ?? "/search",
   };
 }
 
-export function SignupForm() {
+export function SignupForm({ initialAccountType = "customer" }: { initialAccountType?: SignupAccountType }) {
   const [options, setOptions] = useState<SignupOptionsResponse>(fallbackOptions);
-  const [form, setForm] = useState<SignupPayload>(initialForm);
+  const [form, setForm] = useState<SignupPayload>({
+    ...initialForm,
+    account_type: initialAccountType,
+  });
   const [submitResult, setSubmitResult] = useState<SignupResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isOAuthPending, startOAuthTransition] = useTransition();
 
   useEffect(() => {
     let cancelled = false;
@@ -149,6 +155,8 @@ export function SignupForm() {
   const accountCopy = getAccountCopy(selectedAccount);
 
   function setField<Key extends keyof SignupPayload>(key: Key, value: SignupPayload[Key]) {
+    setSubmitResult(null);
+    setSubmitError(null);
     setForm((current) => ({
       ...current,
       [key]: value,
@@ -177,7 +185,7 @@ export function SignupForm() {
         const payload: SignupPayload = {
           ...form,
           email: form.provider === "google" ? form.email : "",
-          store_name: form.account_type === "job_receiver" ? form.store_name : "",
+          store_name: form.account_type === "staff" ? form.store_name : "",
         };
         const response = await submitSignup(payload);
 
@@ -185,6 +193,17 @@ export function SignupForm() {
       } catch (error) {
         setSubmitError(errorMessage(error));
       }
+    });
+  }
+
+  function continueWithOAuth(result: SignupResponse) {
+    setSubmitError(null);
+
+    startOAuthTransition(async () => {
+      const formData = new FormData();
+      formData.set("account_type", result.profile.account_type);
+      formData.set("provider", result.profile.provider);
+      await beginOAuthLogin(formData);
     });
   }
 
@@ -205,7 +224,7 @@ export function SignupForm() {
         </div>
 
         <p className="mb-5 text-sm leading-6 text-on-surface-variant">
-          เลือกประเภทบัญชีและวิธีสมัครก่อน แล้วกรอกข้อมูลเท่าที่จำเป็น
+          เลือกประเภทผู้ใช้และวิธีสมัครก่อน แล้วกรอกข้อมูลเท่าที่จำเป็น
         </p>
 
         {loadError ? (
@@ -226,7 +245,7 @@ export function SignupForm() {
                         key={option.id}
                         active={form.account_type === option.id}
                         caption={copy.caption}
-                        icon={option.id === "job_seeker" ? Search : Wrench}
+                        icon={option.id === "customer" ? Search : Wrench}
                         onClick={() => selectAccount(option.id as SignupAccountType)}
                         title={copy.title}
                       />
@@ -283,7 +302,7 @@ export function SignupForm() {
                   </div>
                 ) : null}
 
-                {form.account_type === "job_receiver" ? (
+                {form.account_type === "staff" ? (
                   <div className="field-stack">
                     <FieldLabel>ชื่อร้าน / ทีมช่าง</FieldLabel>
                     <div className="relative">
@@ -330,33 +349,51 @@ export function SignupForm() {
                   <div>
                     <p className="font-semibold text-on-surface">{submitResult.message}</p>
                     <p className="mt-1 text-sm leading-6 text-on-surface-variant">
-                      ขั้นถัดไปจะพาไปที่ {submitResult.next.next_path}
+                      ระบบสร้างบัญชีจริงในฐานข้อมูลแล้ว เหลือเพียงยืนยันตัวตนด้วย{" "}
+                      {submitResult.next.provider_ui} เพื่อเปิดใช้งานต่อ
                     </p>
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <Link
-                    href={submitResult.next.next_path}
-                    className={cn(buttonVariants(), "w-full")}
+                  <Button
+                    type="button"
+                    className="h-12 w-full rounded-[1.4rem]"
+                    disabled={isOAuthPending}
+                    onClick={() => continueWithOAuth(submitResult)}
                   >
-                    ไปต่อ
+                    {isOAuthPending
+                      ? `กำลังพาไป ${submitResult.next.provider_ui}...`
+                      : `ยืนยันตัวตนต่อด้วย ${submitResult.next.provider_ui}`}
                     <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  </Button>
                   <Link
-                    href={accountCopy.nextPath}
+                    href={loginPathForAccountType(submitResult.profile.account_type)}
                     className={cn(buttonVariants({ variant: "outline" }), "w-full")}
                   >
-                    ดูหน้าที่เกี่ยวข้อง
+                    ไปหน้าเข้าสู่ระบบ
                   </Link>
                 </div>
+                {submitResult.store ? (
+                  <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+                    ร้านที่ผูกไว้:{" "}
+                    <span className="font-semibold text-on-surface">{submitResult.store.name}</span>
+                  </div>
+                ) : null}
               </div>
             </NoticeBox>
           ) : null}
 
-          <Button className="h-14 w-full text-base font-bold" disabled={isPending}>
-            {isPending ? "กำลังส่งข้อมูล..." : "สมัครใช้งาน"}
+          <Button className="h-14 w-full text-base font-bold" disabled={isPending || isOAuthPending}>
+            {isPending ? "กำลังบันทึกข้อมูล..." : "สมัครใช้งาน"}
             <ArrowRight className="h-5 w-5" />
           </Button>
+
+          <div className="rounded-2xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+            มีบัญชีอยู่แล้ว?{" "}
+            <Link href={loginPathForAccountType(form.account_type)} className="font-semibold text-primary">
+              เข้าสู่ระบบด้วย LINE / Gmail
+            </Link>
+          </div>
         </form>
       </main>
     </div>

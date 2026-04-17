@@ -2,14 +2,14 @@ import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
-import type { Technician } from "@/lib/mock-data";
+import type { TechnicianSummary } from "@/lib/api-types";
 
-export function TechnicianCard({ technician }: { technician: Technician }) {
+export function TechnicianCard({ technician }: { technician: TechnicianSummary }) {
   return (
     <div className="surface-card rounded-[1.75rem] border border-border/20 p-5 shadow-sm transition-transform duration-200 active:scale-95">
       <div className="space-y-4">
         <div className="flex items-start gap-3">
-          <Avatar label={technician.name} image={technician.heroImage} />
+          <Avatar label={technician.name} image={technician.image} />
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <div>

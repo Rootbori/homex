@@ -6,9 +6,15 @@ import { TopAppBar } from "@/components/shared/top-app-bar";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { technicians } from "@/lib/mock-data";
+import type { TechnicianSummary } from "@/lib/api-types";
 
-export function DiscoveryView({ compact = false }: { compact?: boolean }) {
+export function DiscoveryView({
+  compact = false,
+  technicians,
+}: {
+  compact?: boolean;
+  technicians: TechnicianSummary[];
+}) {
   return (
     <div>
       <TopAppBar
@@ -18,7 +24,7 @@ export function DiscoveryView({ compact = false }: { compact?: boolean }) {
             <Menu className="h-5 w-5" />
           </button>
         }
-        right={<ProfileBubble image={technicians[0]?.heroImage} />}
+        right={<ProfileBubble image={technicians[0]?.image} />}
       />
       <main className="page-content page-stack">
         <section className="page-hero">
@@ -50,9 +56,15 @@ export function DiscoveryView({ compact = false }: { compact?: boolean }) {
         </div>
 
         <div className="card-stack">
-          {technicians.map((technician) => (
-            <TechnicianCard key={technician.id} technician={technician} />
-          ))}
+          {technicians.length > 0 ? (
+            technicians.map((technician) => (
+              <TechnicianCard key={technician.id} technician={technician} />
+            ))
+          ) : (
+            <div className="surface-card rounded-[1.75rem] p-5 text-sm text-on-surface-variant">
+              ยังไม่มีช่างที่ตรงกับเงื่อนไขตอนนี้
+            </div>
+          )}
         </div>
 
         {!compact ? (
@@ -75,8 +87,11 @@ export function DiscoveryView({ compact = false }: { compact?: boolean }) {
         <Link href="/request" className={buttonVariants({ size: "lg" })}>
           สร้างคำขอ
         </Link>
-        <Link href="/signup" className={buttonVariants({ variant: "outline", size: "lg" })}>
-          สมัครผู้หางาน / ผู้รับงาน
+        <Link href="/login/customer" className={buttonVariants({ variant: "secondary", size: "lg" })}>
+          เข้าสู่ระบบ LINE / Gmail
+        </Link>
+        <Link href="/login/staff" className={buttonVariants({ variant: "outline", size: "lg" })}>
+          เข้าสู่ระบบร้าน / ทีมช่าง
         </Link>
       </main>
     </div>

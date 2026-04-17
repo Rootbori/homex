@@ -33,6 +33,7 @@ func (s *Server) Router() http.Handler {
 	mux.HandleFunc("POST /v1/public/service-requests", s.handleCreateServiceRequest)
 	mux.HandleFunc("GET /v1/public/auth/signup-options", s.handleSignupOptions)
 	mux.HandleFunc("POST /v1/public/auth/signup", s.handleSignup)
+	mux.HandleFunc("POST /v1/public/auth/oauth-sync", s.handleOAuthSync)
 	mux.HandleFunc("GET /v1/customer/jobs", s.handleCustomerJobs)
 	mux.HandleFunc("GET /v1/customer/jobs/{id}", s.handleCustomerJobDetail)
 	mux.HandleFunc("GET /v1/app/dashboard", s.handleDashboard)
@@ -104,7 +105,7 @@ func filterJobsByCustomer(actor domain.Actor, jobs []map[string]any) []map[strin
 
 	filtered := make([]map[string]any, 0, len(jobs))
 	for _, job := range jobs {
-		if job["customer_id"] == actor.CustomerID {
+		if job["customer_user_id"] == actor.CustomerID || job["customer_id"] == actor.CustomerID {
 			filtered = append(filtered, job)
 		}
 	}

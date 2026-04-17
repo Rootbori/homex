@@ -24,12 +24,32 @@ api/
 └── migrations
 ```
 
+## Database Convention
+
+- Canonical PostgreSQL database name: `homex`
+- Canonical local connection: `postgres://homex:homex@localhost:5433/homex?sslmode=disable`
+- SQL files in `migrations/` are the source of truth for schema changes
+- On boot, the API applies pending SQL migrations and records them in `schema_migrations`
+
+## Current Identity Model
+
+The schema now uses a central `users` table plus role-specific tables:
+
+- `users`: canonical identity for both customers and staff, split by `type`
+- `user_identities`: LINE / Google / phone login identities for a user
+- `store_memberships`: store-scoped role for a staff user
+- `technician_profiles`: public/service profile for a technician membership
+- `customer_profiles`: store-scoped CRM profile for a customer user
+- `user_addresses`: reusable addresses for a user across jobs
+
+This keeps auth/identity in one place while still allowing store-specific CRM data.
+
 ## Suggested Authentication Model
 
 For MVP, keep authentication simple:
 
-- Customer: phone OTP or LINE login
-- Staff: password login or LINE login for store members
+- Customer: phone OTP, LINE login, or Google login into `users`
+- Staff: LINE login or Google login into `users`, then authorize via `store_memberships`
 - Dev/demo mode in this scaffold:
   - role and visibility are simulated via headers
   - `X-Actor-Role`
@@ -66,6 +86,7 @@ For MVP, keep authentication simple:
 ## Visibility Rules
 
 - All internal records carry `store_id`
+- Customer-facing records point back to `users.id` via `customer_user_id`
 - Technicians never query raw store-wide lists directly
 - All list/detail queries must pass through actor scope
 - If role is `technician`, filter by `assigned_technician_id = actor.technician_id`

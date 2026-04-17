@@ -1,16 +1,20 @@
 services:
-  # Database Service only
-  db:
+  postgres:
     image: postgres:15-alpine
-    container_name: homex-db
+    container_name: homex-postgres
     environment:
-      - POSTGRES_USER=homex
-      - POSTGRES_PASSWORD=homex
-      - POSTGRES_DB=homex
+      POSTGRES_USER: homex
+      POSTGRES_PASSWORD: homex
+      POSTGRES_DB: homex
     ports:
       - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - homex-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homex -d homex"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
-  pgdata:
+  homex-postgres-data:

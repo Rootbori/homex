@@ -2,15 +2,14 @@ import { Briefcase } from "lucide-react";
 import { JobCard } from "@/components/shop/job-card";
 import { ProfileBubble } from "@/components/shared/profile-bubble";
 import { TopAppBar } from "@/components/shared/top-app-bar";
-import { jobs, technicians } from "@/lib/mock-data";
+import { getJobs } from "@/lib/server-data";
 
-export default function JobsPage() {
+export default async function JobsPage() {
+  const jobs = await getJobs();
+
   return (
     <div>
-      <TopAppBar
-        title="Atmospheric"
-        right={<ProfileBubble image={technicians[0]?.heroImage} />}
-      />
+      <TopAppBar title="Atmospheric" right={<ProfileBubble />} />
       <main className="page-content page-stack">
         <section className="page-hero">
           <span className="block text-sm font-bold uppercase tracking-widest text-primary">Jobs</span>
@@ -27,9 +26,11 @@ export default function JobsPage() {
           </div>
         </div>
         <div className="card-stack">
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
+          {jobs.length > 0 ? (
+            jobs.map((job) => <JobCard key={job.id} job={job} />)
+          ) : (
+            <div className="surface-card rounded-[1.75rem] p-5 text-sm text-on-surface-variant">ยังไม่มีงานในระบบ</div>
+          )}
         </div>
       </main>
     </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { proxyToApi } from "@/lib/server-api";
+import { proxyToApi, readProxyPayload } from "@/lib/server-api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,9 +8,20 @@ export async function POST(request: NextRequest) {
       method: "POST",
       body: JSON.stringify(body),
     });
-    const payload = await response.json();
+    const payload = await readProxyPayload(response);
+    const nextResponse = NextResponse.json(payload, { status: response.status });
 
-    return NextResponse.json(payload, { status: response.status });
+    if (response.ok && typeof payload?.signup_token === "string" && payload.signup_token) {
+      nextResponse.cookies.set("homex_signup_token", payload.signup_token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 30,
+      });
+    }
+
+    return nextResponse;
   } catch {
     return NextResponse.json(
       { error: "unable to reach api signup endpoint" },
