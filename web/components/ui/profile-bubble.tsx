@@ -1,4 +1,4 @@
-export function ProfileBubble({ image }: { image?: string }) {
+export function ProfileBubble({ image }: Readonly<{ image?: string }>) {
   return (
     <div className="interactive-scale h-10 w-10 overflow-hidden rounded-xl border border-primary/10 bg-white shadow-soft">
       {image ? (

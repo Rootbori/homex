@@ -35,6 +35,36 @@ type CreateTechnicianInput struct {
 	Services []string
 }
 
+type TechnicianServiceInput struct {
+	Label         string
+	StartingPrice int
+}
+
+type SetupAreaInput struct {
+	Province    string
+	District    string
+	Subdistrict string
+	Label       string
+}
+
+type SetupProfileInput struct {
+	StoreName           string
+	StorePhone          string
+	StoreLineOAID       string
+	StoreLogoURL        string
+	StoreDescription    string
+	TechnicianName      string
+	TechnicianPhone     string
+	TechnicianAvatarURL string
+	TechnicianHeadline  string
+	ExperienceYears     int
+	Availability        domain.Availability
+	WorkingHours        string
+	LineURL             string
+	Services            []TechnicianServiceInput
+	Areas               []SetupAreaInput
+}
+
 type QuotationItemInput struct {
 	Label     string
 	Quantity  int
@@ -76,8 +106,16 @@ type JobUsecase interface {
 
 type StoreUsecase interface {
 	GetCurrentStore(ctx context.Context, actor domain.Actor) (*domain.Store, error)
+	GetSetupProfile(ctx context.Context, actor domain.Actor) (*domain.Store, *domain.TechnicianProfile, error)
+	UpdateSetupProfile(ctx context.Context, actor domain.Actor, input SetupProfileInput) (*domain.Store, *domain.TechnicianProfile, error)
 	GetTechnicianDetails(ctx context.Context, slug string) (*domain.TechnicianProfile, error)
-	ListTechnicians(ctx context.Context, query string) ([]domain.TechnicianProfile, error)
+	ListTechnicians(ctx context.Context, filters domain.TechnicianSearchFilters) ([]domain.TechnicianProfile, error)
 	ListStoreTechnicians(ctx context.Context, actor domain.Actor) ([]domain.TechnicianProfile, error)
 	CreateTechnician(ctx context.Context, actor domain.Actor, input CreateTechnicianInput) (*domain.TechnicianProfile, error)
+}
+
+type GeoUsecase interface {
+	ListProvinces(ctx context.Context) ([]domain.ThaiProvince, error)
+	ListDistricts(ctx context.Context, provinceID uint) ([]domain.ThaiDistrict, error)
+	ListSubdistricts(ctx context.Context, districtID uint) ([]domain.ThaiSubdistrict, error)
 }

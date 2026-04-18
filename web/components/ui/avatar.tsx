@@ -4,11 +4,11 @@ export function Avatar({
   label,
   image,
   className,
-}: {
+}: Readonly<{
   label: string;
   image?: string;
   className?: string;
-}) {
+}>) {
   if (image) {
     return (
       <div

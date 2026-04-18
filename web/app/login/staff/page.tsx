@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import { LoginForm } from "@/components/auth/login-form";
 import { isProviderConfigured } from "@/lib/auth-flow";
+
+export const metadata: Metadata = {
+  title: "เข้าสู่ระบบร้านและทีมช่าง",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function StaffLoginPage({
   searchParams,

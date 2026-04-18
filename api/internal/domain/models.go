@@ -143,9 +143,41 @@ type ServiceArea struct {
 	TechnicianID *uint     `gorm:"index" json:"technician_id,omitempty"`
 	Province     string    `gorm:"size:120;not null" json:"province"`
 	District     string    `gorm:"size:120;not null" json:"district"`
+	Subdistrict  string    `gorm:"size:120" json:"subdistrict"`
 	Label        string    `gorm:"size:160;not null" json:"label"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type ThaiProvince struct {
+	ID          uint      `gorm:"primaryKey;autoIncrement:false" json:"id"`
+	NameTH      string    `gorm:"size:120;not null" json:"name_th"`
+	NameEN      string    `gorm:"size:120" json:"name_en"`
+	GeographyID uint      `gorm:"index" json:"geography_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type ThaiDistrict struct {
+	ID         uint      `gorm:"primaryKey;autoIncrement:false" json:"id"`
+	ProvinceID uint      `gorm:"index;not null" json:"province_id"`
+	NameTH     string    `gorm:"size:120;not null" json:"name_th"`
+	NameEN     string    `gorm:"size:120" json:"name_en"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type ThaiSubdistrict struct {
+	ID         uint      `gorm:"primaryKey;autoIncrement:false" json:"id"`
+	ProvinceID uint      `gorm:"index;not null" json:"province_id"`
+	DistrictID uint      `gorm:"index;not null" json:"district_id"`
+	ZipCode    string    `gorm:"size:16" json:"zip_code"`
+	NameTH     string    `gorm:"size:120;not null" json:"name_th"`
+	NameEN     string    `gorm:"size:120" json:"name_en"`
+	Latitude   *float64  `json:"latitude,omitempty"`
+	Longitude  *float64  `json:"longitude,omitempty"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type UserProfile struct {
@@ -168,6 +200,14 @@ type StoreUserSummary struct {
 	TotalSpend int    `json:"total_spend"`
 	JobsCount  int    `json:"jobs_count"`
 	Note       string `json:"note"`
+}
+
+type TechnicianSearchFilters struct {
+	Query        string       `json:"query"`
+	ServiceLabel string       `json:"service_label"`
+	AreaLabel    string       `json:"area_label"`
+	Availability Availability `json:"availability"`
+	MaxPrice     int          `json:"max_price"`
 }
 
 type UserAddress struct {

@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BadgeCheck, MapPin } from "lucide-react";
 import { auth } from "@/auth";
 import { CreateRequestForm } from "@/components/user/create-request-form";
 import { formatCurrency } from "@/lib/format";
 import { getPublicTechnicianDetail, getPublicTechnicians } from "@/lib/server-data";
+
+export const metadata: Metadata = {
+  title: "ส่งคำขอใช้บริการ",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function CreateRequestPage({
   searchParams,

@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { ChevronRight, LogOut, User } from "lucide-react";
 import { auth } from "@/auth";
 import { signOutAction } from "@/app/login/actions";
 import { providerLabel } from "@/lib/auth-flow";
 import { getUserJobs } from "@/lib/server-data";
+
+export const metadata: Metadata = {
+  title: "โปรไฟล์",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function ProfilePage() {
   const [session, jobs] = await Promise.all([auth(), getUserJobs()]);

@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { LeadCard } from "@/components/shop/lead-card";
+import { Input } from "@/components/ui/input";
 import { getLeads } from "@/lib/server-data";
 
 export default async function LeadsPage() {
@@ -21,8 +22,8 @@ export default async function LeadsPage() {
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/30" />
-          <input
-            className="h-10 w-full rounded-xl bg-surface-container-low pl-10 pr-4 text-sm outline-none placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/10"
+          <Input
+            className="bg-surface-container-low pl-10 ring-0 focus:ring-2 focus:ring-primary/10"
             placeholder="ค้นหาชื่อลูกค้าหรือเบอร์โทร..."
           />
         </div>

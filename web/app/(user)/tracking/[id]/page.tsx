@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, MessageCircle, PhoneCall } from "lucide-react";
 import { Timeline } from "@/components/ui/timeline";
 import { formatCurrency, jobStatusLabel } from "@/lib/format";
 import { getUserJob } from "@/lib/server-data";
+
+export const metadata: Metadata = {
+  title: "ติดตามสถานะงาน",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function TrackingPage({
   params,

@@ -133,5 +133,14 @@ function setActorCookie(response: NextResponse, name: string, value: unknown) {
     return;
   }
 
-  response.cookies.set(name, String(value), actorCookieOptions);
+  let stringValue: string;
+  if (typeof value === "string") {
+    stringValue = value;
+  } else if (typeof value === "number" || typeof value === "boolean") {
+    stringValue = value.toString();
+  } else {
+    stringValue = JSON.stringify(value);
+  }
+
+  response.cookies.set(name, stringValue, actorCookieOptions);
 }

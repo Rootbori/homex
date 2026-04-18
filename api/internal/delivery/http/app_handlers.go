@@ -24,8 +24,16 @@ func (h *Handler) handleHealth(w http.ResponseWriter, _ *http.Request) {
 // ── Public Technicians ──────────────────────────────────────────────
 
 func (h *Handler) handleListTechnicians(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query().Get("q")
-	techs, err := h.storeUC.ListTechnicians(r.Context(), query)
+	queryParams := r.URL.Query()
+	maxPrice, _ := strconv.Atoi(strings.TrimSpace(queryParams.Get("max_price")))
+	filters := domain.TechnicianSearchFilters{
+		Query:        strings.TrimSpace(queryParams.Get("q")),
+		ServiceLabel: strings.TrimSpace(queryParams.Get("service")),
+		AreaLabel:    strings.TrimSpace(queryParams.Get("area")),
+		Availability: domain.Availability(strings.TrimSpace(queryParams.Get("availability"))),
+		MaxPrice:     maxPrice,
+	}
+	techs, err := h.storeUC.ListTechnicians(r.Context(), filters)
 	if err != nil {
 		h.errJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -124,7 +132,7 @@ func (h *Handler) handleCreateLead(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
 	var lead domain.Lead
 	if err := h.readJSON(r, &lead); err != nil {
-		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
 		return
 	}
 	lead.StoreID = 1
@@ -186,6 +194,136 @@ func (h *Handler) handleGetCurrentStore(w http.ResponseWriter, r *http.Request) 
 			"description": store.Description,
 		},
 		"scope": actor.Scope(),
+	})
+}
+
+func (h *Handler) handleGetSetupProfile(w http.ResponseWriter, r *http.Request) {
+	actor := actorFromRequest(r)
+	if !h.requireStaff(actor, w) {
+		return
+	}
+
+	store, technician, err := h.storeUC.GetSetupProfile(r.Context(), actor)
+	if err != nil {
+		if errors.Is(err, domain.ErrForbidden) {
+			h.errJSON(w, http.StatusForbidden, "forbidden")
+			return
+		}
+		if errors.Is(err, domain.ErrNotFound) {
+			h.errJSON(w, http.StatusNotFound, "setup profile not found")
+			return
+		}
+		h.errJSON(w, http.StatusInternalServerError, "ไม่สามารถโหลดข้อมูลตั้งค่าร้านได้")
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, map[string]any{
+		"store": map[string]any{
+			"id":          store.ID,
+			"name":        store.Name,
+			"kind":        store.Kind,
+			"phone":       store.Phone,
+			"line_oa_id":  store.LineOAID,
+			"logo_url":    store.LogoURL,
+			"description": store.Description,
+		},
+		"technician":          technicianPayload(technician),
+		"technician_services": technicianServiceItemsPayload(technician),
+		"service_areas":       serviceAreaItemsPayload(technician),
+	})
+}
+
+func (h *Handler) handleUpdateSetupProfile(w http.ResponseWriter, r *http.Request) {
+	actor := actorFromRequest(r)
+	if !h.requireStaff(actor, w) {
+		return
+	}
+
+	var payload struct {
+		Store struct {
+			Name        string `json:"name"`
+			Phone       string `json:"phone"`
+			LineOAID    string `json:"line_oa_id"`
+			LogoURL     string `json:"logo_url"`
+			Description string `json:"description"`
+		} `json:"store"`
+		Technician struct {
+			Name            string `json:"name"`
+			Phone           string `json:"phone"`
+			AvatarURL       string `json:"avatar_url"`
+			Headline        string `json:"headline"`
+			ExperienceYears int    `json:"experience_years"`
+			Availability    string `json:"availability"`
+			WorkingHours    string `json:"working_hours"`
+			LineURL         string `json:"line_url"`
+			Services        []struct {
+				Label         string `json:"label"`
+				StartingPrice int    `json:"starting_price"`
+			} `json:"services"`
+			Areas []struct {
+				Province    string `json:"province"`
+				District    string `json:"district"`
+				Subdistrict string `json:"subdistrict"`
+				Label       string `json:"label"`
+			} `json:"areas"`
+		} `json:"technician"`
+	}
+	if err := h.readJSON(r, &payload); err != nil {
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		return
+	}
+
+	services := make([]usecase.TechnicianServiceInput, 0, len(payload.Technician.Services))
+	for _, item := range payload.Technician.Services {
+		services = append(services, usecase.TechnicianServiceInput{
+			Label:         item.Label,
+			StartingPrice: item.StartingPrice,
+		})
+	}
+
+	areas := make([]usecase.SetupAreaInput, 0, len(payload.Technician.Areas))
+	for _, item := range payload.Technician.Areas {
+		areas = append(areas, usecase.SetupAreaInput{
+			Province:    item.Province,
+			District:    item.District,
+			Subdistrict: item.Subdistrict,
+			Label:       item.Label,
+		})
+	}
+
+	store, technician, err := h.storeUC.UpdateSetupProfile(r.Context(), actor, usecase.SetupProfileInput{
+		StoreName:           payload.Store.Name,
+		StorePhone:          payload.Store.Phone,
+		StoreLineOAID:       payload.Store.LineOAID,
+		StoreLogoURL:        payload.Store.LogoURL,
+		StoreDescription:    payload.Store.Description,
+		TechnicianName:      payload.Technician.Name,
+		TechnicianPhone:     payload.Technician.Phone,
+		TechnicianAvatarURL: payload.Technician.AvatarURL,
+		TechnicianHeadline:  payload.Technician.Headline,
+		ExperienceYears:     payload.Technician.ExperienceYears,
+		Availability:        domain.Availability(payload.Technician.Availability),
+		WorkingHours:        payload.Technician.WorkingHours,
+		LineURL:             payload.Technician.LineURL,
+		Services:            services,
+		Areas:               areas,
+	})
+	if err != nil {
+		if errors.Is(err, domain.ErrForbidden) {
+			h.errJSON(w, http.StatusForbidden, "forbidden")
+			return
+		}
+		h.errJSON(w, http.StatusInternalServerError, "ยังบันทึกข้อมูลร้านและโปรไฟล์ช่างไม่สำเร็จ")
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, map[string]any{
+		"status":              "updated",
+		"message":             "อัปเดตข้อมูลร้านและโปรไฟล์ช่างเรียบร้อยแล้ว",
+		"store":               store,
+		"technician":          technicianPayload(technician),
+		"technician_services": technicianServiceItemsPayload(technician),
+		"service_areas":       serviceAreaItemsPayload(technician),
 	})
 }
 
@@ -267,7 +405,7 @@ func (h *Handler) handleCreateQuotation(w http.ResponseWriter, r *http.Request) 
 		} `json:"items"`
 	}
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
 		return
 	}
 
@@ -370,7 +508,7 @@ func (h *Handler) handleCreateTechnician(w http.ResponseWriter, r *http.Request)
 		Services []string `json:"services"`
 	}
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
 		return
 	}
 	if payload.Name == "" {

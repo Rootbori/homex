@@ -1,7 +1,7 @@
 "use client";
 
-import type { FormEvent } from "react";
 import { useState, useTransition } from "react";
+import type React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Copy, LoaderCircle, QrCode, ShieldCheck, UserPlus, Users } from "lucide-react";
@@ -15,7 +15,15 @@ export interface TechnicianNewFormProps {
   baseUrl: string;
 }
 
-const serviceOptions = ["ล้างแอร์", "ซ่อมแอร์", "ติดตั้งแอร์ใหม่", "ย้ายแอร์"];
+const serviceOptions = [
+  "ล้างแอร์ 9,000-12,000 BTU",
+  "ล้างแอร์ 12,000-24,000 BTU",
+  "ล้างใหญ่ / ล้างคอยล์ร้อน",
+  "ซ่อมแอร์ / ตรวจเช็กอาการ",
+  "เติมน้ำยา R32/R410",
+  "ติดตั้งแอร์ใหม่",
+  "ย้ายแอร์",
+];
 
 export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFormProps>) {
   const router = useRouter();
@@ -52,7 +60,7 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
     }));
   };
 
-  const handleManualSubmit = (event: FormEvent) => {
+  const handleManualSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
     setResult({ type: "idle" });
 
@@ -199,7 +207,7 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
               เมื่อสร้างโปรไฟล์แบบ manual แล้ว คุณจะเห็นช่างคนนี้ในรายการทีมช่างทันที หากภายหลังต้องการให้เขา login เอง แนะนำให้ส่ง invite link ด้านบนแทน
             </div>
 
-            {result.type !== "idle" ? (
+            {result.type === "idle" ? null : (
               <div
                 className={cn(
                   "rounded-xl px-4 py-3 text-sm",
@@ -210,7 +218,7 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
               >
                 {result.message}
               </div>
-            ) : null}
+            )}
 
             <InputField
               id="name"

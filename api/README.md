@@ -99,3 +99,21 @@ The scaffold encodes that in `internal/domain/actor.go`.
 2. Add auth middleware and token/session support
 3. Add file upload storage for before/after job images
 4. Add LINE Messaging API integration for lead ingestion and quotation delivery
+
+## Thailand Geo Data
+
+Thai administrative reference tables are stored in:
+
+- `thai_provinces`
+- `thai_districts`
+- `thai_subdistricts`
+
+Import Thailand province / district / subdistrict data into PostgreSQL with:
+
+```bash
+go run cmd/import_thai_geo/main.go
+```
+
+Source dataset:
+
+- https://github.com/kongvut/thai-province-data

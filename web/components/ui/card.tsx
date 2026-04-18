@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export function Card({
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: Readonly<HTMLAttributes<HTMLDivElement>>) {
   return (
     <div
       className={cn(
@@ -19,30 +19,33 @@ export function Card({
 export function CardContent({
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: Readonly<HTMLAttributes<HTMLDivElement>>) {
   return <div className={cn("p-5 md:p-6", className)} {...props} />;
 }
 
 export function CardHeader({
   className,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: Readonly<HTMLAttributes<HTMLDivElement>>) {
   return <div className={cn("p-5 pb-3 md:p-6 md:pb-3", className)} {...props} />;
 }
 
 export function CardTitle({
   className,
+  children,
   ...props
-}: HTMLAttributes<HTMLHeadingElement>) {
+}: Readonly<HTMLAttributes<HTMLHeadingElement>>) {
   return (
-    <h3 className={cn("headline-font text-lg font-bold tracking-tight", className)} {...props} />
+    <h3 className={cn("headline-font text-lg font-bold tracking-tight", className)} {...props}>
+      {children}
+    </h3>
   );
 }
 
 export function CardDescription({
   className,
   ...props
-}: HTMLAttributes<HTMLParagraphElement>) {
+}: Readonly<HTMLAttributes<HTMLParagraphElement>>) {
   return (
     <p className={cn("text-sm leading-6 text-on-surface-variant", className)} {...props} />
   );

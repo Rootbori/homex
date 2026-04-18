@@ -10,7 +10,9 @@ import type {
   LeadStatus,
   LeadSummary,
   ScheduleDay,
+  ServiceAreaSummary,
   StoreSummary,
+  SetupProfile,
   TechnicianDetail,
   TechnicianSummary,
   TimelineItem,
@@ -343,6 +345,18 @@ function normalizeStore(raw: unknown): StoreSummary {
   };
 }
 
+function normalizeServiceArea(raw: unknown): ServiceAreaSummary {
+  const item = (raw ?? {}) as Record<string, unknown>;
+
+  return {
+    id: stringValue(item.id) || undefined,
+    province: stringValue(item.province),
+    district: stringValue(item.district),
+    subdistrict: stringValue(item.subdistrict) || undefined,
+    label: stringValue(item.label),
+  };
+}
+
 export async function getPublicTechnicians(searchParams?: URLSearchParams | Record<string, string | string[] | undefined>) {
   try {
     const query = new URLSearchParams();
@@ -548,6 +562,33 @@ export async function getPortalStore() {
     return payload.store ? normalizeStore(payload.store) : null;
   } catch {
     return null;
+  }
+}
+
+export async function getSetupProfile(): Promise<SetupProfile> {
+  try {
+    const payload = await fetchApiJson<{
+      store?: unknown;
+      technician?: unknown;
+      technician_services?: unknown[];
+      service_areas?: unknown[];
+    }>("/v1/app/setup-profile");
+    return {
+      store: payload.store ? normalizeStore(payload.store) : null,
+      technician: payload.technician ? normalizeTechnician(payload.technician) : null,
+      technicianServices: Array.isArray(payload.technician_services)
+        ? payload.technician_services.map((item) => {
+            const entry = (item ?? {}) as Record<string, unknown>;
+            return {
+              label: stringValue(entry.label),
+              startingPrice: numberValue(entry.starting_price, 0),
+            };
+          })
+        : [],
+      serviceAreas: Array.isArray(payload.service_areas) ? payload.service_areas.map((item) => normalizeServiceArea(item)) : [],
+    };
+  } catch {
+    return { store: null, technician: null, technicianServices: [], serviceAreas: [] };
   }
 }
 

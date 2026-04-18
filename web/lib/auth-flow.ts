@@ -93,7 +93,7 @@ export function isProviderConfigured(provider: AuthProviderId) {
 }
 
 export function normalizeRedirectPath(value: string | undefined | null) {
-  if (!value || !value.startsWith("/")) {
+  if (!value?.startsWith("/")) {
     return null;
   }
 

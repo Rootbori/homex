@@ -1,8 +1,55 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, MapPin, MessageCircle, PhoneCall, Star } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { getPublicTechnicianDetail } from "@/lib/server-data";
+import { absoluteUrl } from "@/lib/site";
+
+export async function generateMetadata({
+  params,
+}: Readonly<{
+  params: Promise<{ slug: string }>;
+}>): Promise<Metadata> {
+  const { slug } = await params;
+  const technician = await getPublicTechnicianDetail(slug);
+
+  if (!technician) {
+    return {
+      title: "ไม่พบโปรไฟล์ช่าง",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const title = `${technician.shopName} - ${technician.services.join(", ") || "ช่างแอร์"}`;
+  const description = `${technician.shopName} ให้บริการ ${technician.services.join(", ") || "ช่างแอร์"} ในพื้นที่ ${
+    technician.area.join(", ") || "ประเทศไทย"
+  } ราคาเริ่มต้น ${technician.startingPrice} บาท คะแนน ${technician.rating.toFixed(1)} บน Homex`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/technicians/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      url: absoluteUrl(`/technicians/${slug}`),
+      images: technician.image ? [{ url: technician.image }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: technician.image ? [technician.image] : undefined,
+    },
+  };
+}
 
 export default async function TechnicianProfilePage({
   params,
@@ -16,26 +63,60 @@ export default async function TechnicianProfilePage({
     notFound();
   }
 
-  const gallery =
-    technician.gallery.length > 0
-      ? technician.gallery
-      : technician.image
-        ? [technician.image]
-        : [];
+  let gallery = technician.gallery;
+  if (gallery.length === 0 && technician.image) {
+    gallery = [technician.image];
+  }
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: technician.shopName,
+    description: technician.headline,
+    image: technician.image ? [technician.image] : undefined,
+    telephone: technician.phone || undefined,
+    areaServed: technician.area.map((area) => ({
+      "@type": "AdministrativeArea",
+      name: area,
+    })),
+    makesOffer: technician.services.map((service) => ({
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: service,
+      },
+      priceCurrency: "THB",
+      price: technician.startingPrice > 0 ? String(technician.startingPrice) : undefined,
+    })),
+    aggregateRating:
+      technician.reviewCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: technician.rating.toFixed(1),
+            reviewCount: technician.reviewCount,
+          }
+        : undefined,
+    url: absoluteUrl(`/technicians/${technician.slug}`),
+  };
 
   return (
-    <div className="mx-auto max-w-3xl">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
-        <div className="flex h-14 items-center gap-3 px-4">
-          <Link href="/search" className="text-on-surface-variant/50 hover:text-on-surface">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="truncate text-base font-bold text-on-surface">{technician.shopName}</h1>
-        </div>
-      </header>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <div className="mx-auto max-w-3xl">
+        {/* Header */}
+        <header className="sticky top-0 z-50 border-b border-black/[0.04] bg-white/80 backdrop-blur-xl">
+          <div className="flex h-14 items-center gap-3 px-4">
+            <Link href="/search" className="text-on-surface-variant/50 hover:text-on-surface">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="truncate text-base font-bold text-on-surface">{technician.shopName}</h1>
+          </div>
+        </header>
 
-      <main className="px-4 py-6 space-y-6">
+        <main className="px-4 py-6 space-y-6">
         {/* Profile header */}
         <div className="flex gap-4">
           <div
@@ -165,16 +246,17 @@ export default async function TechnicianProfilePage({
           )}
         </section>
 
-        {/* Sticky CTA */}
-        <div className="pb-4">
-          <Link
-            href={`/request?technician=${technician.slug}`}
-            className="flex h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:brightness-110 active:scale-[0.98]"
-          >
-            จองบริการตอนนี้
-          </Link>
-        </div>
-      </main>
-    </div>
+          {/* Sticky CTA */}
+          <div className="pb-4">
+            <Link
+              href={`/request?technician=${technician.slug}`}
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:brightness-110 active:scale-[0.98]"
+            >
+              จองบริการตอนนี้
+            </Link>
+          </div>
+        </main>
+      </div>
+    </>
   );
 }

@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, Clock3 } from "lucide-react";
 import { StatusChip } from "@/components/ui/status-chip";
 import { formatCurrency } from "@/lib/format";
 import { getUserJobs } from "@/lib/server-data";
+
+export const metadata: Metadata = {
+  title: "งานของฉัน",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function MyRequestsPage() {
   const jobs = await getUserJobs();

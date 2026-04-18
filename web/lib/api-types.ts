@@ -139,6 +139,43 @@ export type StoreSummary = {
   description?: string;
 };
 
+export type ServiceAreaSummary = {
+  id?: string;
+  province: string;
+  district: string;
+  subdistrict?: string;
+  label: string;
+};
+
+export type SetupProfile = {
+  store: StoreSummary | null;
+  technician: TechnicianSummary | null;
+  technicianServices: Array<{
+    label: string;
+    startingPrice: number;
+  }>;
+  serviceAreas: ServiceAreaSummary[];
+};
+
+export type ThaiProvince = {
+  id: string;
+  nameTh: string;
+};
+
+export type ThaiDistrict = {
+  id: string;
+  provinceId: string;
+  nameTh: string;
+};
+
+export type ThaiSubdistrict = {
+  id: string;
+  districtId: string;
+  provinceId: string;
+  nameTh: string;
+  zipCode?: string;
+};
+
 export type UserSummary = {
   id: string;
   name: string;

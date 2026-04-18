@@ -7,6 +7,7 @@ import { providerLabel } from "@/lib/auth-flow";
 import { getJobs, getPortalStore, getTechnicians, getUsers } from "@/lib/server-data";
 
 const links = [
+  { href: "/portal/setup", label: "ตั้งค่าร้าน/โปรไฟล์ช่าง", description: "ข้อมูลที่จะขึ้นให้ลูกค้าเห็น" },
   { href: "/portal/quotation", label: "Quotation", description: "เตรียมใบเสนอราคา" },
   { href: "/portal/technicians", label: "ทีมช่าง", description: "ดูโปรไฟล์และ performance" },
   { href: "/portal/my-jobs", label: "งานของฉัน", description: "มุมมองช่าง — เห็นเฉพาะงานตัวเอง" },

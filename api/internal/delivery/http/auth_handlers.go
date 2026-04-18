@@ -32,7 +32,7 @@ type staffOnboardingPayload struct {
 func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
 	var payload oauthSyncPayload
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleValidateOAuthSession(w http.ResponseWriter, r *http.Request) {
 	var payload validateOAuthPayload
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (h *Handler) handleStaffOnboarding(w http.ResponseWriter, r *http.Request) 
 
 	var payload staffOnboardingPayload
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
 		return
 	}
 
@@ -121,7 +121,7 @@ func (h *Handler) handleCompleteSignup(w http.ResponseWriter, r *http.Request) {
 		Phone    string `json:"phone"`
 	}
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, "invalid payload")
+		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
 		return
 	}
 

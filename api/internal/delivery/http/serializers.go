@@ -39,17 +39,51 @@ func technicianPayload(tech *domain.TechnicianProfile) map[string]any {
 		"services":       services,
 		"starting_price": firstStartingPrice(tech.Services),
 		"availability":   tech.Availability,
-		"phone":          tech.User.Phone,
-		"headline":       tech.Headline,
+		"phone":          firstNonEmpty(tech.User.Phone, tech.Store.Phone),
+		"headline":       firstNonEmpty(tech.Headline, tech.Store.Description),
 		"working_hours":  tech.WorkingHours,
-		"hero_image":     tech.AvatarURL,
-		"avatar_url":     tech.AvatarURL,
+		"hero_image":     firstNonEmpty(tech.AvatarURL, tech.Store.LogoURL),
+		"avatar_url":     firstNonEmpty(tech.AvatarURL, tech.Store.LogoURL),
 		"line_url":       tech.LineURL,
 		"store_id":       tech.StoreID,
 		"user_id":        tech.UserID,
 		"membership_id":  tech.MembershipID,
 		"store_kind":     tech.Store.Kind,
 	}
+}
+
+func technicianServiceItemsPayload(tech *domain.TechnicianProfile) []map[string]any {
+	if tech == nil {
+		return nil
+	}
+
+	items := make([]map[string]any, 0, len(tech.Services))
+	for _, service := range tech.Services {
+		items = append(items, map[string]any{
+			"label":          service.Label,
+			"starting_price": service.StartingPrice,
+			"service_type":   service.ServiceType,
+		})
+	}
+	return items
+}
+
+func serviceAreaItemsPayload(tech *domain.TechnicianProfile) []map[string]any {
+	if tech == nil {
+		return nil
+	}
+
+	items := make([]map[string]any, 0, len(tech.Areas))
+	for _, area := range tech.Areas {
+		items = append(items, map[string]any{
+			"id":          area.ID,
+			"province":    area.Province,
+			"district":    area.District,
+			"subdistrict": area.Subdistrict,
+			"label":       area.Label,
+		})
+	}
+	return items
 }
 
 func authPayload(result *usecase.AuthSyncResult) map[string]any {

@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, LoaderCircle, Mail, Plus, Save, Send, Trash2 } from "lucide-react";
 import { InputField } from "@/components/ui/input-field";
+import { SelectField } from "@/components/ui/select-field";
 import { TextareaField } from "@/components/ui/textarea-field";
 import { formatCurrency } from "@/lib/format";
 import type { UserSummary } from "@/lib/api-types";
@@ -89,7 +90,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
   }
 
   function goBack() {
-    if (typeof window !== "undefined" && window.history.length > 1) {
+    if (globalThis.window !== undefined && globalThis.window.history.length > 1) {
       router.back();
       return;
     }
@@ -101,8 +102,8 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
     const normalizedItems = items
       .map((item) => ({
         label: item.label.trim(),
-        quantity: item.quantity > 0 ? item.quantity : 1,
-        unit_price: item.unitPrice > 0 ? item.unitPrice : 0,
+        quantity: Math.max(1, item.quantity),
+        unit_price: Math.max(0, item.unitPrice),
       }))
       .filter((item) => item.label.length > 0);
 
@@ -115,8 +116,8 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
     }
 
     const popup =
-      sendViaEmail && typeof window !== "undefined"
-        ? window.open("about:blank", "_blank", "noopener,noreferrer")
+      sendViaEmail && globalThis.window !== undefined
+        ? globalThis.window.open("about:blank", "_blank", "noopener,noreferrer")
         : null;
 
     startTransition(async () => {
@@ -159,7 +160,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
           if (popup) {
             popup.location.href = gmailUrl;
           } else {
-            window.open(gmailUrl, "_blank", "noopener,noreferrer");
+            globalThis.window.open(gmailUrl, "_blank", "noopener,noreferrer");
           }
         } else {
           popup?.close();
@@ -210,21 +211,17 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
         <section className="rounded-2xl bg-white p-5 ring-1 ring-black/[0.04]">
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-on-surface">ลูกค้าในระบบ</label>
-                <select
-                  value={selectedUserId}
-                  onChange={(event) => handleCustomerChange(event.target.value)}
-                  className="h-12 w-full rounded-xl bg-white px-4 text-sm text-on-surface outline-none ring-1 ring-slate-200 transition-all focus:ring-primary/20"
-                >
-                  <option value="">เลือกจากรายชื่อลูกค้า</option>
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.name} {customer.email ? `• ${customer.email}` : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <SelectField
+                id="selected_user"
+                label="ลูกค้าในระบบ"
+                value={selectedUserId}
+                onChange={(event) => handleCustomerChange(event.target.value)}
+                placeholder="เลือกจากรายชื่อลูกค้า"
+                options={customers.map((customer) => ({
+                  value: customer.id,
+                  label: customer.email ? `${customer.name} • ${customer.email}` : customer.name,
+                }))}
+              />
 
               <InputField
                 id="recipient_email"
@@ -387,7 +384,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
           </div>
         </section>
 
-        {result.type !== "idle" ? (
+        {result.type === "idle" ? null : (
           <section
             className={`rounded-2xl p-4 text-sm ${
               result.type === "success"
@@ -409,7 +406,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
               </a>
             ) : null}
           </section>
-        ) : null}
+        )}
 
         <div className="grid gap-3 pb-4 md:grid-cols-2">
           <button

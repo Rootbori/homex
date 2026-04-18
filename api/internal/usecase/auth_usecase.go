@@ -12,7 +12,13 @@ import (
 	"github.com/rootbeer/homex/api/internal/domain"
 )
 
-const defaultUserStoreID uint = 1
+const (
+	defaultUserStoreID  uint = 1
+	pathPortalDashboard      = "/portal/dashboard"
+	pathSearch               = "/search"
+	pathStaffOnboarding      = "/onboarding/staff"
+	pathPortalSetup          = "/portal/setup"
+)
 
 var slugSanitizer = regexp.MustCompile(`[^a-z0-9]+`)
 
@@ -41,72 +47,82 @@ func (u *authUsecase) SyncOAuthUser(
 		return nil, err
 	}
 
-	result := &AuthSyncResult{
-		User: user,
-	}
+	result := &AuthSyncResult{User: user}
 
 	if accountType == domain.UserTypeUser {
-		store, err := u.storeRepo.GetByID(ctx, defaultUserStoreID)
-		if err != nil {
-			return nil, err
-		}
-
-		profile := &domain.UserProfile{
-			StoreID: store.ID,
-			UserID:  user.ID,
-		}
-		if err := u.userRepo.UpsertProfile(ctx, profile); err != nil {
-			return nil, err
-		}
-
-		result.Store = store
-		result.Role = domain.RoleUser
-		result.ProfileID = user.ID
-		result.NextPath = "/search"
-		return result, nil
+		return u.syncCustomerUser(ctx, user, result)
 	}
 
 	if inviteStoreID != "" && inviteStoreID != "draft" {
-		storeID, err := parseStoreID(inviteStoreID)
-		if err != nil {
-			return nil, err
-		}
-
-		store, err := u.storeRepo.GetByID(ctx, storeID)
-		if err != nil {
-			return nil, err
-		}
-
-		membership, tech, err := u.ensureStaffMembership(ctx, user, store, domain.RoleTechnician, true)
-		if err != nil {
-			return nil, err
-		}
-
-		result.Membership = membership
-		result.Store = store
-		result.Technician = tech
-		result.Role = membership.Role
-		result.NextPath = "/portal/dashboard"
-		return result, nil
+		return u.syncInvitedStaffUser(ctx, user, inviteStoreID, result)
 	}
 
+	return u.syncExistingStaffUser(ctx, user, result)
+}
+
+func (u *authUsecase) syncCustomerUser(ctx context.Context, user *domain.User, result *AuthSyncResult) (*AuthSyncResult, error) {
+	store, err := u.storeRepo.GetByID(ctx, defaultUserStoreID)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := &domain.UserProfile{
+		StoreID: store.ID,
+		UserID:  user.ID,
+	}
+	if err := u.userRepo.UpsertProfile(ctx, profile); err != nil {
+		return nil, err
+	}
+
+	result.Store = store
+	result.Role = domain.RoleUser
+	result.ProfileID = user.ID
+	result.NextPath = pathSearch
+	return result, nil
+}
+
+func (u *authUsecase) syncInvitedStaffUser(ctx context.Context, user *domain.User, inviteStoreID string, result *AuthSyncResult) (*AuthSyncResult, error) {
+	storeID, err := parseStoreID(inviteStoreID)
+	if err != nil {
+		return nil, err
+	}
+
+	store, err := u.storeRepo.GetByID(ctx, storeID)
+	if err != nil {
+		return nil, err
+	}
+
+	membership, tech, err := u.ensureStaffMembership(ctx, user, store, domain.RoleTechnician, true)
+	if err != nil {
+		return nil, err
+	}
+
+	result.Membership = membership
+	result.Store = store
+	result.Technician = tech
+	result.Role = membership.Role
+	result.NextPath = pathPortalDashboard
+	return result, nil
+}
+
+func (u *authUsecase) syncExistingStaffUser(ctx context.Context, user *domain.User, result *AuthSyncResult) (*AuthSyncResult, error) {
 	membership, err := u.storeRepo.GetAnyMembershipByUser(ctx, user.ID)
 	if err == nil && membership != nil {
-		store, err := u.storeRepo.GetByID(ctx, membership.StoreID)
-		if err != nil {
-			return nil, err
+		store, storeErr := u.storeRepo.GetByID(ctx, membership.StoreID)
+		if storeErr != nil {
+			return nil, storeErr
 		}
 
-		tech, err := u.storeRepo.GetTechnicianProfile(ctx, membership.ID)
-		if err != nil && !errors.Is(err, domain.ErrNotFound) {
-			return nil, err
+		tech, techErr := u.storeRepo.GetTechnicianProfile(ctx, membership.ID)
+		if techErr != nil && !errors.Is(techErr, domain.ErrNotFound) {
+			return nil, techErr
 		}
 
 		result.Membership = membership
 		result.Store = store
 		result.Technician = tech
 		result.Role = membership.Role
-		result.NextPath = "/portal/dashboard"
+		result.NextPath = pathPortalDashboard
 		return result, nil
 	}
 	if err != nil && !errors.Is(err, domain.ErrNotFound) {
@@ -114,7 +130,7 @@ func (u *authUsecase) SyncOAuthUser(
 	}
 
 	result.Role = domain.RoleAnonymous
-	result.NextPath = "/onboarding/staff"
+	result.NextPath = pathStaffOnboarding
 	result.OnboardingRequired = true
 	return result, nil
 }
@@ -125,6 +141,24 @@ func (u *authUsecase) ValidateOAuthSession(
 	accountType domain.UserType,
 	input ValidateSessionInput,
 ) (*AuthSyncResult, error) {
+	user, err := u.findUserByIdentity(ctx, ident)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &AuthSyncResult{User: user}
+
+	switch accountType {
+	case domain.UserTypeUser:
+		return u.validateCustomerSession(ctx, user, input, result)
+	case domain.UserTypeStaff:
+		return u.validateStaffSession(ctx, user, input, result)
+	default:
+		return nil, domain.ErrUnauthorized
+	}
+}
+
+func (u *authUsecase) findUserByIdentity(ctx context.Context, ident domain.UserIdentity) (*domain.User, error) {
 	existingIdent, err := u.userRepo.GetIdentity(ctx, ident.Provider, ident.ProviderUserID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
@@ -140,113 +174,124 @@ func (u *authUsecase) ValidateOAuthSession(
 		}
 		return nil, err
 	}
+	return user, nil
+}
 
-	result := &AuthSyncResult{
-		User: user,
+func (u *authUsecase) validateCustomerSession(ctx context.Context, user *domain.User, input ValidateSessionInput, result *AuthSyncResult) (*AuthSyncResult, error) {
+	store, err := u.storeRepo.GetByID(ctx, defaultUserStoreID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, domain.ErrUnauthorized
+		}
+		return nil, err
 	}
 
-	switch accountType {
-	case domain.UserTypeUser:
-		store, err := u.storeRepo.GetByID(ctx, defaultUserStoreID)
-		if err != nil {
-			if errors.Is(err, domain.ErrNotFound) {
-				return nil, domain.ErrUnauthorized
-			}
-			return nil, err
-		}
-
-		if _, err := u.userRepo.GetProfile(ctx, defaultUserStoreID, user.ID); err != nil {
-			if errors.Is(err, domain.ErrNotFound) {
-				return nil, domain.ErrUnauthorized
-			}
-			return nil, err
-		}
-
-		if input.ClaimedStoreID != "" && input.ClaimedStoreID != strconv.Itoa(int(defaultUserStoreID)) {
-			return nil, domain.ErrUnauthorized
-		}
-		if input.ClaimedRole != "" && input.ClaimedRole != domain.RoleUser {
-			return nil, domain.ErrUnauthorized
-		}
-		if input.ClaimedProfileID != "" && input.ClaimedProfileID != strconv.Itoa(int(user.ID)) {
-			return nil, domain.ErrUnauthorized
-		}
-
-		result.Store = store
-		result.Role = domain.RoleUser
-		result.ProfileID = user.ID
-		result.NextPath = "/search"
-		return result, nil
-
-	case domain.UserTypeStaff:
-		var membership *domain.StoreMembership
-		if strings.TrimSpace(input.ClaimedStoreID) != "" {
-			storeID, err := parseStoreID(input.ClaimedStoreID)
-			if err != nil {
-				return nil, domain.ErrUnauthorized
-			}
-			membership, err = u.storeRepo.GetMembership(ctx, storeID, user.ID)
-			if err != nil {
-				if errors.Is(err, domain.ErrNotFound) {
-					return nil, domain.ErrUnauthorized
-				}
-				return nil, err
-			}
-		} else {
-			membership, err = u.storeRepo.GetAnyMembershipByUser(ctx, user.ID)
-			if err != nil {
-				if errors.Is(err, domain.ErrNotFound) {
-					result.Role = domain.RoleAnonymous
-					result.NextPath = "/onboarding/staff"
-					result.OnboardingRequired = true
-					return result, nil
-				}
-				return nil, err
-			}
-		}
-
-		if membership == nil || !membership.IsActive {
-			return nil, domain.ErrUnauthorized
-		}
-
-		store, err := u.storeRepo.GetByID(ctx, membership.StoreID)
-		if err != nil {
-			if errors.Is(err, domain.ErrNotFound) {
-				return nil, domain.ErrUnauthorized
-			}
-			return nil, err
-		}
-
-		if input.ClaimedRole != "" && input.ClaimedRole != membership.Role {
-			return nil, domain.ErrUnauthorized
-		}
-
-		tech, err := u.storeRepo.GetTechnicianByUserID(ctx, store.ID, user.ID)
-		if err != nil && !errors.Is(err, domain.ErrNotFound) {
-			return nil, err
-		}
+	if _, err := u.userRepo.GetProfile(ctx, defaultUserStoreID, user.ID); err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			tech = nil
-		}
-
-		if membership.Role == domain.RoleTechnician && tech == nil {
 			return nil, domain.ErrUnauthorized
 		}
-		if input.ClaimedTechnicianID != "" {
-			if tech == nil || input.ClaimedTechnicianID != strconv.Itoa(int(tech.ID)) {
-				return nil, domain.ErrUnauthorized
-			}
-		}
+		return nil, err
+	}
 
-		result.Membership = membership
-		result.Store = store
-		result.Technician = tech
-		result.Role = membership.Role
-		result.NextPath = "/portal/dashboard"
-		return result, nil
-	default:
+	if input.ClaimedStoreID != "" && input.ClaimedStoreID != strconv.Itoa(int(defaultUserStoreID)) {
 		return nil, domain.ErrUnauthorized
 	}
+	if input.ClaimedRole != "" && input.ClaimedRole != domain.RoleUser {
+		return nil, domain.ErrUnauthorized
+	}
+	if input.ClaimedProfileID != "" && input.ClaimedProfileID != strconv.Itoa(int(user.ID)) {
+		return nil, domain.ErrUnauthorized
+	}
+
+	result.Store = store
+	result.Role = domain.RoleUser
+	result.ProfileID = user.ID
+	result.NextPath = pathSearch
+	return result, nil
+}
+
+func (u *authUsecase) validateStaffSession(ctx context.Context, user *domain.User, input ValidateSessionInput, result *AuthSyncResult) (*AuthSyncResult, error) {
+	membership, authErr := u.resolveStaffMembership(ctx, user, input.ClaimedStoreID)
+	if authErr != nil {
+		if errors.Is(authErr, domain.ErrNotFound) && strings.TrimSpace(input.ClaimedStoreID) == "" {
+			result.Role = domain.RoleAnonymous
+			result.NextPath = pathStaffOnboarding
+			result.OnboardingRequired = true
+			return result, nil
+		}
+		return nil, authErr
+	}
+
+	if membership == nil || !membership.IsActive {
+		return nil, domain.ErrUnauthorized
+	}
+
+	store, err := u.storeRepo.GetByID(ctx, membership.StoreID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, domain.ErrUnauthorized
+		}
+		return nil, err
+	}
+
+	if input.ClaimedRole != "" && input.ClaimedRole != membership.Role {
+		return nil, domain.ErrUnauthorized
+	}
+
+	tech, err := u.resolveStaffTechnician(ctx, store.ID, user.ID, membership.Role, input.ClaimedTechnicianID)
+	if err != nil {
+		return nil, err
+	}
+
+	result.Membership = membership
+	result.Store = store
+	result.Technician = tech
+	result.Role = membership.Role
+	result.NextPath = pathPortalDashboard
+	return result, nil
+}
+
+func (u *authUsecase) resolveStaffMembership(ctx context.Context, user *domain.User, claimedStoreID string) (*domain.StoreMembership, error) {
+	if strings.TrimSpace(claimedStoreID) != "" {
+		storeID, err := parseStoreID(claimedStoreID)
+		if err != nil {
+			return nil, domain.ErrUnauthorized
+		}
+		membership, err := u.storeRepo.GetMembership(ctx, storeID, user.ID)
+		if err != nil {
+			if errors.Is(err, domain.ErrNotFound) {
+				return nil, domain.ErrUnauthorized
+			}
+			return nil, err
+		}
+		return membership, nil
+	}
+
+	membership, err := u.storeRepo.GetAnyMembershipByUser(ctx, user.ID)
+	if err != nil {
+		return nil, err // Can be ErrNotFound
+	}
+	return membership, nil
+}
+
+func (u *authUsecase) resolveStaffTechnician(ctx context.Context, storeID, userID uint, role domain.Role, claimedTechID string) (*domain.TechnicianProfile, error) {
+	tech, err := u.storeRepo.GetTechnicianByUserID(ctx, storeID, userID)
+	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+		return nil, err
+	}
+	if errors.Is(err, domain.ErrNotFound) {
+		tech = nil
+	}
+
+	if role == domain.RoleTechnician && tech == nil {
+		return nil, domain.ErrUnauthorized
+	}
+	if claimedTechID != "" {
+		if tech == nil || claimedTechID != strconv.Itoa(int(tech.ID)) {
+			return nil, domain.ErrUnauthorized
+		}
+	}
+	return tech, nil
 }
 
 func (u *authUsecase) CompleteStaffOnboarding(
@@ -279,7 +324,7 @@ func (u *authUsecase) CompleteStaffOnboarding(
 			Store:      store,
 			Technician: tech,
 			Role:       existing.Role,
-			NextPath:   "/portal/dashboard",
+			NextPath:   pathPortalSetup,
 		}, nil
 	}
 
@@ -308,7 +353,7 @@ func (u *authUsecase) CompleteStaffOnboarding(
 		Store:      store,
 		Technician: tech,
 		Role:       membership.Role,
-		NextPath:   "/portal/dashboard",
+		NextPath:   pathPortalSetup,
 	}, nil
 }
 
@@ -329,35 +374,43 @@ func (u *authUsecase) findOrCreateUser(
 	}
 
 	if user != nil {
-		updated := false
-		if needsHybridType(user.Type, accountType) {
-			user.Type = domain.UserTypeHybrid
-			updated = true
-		}
-		if strings.TrimSpace(user.FullName) == "" || user.FullName == user.Email {
-			if strings.TrimSpace(fullName) != "" {
-				user.FullName = fullName
-				updated = true
-			}
-		}
-		if strings.TrimSpace(user.AvatarURL) == "" && strings.TrimSpace(avatarURL) != "" {
-			user.AvatarURL = avatarURL
-			updated = true
-		}
-		if updated {
-			if err := u.userRepo.Update(ctx, user); err != nil {
-				return nil, err
-			}
-		}
-		return user, nil
+		return u.updateExistingUser(ctx, user, accountType, fullName, avatarURL)
 	}
 
+	return u.createNewUserFromIdentity(ctx, ident, accountType, fullName, avatarURL)
+}
+
+func (u *authUsecase) updateExistingUser(ctx context.Context, user *domain.User, accountType domain.UserType, fullName, avatarURL string) (*domain.User, error) {
+	updated := false
+	if needsHybridType(user.Type, accountType) {
+		user.Type = domain.UserTypeHybrid
+		updated = true
+	}
+	if strings.TrimSpace(user.FullName) == "" || user.FullName == user.Email {
+		if strings.TrimSpace(fullName) != "" {
+			user.FullName = fullName
+			updated = true
+		}
+	}
+	if strings.TrimSpace(user.AvatarURL) == "" && strings.TrimSpace(avatarURL) != "" {
+		user.AvatarURL = avatarURL
+		updated = true
+	}
+	if updated {
+		if err := u.userRepo.Update(ctx, user); err != nil {
+			return nil, err
+		}
+	}
+	return user, nil
+}
+
+func (u *authUsecase) createNewUserFromIdentity(ctx context.Context, ident domain.UserIdentity, accountType domain.UserType, fullName, avatarURL string) (*domain.User, error) {
 	displayName := strings.TrimSpace(fullName)
 	if displayName == "" {
 		displayName = ident.Email
 	}
 
-	user = &domain.User{
+	user := &domain.User{
 		Type:      accountType,
 		FullName:  displayName,
 		Email:     ident.Email,

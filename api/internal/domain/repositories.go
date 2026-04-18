@@ -24,17 +24,20 @@ type UserRepository interface {
 
 type StoreRepository interface {
 	GetByID(ctx context.Context, id uint) (*Store, error)
+	Update(ctx context.Context, store *Store) error
 	GetMembership(ctx context.Context, storeID, userID uint) (*StoreMembership, error)
 	GetAnyMembershipByUser(ctx context.Context, userID uint) (*StoreMembership, error)
 	GetTechnicianProfile(ctx context.Context, membershipID uint) (*TechnicianProfile, error)
 	GetTechnicianByUserID(ctx context.Context, storeID, userID uint) (*TechnicianProfile, error)
 	GetTechnicianBySlug(ctx context.Context, slug string) (*TechnicianProfile, error)
-	ListPublicTechnicians(ctx context.Context, query string) ([]TechnicianProfile, error)
+	ListPublicTechnicians(ctx context.Context, filters TechnicianSearchFilters) ([]TechnicianProfile, error)
 	ListStoreTechnicians(ctx context.Context, storeID uint) ([]TechnicianProfile, error)
 	Create(ctx context.Context, store *Store) error
 	CreateMembership(ctx context.Context, mem *StoreMembership) error
 	CreateTechnicianProfile(ctx context.Context, tech *TechnicianProfile) error
+	UpdateTechnicianProfile(ctx context.Context, tech *TechnicianProfile) error
 	ReplaceTechnicianServices(ctx context.Context, technicianID uint, services []TechnicianService) error
+	ReplaceServiceAreas(ctx context.Context, storeID, technicianID uint, areas []ServiceArea) error
 }
 
 type JobRepository interface {
@@ -53,4 +56,11 @@ type JobRepository interface {
 	CreateQuotation(ctx context.Context, quotation *Quotation, items []QuotationItem) error
 	GetQuotationByJobID(ctx context.Context, jobID uint) (*Quotation, error)
 	GetQuotationByLeadID(ctx context.Context, leadID uint) (*Quotation, error)
+}
+
+type GeoRepository interface {
+	ListProvinces(ctx context.Context) ([]ThaiProvince, error)
+	ListDistricts(ctx context.Context, provinceID uint) ([]ThaiDistrict, error)
+	ListSubdistricts(ctx context.Context, districtID uint) ([]ThaiSubdistrict, error)
+	ReplaceThailandGeoData(ctx context.Context, provinces []ThaiProvince, districts []ThaiDistrict, subdistricts []ThaiSubdistrict) error
 }

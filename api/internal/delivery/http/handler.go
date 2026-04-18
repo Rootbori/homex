@@ -9,6 +9,8 @@ import (
 	"github.com/rootbeer/homex/api/internal/usecase"
 )
 
+const errInvalidPayload = "invalid payload"
+
 // Handler is the HTTP delivery layer. It knows about HTTP but delegates
 // all business logic to usecases.
 type Handler struct {
@@ -17,15 +19,17 @@ type Handler struct {
 	userUC  usecase.UserUsecase
 	jobUC   usecase.JobUsecase
 	storeUC usecase.StoreUsecase
+	geoUC   usecase.GeoUsecase
 }
 
-func NewHandler(cfg config.Config, authUC usecase.AuthUsecase, userUC usecase.UserUsecase, jobUC usecase.JobUsecase, storeUC usecase.StoreUsecase) *Handler {
+func NewHandler(cfg config.Config, authUC usecase.AuthUsecase, userUC usecase.UserUsecase, jobUC usecase.JobUsecase, storeUC usecase.StoreUsecase, geoUC usecase.GeoUsecase) *Handler {
 	return &Handler{
 		cfg:     cfg,
 		authUC:  authUC,
 		userUC:  userUC,
 		jobUC:   jobUC,
 		storeUC: storeUC,
+		geoUC:   geoUC,
 	}
 }
 
@@ -38,6 +42,9 @@ func (h *Handler) Routes() http.Handler {
 	// Public
 	mux.HandleFunc("GET /v1/public/technicians", h.handleListTechnicians)
 	mux.HandleFunc("GET /v1/public/technicians/{slug}", h.handleGetTechnician)
+	mux.HandleFunc("GET /v1/public/geo/provinces", h.handleListThaiProvinces)
+	mux.HandleFunc("GET /v1/public/geo/districts", h.handleListThaiDistricts)
+	mux.HandleFunc("GET /v1/public/geo/subdistricts", h.handleListThaiSubdistricts)
 	mux.HandleFunc("POST /v1/public/service-requests", h.handleCreateLead)
 	mux.HandleFunc("GET /v1/public/auth/signup-options", h.handleSignupOptions)
 
@@ -54,6 +61,8 @@ func (h *Handler) Routes() http.Handler {
 	// Staff / App
 	mux.HandleFunc("GET /v1/app/dashboard", h.handleGetDashboard)
 	mux.HandleFunc("GET /v1/app/store", h.handleGetCurrentStore)
+	mux.HandleFunc("GET /v1/app/setup-profile", h.handleGetSetupProfile)
+	mux.HandleFunc("PUT /v1/app/setup-profile", h.handleUpdateSetupProfile)
 	mux.HandleFunc("GET /v1/app/leads", h.handleListLeads)
 	mux.HandleFunc("GET /v1/app/leads/{id}", h.handleGetLeadDetail)
 	mux.HandleFunc("GET /v1/app/jobs", h.handleListJobs)

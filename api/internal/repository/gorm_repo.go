@@ -10,8 +10,10 @@ import (
 )
 
 const (
+	whereStoreID       = "store_id = ?"
 	whereStoreUser     = "store_id = ? AND user_id = ?"
 	queryCreatedAtDesc = "created_at desc"
+	queryNameThAsc     = "name_th asc"
 )
 
 // wrapNotFound converts gorm.ErrRecordNotFound to domain.ErrNotFound
@@ -211,6 +213,10 @@ func (r *gormStoreRepository) Create(ctx context.Context, store *domain.Store) e
 	return r.db.WithContext(ctx).Create(store).Error
 }
 
+func (r *gormStoreRepository) Update(ctx context.Context, store *domain.Store) error {
+	return r.db.WithContext(ctx).Save(store).Error
+}
+
 func (r *gormStoreRepository) GetMembership(ctx context.Context, storeID, userID uint) (*domain.StoreMembership, error) {
 	var mem domain.StoreMembership
 	err := r.db.WithContext(ctx).Where(whereStoreUser, storeID, userID).First(&mem).Error
@@ -274,17 +280,39 @@ func (r *gormStoreRepository) GetTechnicianBySlug(ctx context.Context, slug stri
 	return &tech, nil
 }
 
-func (r *gormStoreRepository) ListPublicTechnicians(ctx context.Context, query string) ([]domain.TechnicianProfile, error) {
+func (r *gormStoreRepository) ListPublicTechnicians(ctx context.Context, filters domain.TechnicianSearchFilters) ([]domain.TechnicianProfile, error) {
 	var techs []domain.TechnicianProfile
 	db := r.db.WithContext(ctx).
+		Model(&domain.TechnicianProfile{}).
 		Preload("User").
 		Preload("Store").
 		Preload("Services").
 		Preload("Areas")
-	if query != "" {
-		db = db.Where("headline LIKE ? OR slug LIKE ?", "%"+query+"%", "%"+query+"%")
+
+	if filters.Query != "" {
+		like := "%" + filters.Query + "%"
+		db = db.Joins("LEFT JOIN users ON users.id = technician_profiles.user_id").
+			Joins("LEFT JOIN stores ON stores.id = technician_profiles.store_id").
+			Where("technician_profiles.headline ILIKE ? OR technician_profiles.slug ILIKE ? OR users.full_name ILIKE ? OR stores.name ILIKE ?", like, like, like, like)
 	}
-	if err := db.Find(&techs).Error; err != nil {
+	if filters.ServiceLabel != "" {
+		like := "%" + filters.ServiceLabel + "%"
+		db = db.Joins("JOIN technician_services ON technician_services.technician_id = technician_profiles.id").
+			Where("technician_services.label ILIKE ?", like)
+	}
+	if filters.AreaLabel != "" {
+		like := "%" + filters.AreaLabel + "%"
+		db = db.Joins("JOIN service_areas ON service_areas.technician_id = technician_profiles.id").
+			Where("service_areas.label ILIKE ?", like)
+	}
+	if filters.Availability != "" {
+		db = db.Where("technician_profiles.availability = ?", filters.Availability)
+	}
+	if filters.MaxPrice > 0 {
+		db = db.Joins("JOIN technician_services price_filter ON price_filter.technician_id = technician_profiles.id").
+			Where("price_filter.starting_price > 0 AND price_filter.starting_price <= ?", filters.MaxPrice)
+	}
+	if err := db.Distinct("technician_profiles.*").Find(&techs).Error; err != nil {
 		return nil, err
 	}
 	return techs, nil
@@ -297,7 +325,7 @@ func (r *gormStoreRepository) ListStoreTechnicians(ctx context.Context, storeID 
 		Preload("Store").
 		Preload("Services").
 		Preload("Areas").
-		Where("store_id = ?", storeID).
+		Where(whereStoreID, storeID).
 		Order(queryCreatedAtDesc).
 		Find(&techs).Error; err != nil {
 		return nil, err
@@ -313,6 +341,10 @@ func (r *gormStoreRepository) CreateTechnicianProfile(ctx context.Context, tech 
 	return r.db.WithContext(ctx).Create(tech).Error
 }
 
+func (r *gormStoreRepository) UpdateTechnicianProfile(ctx context.Context, tech *domain.TechnicianProfile) error {
+	return r.db.WithContext(ctx).Save(tech).Error
+}
+
 func (r *gormStoreRepository) ReplaceTechnicianServices(ctx context.Context, technicianID uint, services []domain.TechnicianService) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("technician_id = ?", technicianID).Delete(&domain.TechnicianService{}).Error; err != nil {
@@ -322,6 +354,18 @@ func (r *gormStoreRepository) ReplaceTechnicianServices(ctx context.Context, tec
 			return nil
 		}
 		return tx.Create(&services).Error
+	})
+}
+
+func (r *gormStoreRepository) ReplaceServiceAreas(ctx context.Context, storeID, technicianID uint, areas []domain.ServiceArea) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("store_id = ? AND technician_id = ?", storeID, technicianID).Delete(&domain.ServiceArea{}).Error; err != nil {
+			return err
+		}
+		if len(areas) == 0 {
+			return nil
+		}
+		return tx.Create(&areas).Error
 	})
 }
 
@@ -345,7 +389,7 @@ func (r *gormJobRepository) GetByID(ctx context.Context, id uint) (*domain.Job, 
 
 func (r *gormJobRepository) ListByStore(ctx context.Context, id uint) ([]domain.Job, error) {
 	var jobs []domain.Job
-	if err := r.db.WithContext(ctx).Where("store_id = ?", id).Order(queryCreatedAtDesc).Find(&jobs).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where(whereStoreID, id).Order(queryCreatedAtDesc).Find(&jobs).Error; err != nil {
 		return nil, err
 	}
 	return jobs, nil
@@ -396,7 +440,7 @@ func (r *gormJobRepository) GetLeadByID(ctx context.Context, id uint) (*domain.L
 
 func (r *gormJobRepository) ListLeadsByStore(ctx context.Context, id uint) ([]domain.Lead, error) {
 	var leads []domain.Lead
-	if err := r.db.WithContext(ctx).Where("store_id = ?", id).Order(queryCreatedAtDesc).Find(&leads).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where(whereStoreID, id).Order(queryCreatedAtDesc).Find(&leads).Error; err != nil {
 		return nil, err
 	}
 	return leads, nil
@@ -440,4 +484,65 @@ func (r *gormJobRepository) GetQuotationByLeadID(ctx context.Context, id uint) (
 		return nil, wrapNotFound(err)
 	}
 	return &q, nil
+}
+
+// ── Geo Repository ──────────────────────────────────────────────────
+
+type gormGeoRepository struct {
+	db *gorm.DB
+}
+
+func NewGeoRepository(db *gorm.DB) domain.GeoRepository {
+	return &gormGeoRepository{db: db}
+}
+
+func (r *gormGeoRepository) ListProvinces(ctx context.Context) ([]domain.ThaiProvince, error) {
+	var items []domain.ThaiProvince
+	if err := r.db.WithContext(ctx).Order(queryNameThAsc).Find(&items).Error; err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *gormGeoRepository) ListDistricts(ctx context.Context, provinceID uint) ([]domain.ThaiDistrict, error) {
+	var items []domain.ThaiDistrict
+	if err := r.db.WithContext(ctx).Where("province_id = ?", provinceID).Order(queryNameThAsc).Find(&items).Error; err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *gormGeoRepository) ListSubdistricts(ctx context.Context, districtID uint) ([]domain.ThaiSubdistrict, error) {
+	var items []domain.ThaiSubdistrict
+	if err := r.db.WithContext(ctx).Where("district_id = ?", districtID).Order(queryNameThAsc).Find(&items).Error; err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *gormGeoRepository) ReplaceThailandGeoData(ctx context.Context, provinces []domain.ThaiProvince, districts []domain.ThaiDistrict, subdistricts []domain.ThaiSubdistrict) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec("TRUNCATE TABLE thai_subdistricts, thai_districts, thai_provinces RESTART IDENTITY CASCADE").Error; err != nil {
+			return err
+		}
+
+		if err := insertInBatches(tx, provinces, 500); err != nil {
+			return err
+		}
+		if err := insertInBatches(tx, districts, 1000); err != nil {
+			return err
+		}
+		if err := insertInBatches(tx, subdistricts, 1000); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func insertInBatches[T any](tx *gorm.DB, items []T, batchSize int) error {
+	if len(items) == 0 {
+		return nil
+	}
+	return tx.CreateInBatches(items, batchSize).Error
 }
