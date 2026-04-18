@@ -17,6 +17,13 @@ type AuthSyncResult struct {
 	OnboardingRequired bool
 }
 
+type ValidateSessionInput struct {
+	ClaimedStoreID      string
+	ClaimedRole         domain.Role
+	ClaimedTechnicianID string
+	ClaimedProfileID    string
+}
+
 type StaffOnboardingInput struct {
 	Mode      string
 	StoreName string
@@ -45,6 +52,7 @@ type CreateQuotationInput struct {
 
 type AuthUsecase interface {
 	SyncOAuthUser(ctx context.Context, ident domain.UserIdentity, accountType domain.UserType, inviteStoreID, fullName, avatarURL string) (*AuthSyncResult, error)
+	ValidateOAuthSession(ctx context.Context, ident domain.UserIdentity, accountType domain.UserType, input ValidateSessionInput) (*AuthSyncResult, error)
 	CompleteStaffOnboarding(ctx context.Context, userID uint, input StaffOnboardingInput) (*AuthSyncResult, error)
 	GetSignupSession(ctx context.Context, token string) (*domain.AuthSignupSession, error)
 	CompleteSignup(ctx context.Context, token string, fullName, phone string) (*domain.User, *domain.StoreMembership, *domain.Store, error)

@@ -44,6 +44,7 @@ func (h *Handler) Routes() http.Handler {
 	// Auth
 	mux.HandleFunc("POST /v1/public/auth/signup", h.handleCompleteSignup)
 	mux.HandleFunc("POST /v1/public/auth/oauth-sync", h.handleOAuthSync)
+	mux.HandleFunc("POST /v1/public/auth/validate-session", h.handleValidateOAuthSession)
 	mux.HandleFunc("POST /v1/app/staff/onboarding", h.handleStaffOnboarding)
 
 	// User

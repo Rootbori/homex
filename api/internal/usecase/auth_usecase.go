@@ -119,6 +119,136 @@ func (u *authUsecase) SyncOAuthUser(
 	return result, nil
 }
 
+func (u *authUsecase) ValidateOAuthSession(
+	ctx context.Context,
+	ident domain.UserIdentity,
+	accountType domain.UserType,
+	input ValidateSessionInput,
+) (*AuthSyncResult, error) {
+	existingIdent, err := u.userRepo.GetIdentity(ctx, ident.Provider, ident.ProviderUserID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, domain.ErrUnauthorized
+		}
+		return nil, err
+	}
+
+	user, err := u.userRepo.GetByID(ctx, existingIdent.UserID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, domain.ErrUnauthorized
+		}
+		return nil, err
+	}
+
+	result := &AuthSyncResult{
+		User: user,
+	}
+
+	switch accountType {
+	case domain.UserTypeUser:
+		store, err := u.storeRepo.GetByID(ctx, defaultUserStoreID)
+		if err != nil {
+			if errors.Is(err, domain.ErrNotFound) {
+				return nil, domain.ErrUnauthorized
+			}
+			return nil, err
+		}
+
+		if _, err := u.userRepo.GetProfile(ctx, defaultUserStoreID, user.ID); err != nil {
+			if errors.Is(err, domain.ErrNotFound) {
+				return nil, domain.ErrUnauthorized
+			}
+			return nil, err
+		}
+
+		if input.ClaimedStoreID != "" && input.ClaimedStoreID != strconv.Itoa(int(defaultUserStoreID)) {
+			return nil, domain.ErrUnauthorized
+		}
+		if input.ClaimedRole != "" && input.ClaimedRole != domain.RoleUser {
+			return nil, domain.ErrUnauthorized
+		}
+		if input.ClaimedProfileID != "" && input.ClaimedProfileID != strconv.Itoa(int(user.ID)) {
+			return nil, domain.ErrUnauthorized
+		}
+
+		result.Store = store
+		result.Role = domain.RoleUser
+		result.ProfileID = user.ID
+		result.NextPath = "/search"
+		return result, nil
+
+	case domain.UserTypeStaff:
+		var membership *domain.StoreMembership
+		if strings.TrimSpace(input.ClaimedStoreID) != "" {
+			storeID, err := parseStoreID(input.ClaimedStoreID)
+			if err != nil {
+				return nil, domain.ErrUnauthorized
+			}
+			membership, err = u.storeRepo.GetMembership(ctx, storeID, user.ID)
+			if err != nil {
+				if errors.Is(err, domain.ErrNotFound) {
+					return nil, domain.ErrUnauthorized
+				}
+				return nil, err
+			}
+		} else {
+			membership, err = u.storeRepo.GetAnyMembershipByUser(ctx, user.ID)
+			if err != nil {
+				if errors.Is(err, domain.ErrNotFound) {
+					result.Role = domain.RoleAnonymous
+					result.NextPath = "/onboarding/staff"
+					result.OnboardingRequired = true
+					return result, nil
+				}
+				return nil, err
+			}
+		}
+
+		if membership == nil || !membership.IsActive {
+			return nil, domain.ErrUnauthorized
+		}
+
+		store, err := u.storeRepo.GetByID(ctx, membership.StoreID)
+		if err != nil {
+			if errors.Is(err, domain.ErrNotFound) {
+				return nil, domain.ErrUnauthorized
+			}
+			return nil, err
+		}
+
+		if input.ClaimedRole != "" && input.ClaimedRole != membership.Role {
+			return nil, domain.ErrUnauthorized
+		}
+
+		tech, err := u.storeRepo.GetTechnicianByUserID(ctx, store.ID, user.ID)
+		if err != nil && !errors.Is(err, domain.ErrNotFound) {
+			return nil, err
+		}
+		if errors.Is(err, domain.ErrNotFound) {
+			tech = nil
+		}
+
+		if membership.Role == domain.RoleTechnician && tech == nil {
+			return nil, domain.ErrUnauthorized
+		}
+		if input.ClaimedTechnicianID != "" {
+			if tech == nil || input.ClaimedTechnicianID != strconv.Itoa(int(tech.ID)) {
+				return nil, domain.ErrUnauthorized
+			}
+		}
+
+		result.Membership = membership
+		result.Store = store
+		result.Technician = tech
+		result.Role = membership.Role
+		result.NextPath = "/portal/dashboard"
+		return result, nil
+	default:
+		return nil, domain.ErrUnauthorized
+	}
+}
+
 func (u *authUsecase) CompleteStaffOnboarding(
 	ctx context.Context,
 	userID uint,

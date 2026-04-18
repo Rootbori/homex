@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Plus } from "lucide-react";
+import { ArrowLeft, ChevronRight, Plus } from "lucide-react";
 import { TopAppBar } from "@/components/ui/top-app-bar";
 import { getPortalStore, getTechnicians } from "@/lib/server-data";
 
@@ -11,9 +11,18 @@ export default async function TechniciansPage() {
       <TopAppBar
         title="ทีมช่าง"
         left={
-          <span className="rounded-full bg-primary/5 px-2 py-0.5 text-[11px] font-bold text-primary">
-            {technicians.length}
-          </span>
+          <>
+            <Link
+              href="/portal/more"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant/50 transition-colors hover:bg-surface-container-low hover:text-on-surface"
+              aria-label="กลับไปหน้าเพิ่มเติม"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+            <span className="rounded-full bg-primary/5 px-2 py-0.5 text-[11px] font-bold text-primary">
+              {technicians.length}
+            </span>
+          </>
         }
         right={
           <Link

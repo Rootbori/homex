@@ -111,12 +111,10 @@ func (r *gormUserRepository) ListVisibleUsersByStore(ctx context.Context, storeI
 			COALESCE(up.note, '') AS note
 		FROM users u
 		LEFT JOIN user_profiles up ON up.store_id = ? AND up.user_id = u.id
-		WHERE u.id IN (
-			SELECT user_id FROM user_profiles WHERE store_id = ?
-			UNION
-			SELECT user_id FROM leads WHERE store_id = ?
-			UNION
-			SELECT user_id FROM jobs WHERE store_id = ?
+		WHERE EXISTS (
+			SELECT 1
+			FROM jobs j3
+			WHERE j3.store_id = ? AND j3.user_id = u.id
 		)
 		AND u.type IN (?, ?)
 		AND NOT EXISTS (
@@ -128,8 +126,6 @@ func (r *gormUserRepository) ListVisibleUsersByStore(ctx context.Context, storeI
 	`
 	if err := r.db.WithContext(ctx).Raw(
 		query,
-		storeID,
-		storeID,
 		storeID,
 		storeID,
 		storeID,
