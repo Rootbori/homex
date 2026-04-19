@@ -13,28 +13,12 @@ import {
   User,
   Wrench,
 } from "lucide-react";
+import { getPublicDictionary } from "@/lib/i18n/messages";
+import { localeFromPath, stripLocaleFromPath, withLocalePath } from "@/lib/i18n/config";
+import { getStaffClientDictionary } from "@/lib/i18n/staff";
 import { cn } from "@/lib/utils";
 
 type NavMode = "user" | "staff";
-
-const itemsByMode = {
-  user: [
-    { href: "/", label: "หน้าแรก", icon: Home },
-    { href: "/search", label: "ค้นหา", icon: Search },
-    { href: "/my-requests", label: "งานของฉัน", icon: ClipboardList },
-    { href: "/profile", label: "โปรไฟล์", icon: User },
-  ],
-  staff: [
-    { href: "/portal/dashboard", label: "แดชบอร์ด", icon: LayoutGrid },
-    { href: "/portal/leads", label: "Leads", icon: ClipboardList },
-    { href: "/portal/jobs", label: "Jobs", icon: Wrench },
-    { href: "/portal/schedule", label: "ตาราง", icon: CalendarDays },
-    { href: "/portal/more", label: "เพิ่มเติม", icon: MoreHorizontal },
-  ],
-} satisfies Record<
-  NavMode,
-  Array<{ href: string; label: string; icon: ComponentType<{ className?: string }> }>
->;
 
 const hiddenPatterns = [
   /^\/request$/,
@@ -45,9 +29,31 @@ const hiddenPatterns = [
 
 export function BottomNav({ mode }: Readonly<{ mode: NavMode }>) {
   const pathname = usePathname();
+  const locale = pathname ? localeFromPath(pathname) : null;
+  const normalizedPath = pathname ? stripLocaleFromPath(pathname) : "/";
+  const publicDictionary = getPublicDictionary(locale ?? "th");
+  const staffDictionary = getStaffClientDictionary(locale ?? "th");
+  const itemsByMode = {
+    user: [
+      { href: "/", label: publicDictionary.seo.common.homeLabel, icon: Home },
+      { href: "/search", label: staffDictionary.nav.search, icon: Search },
+      { href: "/my-requests", label: staffDictionary.nav.myRequests, icon: ClipboardList },
+      { href: "/profile", label: staffDictionary.nav.profile, icon: User },
+    ],
+    staff: [
+      { href: "/portal/dashboard", label: staffDictionary.nav.dashboard, icon: LayoutGrid },
+      { href: "/portal/leads", label: staffDictionary.nav.leads, icon: ClipboardList },
+      { href: "/portal/jobs", label: staffDictionary.common.jobs, icon: Wrench },
+      { href: "/portal/schedule", label: staffDictionary.nav.schedule, icon: CalendarDays },
+      { href: "/portal/more", label: staffDictionary.nav.more, icon: MoreHorizontal },
+    ],
+  } satisfies Record<
+    NavMode,
+    Array<{ href: string; label: string; icon: ComponentType<{ className?: string }> }>
+  >;
   const items = itemsByMode[mode];
 
-  if (hiddenPatterns.some((pattern) => pattern.test(pathname))) {
+  if (hiddenPatterns.some((pattern) => pattern.test(normalizedPath))) {
     return null;
   }
 
@@ -56,14 +62,15 @@ export function BottomNav({ mode }: Readonly<{ mode: NavMode }>) {
       <div className="mx-auto flex h-14 max-w-lg items-stretch">
         {items.map((item) => {
           const Icon = item.icon;
+          const href = locale ? withLocalePath(locale, item.href) : item.href;
           const active =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
+            normalizedPath === item.href ||
+            (item.href !== "/" && normalizedPath.startsWith(item.href));
 
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={href}
               className={cn(
                 "flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors",
                 active

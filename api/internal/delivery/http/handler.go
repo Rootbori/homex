@@ -9,7 +9,7 @@ import (
 	"github.com/rootbeer/homex/api/internal/usecase"
 )
 
-const errInvalidPayload = "invalid payload"
+const errInvalidPayloadKey = "invalid_payload"
 
 // Handler is the HTTP delivery layer. It knows about HTTP but delegates
 // all business logic to usecases.
@@ -83,7 +83,7 @@ func (h *Handler) Routes() http.Handler {
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Actor-Role, X-Actor-User-ID, X-Store-ID, X-User-ID, X-Technician-ID")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept-Language, X-Homex-Locale, X-Actor-Role, X-Actor-User-ID, X-Store-ID, X-User-ID, X-Technician-ID")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
@@ -125,12 +125,28 @@ func (h *Handler) errJSON(w http.ResponseWriter, status int, msg string) {
 	h.writeJSON(w, status, map[string]any{"error": msg})
 }
 
+func (h *Handler) errJSONKey(w http.ResponseWriter, r *http.Request, status int, key string) {
+	h.writeJSON(w, status, map[string]any{"error": messageFor(r, key)})
+}
+
+func (h *Handler) internalErrJSON(w http.ResponseWriter, r *http.Request) {
+	h.errJSONKey(w, r, http.StatusInternalServerError, "internal_error")
+}
+
+func (h *Handler) messageJSON(w http.ResponseWriter, r *http.Request, status int, key string, data map[string]any) {
+	if data == nil {
+		data = map[string]any{}
+	}
+	data["message"] = messageFor(r, key)
+	h.writeJSON(w, status, data)
+}
+
 // ── Auth guards ─────────────────────────────────────────────────────
 
-func (h *Handler) requireStaff(actor domain.Actor, w http.ResponseWriter) bool {
+func (h *Handler) requireStaff(actor domain.Actor, w http.ResponseWriter, r *http.Request) bool {
 	if actor.IsStaff() {
 		return true
 	}
-	h.errJSON(w, http.StatusUnauthorized, "staff access required")
+	h.errJSONKey(w, r, http.StatusUnauthorized, "staff_access_required")
 	return false
 }

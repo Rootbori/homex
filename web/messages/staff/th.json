@@ -1,0 +1,145 @@
+{
+  "common": {
+    "portalTitle": "Homex Portal",
+    "backToMore": "กลับไปหน้าเพิ่มเติม",
+    "currentStore": "ร้านปัจจุบัน",
+    "currentStoreFallback": "ร้านปัจจุบัน",
+    "storeNotFound": "ยังไม่พบข้อมูลร้าน",
+    "customerPrefix": "คุณ",
+    "all": "ทั้งหมด",
+    "jobs": "งาน",
+    "customer": "ลูกค้า",
+    "technician": "ช่าง",
+    "service": "บริการ",
+    "address": "ที่อยู่",
+    "symptom": "อาการ",
+    "units": "เครื่อง",
+    "startingPrice": "ราคาเริ่มต้น",
+    "timeline": "ไทม์ไลน์",
+    "noItems": "ยังไม่มีรายการ",
+    "total": "ยอดรวม",
+    "note": "บันทึก"
+  },
+  "nav": {
+    "home": "หน้าแรก",
+    "search": "ค้นหา",
+    "myRequests": "งานของฉัน",
+    "profile": "โปรไฟล์",
+    "dashboard": "แดชบอร์ด",
+    "leads": "Leads",
+    "schedule": "ตาราง",
+    "more": "เพิ่มเติม"
+  },
+  "dashboard": {
+    "morning": "อรุณสวัสดิ์",
+    "afternoon": "สวัสดีตอนบ่าย",
+    "evening": "สวัสดีตอนเย็น",
+    "summary": "ภาพรวมธุรกิจของคุณวันนี้",
+    "urgentJobs": "งานเร่งด่วน",
+    "todayJobs": "งานวันนี้",
+    "latestLeads": "ลีดล่าสุด",
+    "noTodayJobs": "วันนี้ยังไม่มีงาน",
+    "noLatestLeads": "ยังไม่มีลีดใหม่",
+    "customerPrefix": "คุณ"
+  },
+  "leads": {
+    "title": "Leads",
+    "searchPlaceholder": "ค้นหาชื่อลูกค้าหรือเบอร์โทร...",
+    "filters": ["ทั้งหมด", "ใหม่", "ส่งใบเสนอราคาแล้ว", "LINE OA", "เว็บ"],
+    "empty": "ยังไม่มี Lead ในระบบ",
+    "detailTitle": "รายละเอียดคำขอ",
+    "quantity": "จำนวน",
+    "units": "เครื่อง",
+    "initialSymptom": "อาการเบื้องต้น",
+    "airconInfo": "ข้อมูลเครื่องปรับอากาศ",
+    "noAirconUnits": "ยังไม่มีข้อมูลแยกรายเครื่อง",
+    "leadAccepted": "รับ Lead แล้ว",
+    "serviceArea": "พื้นที่ให้บริการ",
+    "createQuotation": "สร้างใบเสนอราคา",
+    "assignTechnician": "Assign ช่าง",
+    "callOut": "โทรออก",
+    "navigate": "นำทาง"
+  },
+  "jobs": {
+    "title": "งานทั้งหมด",
+    "empty": "ยังไม่มีงานในระบบ",
+    "jobInfo": "ข้อมูลงาน",
+    "payment": "ชำระเงิน",
+    "jobPhotos": "รูปหน้างาน",
+    "noPhotos": "ยังไม่มีรูป",
+    "quotation": "ใบเสนอราคา",
+    "assignee": "ผู้รับงาน",
+    "appointment": "นัดหมาย",
+    "complete": "ปิดงาน (Complete)",
+    "assignedTechnician": "ช่าง"
+  },
+  "more": {
+    "title": "เพิ่มเติม",
+    "defaultName": "ทีมช่าง Homex",
+    "noEmail": "ยังไม่ได้เชื่อมอีเมล",
+    "logout": "ออกจากระบบ",
+    "links": {
+      "setup": {
+        "label": "ตั้งค่าร้าน/โปรไฟล์ช่าง",
+        "description": "ข้อมูลที่จะขึ้นให้ลูกค้าเห็น"
+      },
+      "quotation": {
+        "label": "Quotation",
+        "description": "เตรียมใบเสนอราคา"
+      },
+      "technicians": {
+        "label": "ทีมช่าง",
+        "description": "ดูโปรไฟล์และ performance"
+      },
+      "myJobs": {
+        "label": "งานของฉัน",
+        "description": "มุมมองช่าง — เห็นเฉพาะงานตัวเอง"
+      },
+      "users": {
+        "label": "ลูกค้า",
+        "description": "ข้อมูลและประวัติการใช้บริการ"
+      }
+    },
+    "stats": {
+      "techniciansDescription": "ทีมช่างของร้านนี้เท่านั้น",
+      "usersDescription": "เฉพาะลูกค้าที่มีงานหรือเคยจ้างร้านนี้",
+      "jobsDescriptionTechnician": "นับเฉพาะงานที่มอบหมายให้คุณ",
+      "jobsDescriptionAll": "นับงานทั้งหมดในร้านนี้"
+    }
+  },
+  "myJobs": {
+    "title": "งานของฉัน",
+    "onTheWay": "กำลังไป",
+    "inProgress": "กำลังทำ",
+    "emptyAssigned": "ยังไม่มีงานที่มอบหมาย",
+    "emptyUnlinked": "บัญชีนี้ยังไม่ได้ผูกช่าง"
+  },
+  "schedule": {
+    "title": "ตารางงาน",
+    "jobCount": "{count} งาน",
+    "noJobs": "ไม่มีงาน",
+    "empty": "ยังไม่มีข้อมูลตารางงาน"
+  },
+  "technicians": {
+    "title": "ทีมช่าง",
+    "add": "เพิ่มทีมช่าง",
+    "scope": "แสดงเฉพาะทีมช่างของ {store}",
+    "empty": "ยังไม่มีช่างในระบบ",
+    "rating": "คะแนน",
+    "reviews": "รีวิว",
+    "years": "ปี",
+    "jobHistory": "ประวัติงาน",
+    "info": "ข้อมูล",
+    "area": "พื้นที่",
+    "emptyJobs": "ยังไม่มีงาน"
+  },
+  "users": {
+    "title": "ลูกค้า",
+    "scope": "แสดงเฉพาะลูกค้าที่มีงานหรือเคยใช้บริการกับ {store}",
+    "totalSpend": "ยอดรวม",
+    "averagePerUser": "เฉลี่ย/ราย",
+    "jobHistory": "ประวัติงาน",
+    "empty": "ยังไม่มีลูกค้าในระบบ",
+    "emptyHistory": "ยังไม่มีประวัติงาน"
+  }
+}

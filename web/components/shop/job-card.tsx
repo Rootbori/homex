@@ -1,19 +1,32 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChevronRight, PhoneCall } from "lucide-react";
 import { StatusChip } from "@/components/ui/status-chip";
 import type { JobSummary } from "@/lib/api-types";
 import { formatCurrency } from "@/lib/format";
+import { localeFromPath, withLocalePath } from "@/lib/i18n/config";
+import { getStaffClientDictionary } from "@/lib/i18n/staff";
 
 export function JobCard({ job }: Readonly<{ job: JobSummary }>) {
+  const pathname = usePathname();
+  const locale = pathname ? localeFromPath(pathname) : null;
+  const href = locale ? withLocalePath(locale, `/portal/jobs/${job.id}`) : `/portal/jobs/${job.id}`;
+  const t = getStaffClientDictionary(locale);
+
   return (
     <Link
-      href={`/portal/jobs/${job.id}`}
+      href={href}
       className="group flex items-center gap-4 rounded-2xl bg-white p-4 ring-1 ring-black/[0.04] transition-all hover:shadow-md active:scale-[0.99]"
     >
       {/* Info */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-[15px] font-bold text-on-surface">คุณ{job.userName}</span>
+          <span className="truncate text-[15px] font-bold text-on-surface">
+            {t.common.customerPrefix}
+            {job.userName}
+          </span>
           <StatusChip status={job.status} />
         </div>
         <p className="mt-0.5 text-xs text-on-surface-variant/50">

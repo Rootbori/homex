@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cookies } from "next/headers";
+
 const defaultApiBaseUrl = "http://localhost:7772";
 
 export function getApiBaseUrl() {
@@ -25,7 +27,12 @@ function candidateApiBaseUrls() {
 
 export async function proxyToApi(path: string, init?: RequestInit) {
   const headers = new Headers(init?.headers);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("homex_locale")?.value ?? "th";
+
   headers.set("Accept", "application/json");
+  headers.set("Accept-Language", locale);
+  headers.set("X-Homex-Locale", locale);
 
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");

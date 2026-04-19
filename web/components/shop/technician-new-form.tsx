@@ -3,11 +3,12 @@
 import { useState, useTransition } from "react";
 import type React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Copy, LoaderCircle, QrCode, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { TopAppBar } from "@/components/ui/top-app-bar";
 import { InputField } from "@/components/ui/input-field";
 import { CheckboxField } from "@/components/ui/checkbox-field";
+import { localeFromPath, withLocalePath } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
 export interface TechnicianNewFormProps {
@@ -27,6 +28,9 @@ const serviceOptions = [
 
 export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFormProps>) {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname ? localeFromPath(pathname) : null;
+  const techniciansHref = locale ? withLocalePath(locale, "/portal/technicians") : "/portal/technicians";
   const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -101,7 +105,7 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
         });
         router.refresh();
         setTimeout(() => {
-          router.push("/portal/technicians");
+          router.push(techniciansHref);
         }, 500);
       } catch {
         setResult({
@@ -118,7 +122,7 @@ export function TechnicianNewForm({ storeId, baseUrl }: Readonly<TechnicianNewFo
         title="เพิ่มทีมช่าง"
         left={
           <Link
-            href="/portal/technicians"
+            href={techniciansHref}
             className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-surface-container-low active:bg-surface-container"
           >
             <ArrowLeft className="h-5 w-5 text-on-surface" />

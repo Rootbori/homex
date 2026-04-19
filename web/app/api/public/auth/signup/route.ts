@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { routeMessage } from "@/lib/i18n/server-errors";
 import { proxyToApi, readProxyPayload } from "@/lib/server-api";
 
 export async function POST(request: NextRequest) {
@@ -23,8 +24,9 @@ export async function POST(request: NextRequest) {
 
     return nextResponse;
   } catch {
+    const fallbackError = await routeMessage("unable_signup");
     return NextResponse.json(
-      { error: "unable to reach api signup endpoint" },
+      { error: fallbackError },
       { status: 502 },
     );
   }

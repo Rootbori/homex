@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { LoaderCircle, LogOut, RefreshCcw, ShieldCheck, TriangleAlert } from "lucide-react";
-import { signOutAction } from "@/app/login/actions";
+import { signOutAction } from "@/lib/auth/actions";
 import { Logo } from "@/components/ui/logo";
+import { localeFromPath, withLocalePath } from "@/lib/i18n/config";
 
 type AuthCompleteViewProps = {
   fallbackPath: string;
@@ -20,6 +22,9 @@ type SyncPayload = {
 };
 
 export function AuthCompleteView({ fallbackPath }: Readonly<AuthCompleteViewProps>) {
+  const pathname = usePathname();
+  const locale = pathname ? localeFromPath(pathname) : null;
+  const loginHref = useMemo(() => (locale ? withLocalePath(locale, "/login") : "/login"), [locale]);
   const [state, setState] = useState<{
     status: "loading" | "error";
     message?: string;
@@ -128,7 +133,7 @@ export function AuthCompleteView({ fallbackPath }: Readonly<AuthCompleteViewProp
                   </button>
 
                   <Link
-                    href="/login"
+                    href={loginHref}
                     className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white text-sm font-bold text-on-surface ring-1 ring-black/[0.05] transition-all hover:bg-surface-container-low active:scale-[0.97]"
                   >
                     <ShieldCheck className="h-4 w-4 text-primary" />
@@ -136,7 +141,7 @@ export function AuthCompleteView({ fallbackPath }: Readonly<AuthCompleteViewProp
                   </Link>
                   
                   <form action={signOutAction} className="mt-2">
-                    <input name="redirectTo" type="hidden" value="/login" />
+                    <input name="redirectTo" type="hidden" value={loginHref} />
                     <button
                       type="submit"
                       className="flex w-full items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/40 hover:text-on-surface-variant"

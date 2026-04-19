@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { isAuthAccountType, redirectForAccountType } from "@/lib/auth-flow";
+import { routeMessage } from "@/lib/i18n/server-errors";
 import { proxyToApi, readProxyPayload } from "@/lib/server-api";
 
 const actorCookieOptions = {
@@ -15,8 +16,9 @@ const actorCookieOptions = {
 export async function POST() {
   const session = await auth();
   if (!session?.user?.providerAccountId || !session.provider) {
+    const fallbackError = await routeMessage("missing_session_provider_context");
     return NextResponse.json(
-      { error: "missing session provider context" },
+      { error: fallbackError },
       { status: 401 },
     );
   }
@@ -69,10 +71,12 @@ export async function POST() {
 
     return nextResponse;
   } catch (error) {
+    const fallbackError = await routeMessage("unable_oauth_sync");
+    const fallbackMessage = await routeMessage("unable_reach_api");
     return NextResponse.json(
       {
-        error: "unable to complete oauth sync",
-        message: error instanceof Error ? error.message : "unable to reach api oauth sync endpoint",
+        error: fallbackError,
+        message: error instanceof Error ? error.message : fallbackMessage,
       },
       { status: 502 },
     );

@@ -1,3 +1,5 @@
+import { normalizeLocale, withLocalePath } from "@/lib/i18n/config";
+
 export type AuthAccountType = "user" | "staff";
 export type AuthProviderId = "line" | "google";
 export type AppRole = "user" | "staff";
@@ -68,16 +70,20 @@ export function isAuthProviderId(value: string): value is AuthProviderId {
   return value === "line" || value === "google";
 }
 
-export function redirectForAccountType(accountType: AuthAccountType) {
-  return accountType === "staff" ? "/portal/dashboard" : "/search";
+export function localizeAppPath(pathname: string, locale?: string | null) {
+  return withLocalePath(normalizeLocale(locale), pathname);
 }
 
-export function staffOnboardingPath() {
-  return "/onboarding/staff";
+export function redirectForAccountType(accountType: AuthAccountType, locale?: string | null) {
+  return localizeAppPath(accountType === "staff" ? "/portal/dashboard" : "/search", locale);
 }
 
-export function loginPathForAccountType(accountType: AuthAccountType) {
-  return accountType === "staff" ? "/login/staff" : "/login/user";
+export function staffOnboardingPath(locale?: string | null) {
+  return localizeAppPath("/onboarding/staff", locale);
+}
+
+export function loginPathForAccountType(accountType: AuthAccountType, locale?: string | null) {
+  return localizeAppPath(accountType === "staff" ? "/login/staff" : "/login/user", locale);
 }
 
 export function roleForAccountType(accountType: AuthAccountType): AppRole {

@@ -6,11 +6,13 @@ import {
   type AuthAccountType,
   isAuthAccountType,
   isProviderConfigured,
+  localizeAppPath,
   normalizeRedirectPath,
   redirectForAccountType,
   roleForAccountType,
   staffOnboardingPath,
 } from "@/lib/auth-flow";
+import { localeCookieName, localeFromPath, normalizeLocale, stripLocaleFromPath, withLocalePath } from "@/lib/i18n/config";
 
 const userOnlyPaths = new Set(["/my-requests", "/profile"]);
 const developmentAuthSecret = "homex-dev-auth-secret";
@@ -68,85 +70,98 @@ export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
     callbacks: {
       async authorized({ auth, request }) {
         const pathname = request.nextUrl.pathname;
+        const locale = localeFromPath(pathname) ?? normalizeLocale(request.cookies.get(localeCookieName)?.value);
+        const normalizedPath = stripLocaleFromPath(pathname);
+        const hasLocalePrefix = normalizedPath !== pathname;
         const accountType = auth?.accountType ?? auth?.user?.accountType;
         const hasStoreContext = Boolean(request.cookies.get("homex_store_id")?.value);
         const hasActorUser = Boolean(request.cookies.get("homex_user_id")?.value);
         const hasActorRole = Boolean(request.cookies.get("homex_role")?.value);
         const hasInviteContext = Boolean(request.cookies.get("homex_invite_store_id")?.value);
-        const onboardingPath = staffOnboardingPath();
+        const onboardingPath = staffOnboardingPath(locale);
+        const loginPath = localizeAppPath("/login", locale);
+        const staffLoginPath = localizeAppPath("/login/staff", locale);
+        const userSearchPath = localizeAppPath("/search", locale);
+        const authCompletePath = localizeAppPath("/auth/complete", locale);
         const requiresValidation =
           Boolean(auth) &&
-          (pathname.startsWith("/portal") || userOnlyPaths.has(pathname));
+          (normalizedPath.startsWith("/portal") || userOnlyPaths.has(normalizedPath));
 
         const validatedPayload =
           auth && requiresValidation ? await validateLiveSession(request, auth, accountType) : null;
 
-        if (pathname === "/login" || pathname.startsWith("/login/")) {
+        if (!hasLocalePrefix && isLocaleManagedPath(normalizedPath)) {
+          const url = new URL(withLocalePath(locale, normalizedPath), request.nextUrl);
+          url.search = request.nextUrl.search;
+          return NextResponse.redirect(url);
+        }
+
+        if (normalizedPath === "/login" || normalizedPath.startsWith("/login/")) {
           const response = NextResponse.next();
           clearSessionCookies(response);
           return response;
         }
 
         if (auth && requiresValidation && !validatedPayload) {
-          return redirectToLogin(request);
+          return redirectToLogin(request, locale);
         }
 
-        if (pathname.startsWith(onboardingPath)) {
+        if (normalizedPath.startsWith("/onboarding/staff")) {
           if (!auth) {
-            return NextResponse.redirect(new URL("/login/staff", request.nextUrl));
+            return NextResponse.redirect(new URL(staffLoginPath, request.nextUrl));
           }
 
           if (accountType !== "staff") {
-            return NextResponse.redirect(new URL("/search", request.nextUrl));
+            return NextResponse.redirect(new URL(userSearchPath, request.nextUrl));
           }
 
           return true;
         }
 
-        if (pathname.startsWith("/portal")) {
+        if (normalizedPath.startsWith("/portal")) {
           if (!auth) {
-            return NextResponse.redirect(new URL("/login", request.nextUrl));
+            return NextResponse.redirect(new URL(loginPath, request.nextUrl));
           }
 
           if (accountType !== "staff") {
-            return NextResponse.redirect(new URL("/search", request.nextUrl));
+            return NextResponse.redirect(new URL(userSearchPath, request.nextUrl));
           }
 
           if (validatedPayload?.onboarding_required) {
             const response = NextResponse.redirect(new URL(onboardingPath, request.nextUrl));
-            applyHomexCookies(response, validatedPayload, "staff");
+            applyHomexCookies(response, validatedPayload, "staff", locale);
             return response;
           }
 
           if (validatedPayload?.actor?.store_id && validatedPayload?.actor?.role) {
             const response = NextResponse.next();
-            applyHomexCookies(response, validatedPayload, "staff");
+            applyHomexCookies(response, validatedPayload, "staff", locale);
             return response;
           }
 
           if (!hasStoreContext && !validatedPayload?.actor?.store_id) {
-            const destination = hasInviteContext ? "/auth/complete" : onboardingPath;
+            const destination = hasInviteContext ? authCompletePath : onboardingPath;
             return NextResponse.redirect(new URL(destination, request.nextUrl));
           }
 
           if (!hasActorUser || !hasActorRole) {
-            return NextResponse.redirect(new URL("/auth/complete", request.nextUrl));
+            return NextResponse.redirect(new URL(authCompletePath, request.nextUrl));
           }
 
         }
 
-        if (userOnlyPaths.has(pathname)) {
+        if (userOnlyPaths.has(normalizedPath)) {
           if (!auth) {
-            return NextResponse.redirect(new URL("/login", request.nextUrl));
+            return NextResponse.redirect(new URL(loginPath, request.nextUrl));
           }
 
           if (accountType !== "user") {
-            return NextResponse.redirect(new URL("/portal/dashboard", request.nextUrl));
+            return NextResponse.redirect(new URL(redirectForAccountType("staff", locale), request.nextUrl));
           }
 
           if (validatedPayload) {
             const response = NextResponse.next();
-            applyHomexCookies(response, validatedPayload, "user");
+            applyHomexCookies(response, validatedPayload, "user", locale);
             return response;
           }
         }
@@ -156,13 +171,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
       async jwt({ token, account, user }) {
         if (account) {
           const accountType = resolveAccountType(requestedAccountType, token.accountType);
+          const locale = request?.cookies.get(localeCookieName)?.value;
 
           token.accountType = accountType;
           token.appRole = roleForAccountType(accountType);
           token.provider = account.provider;
           token.providerAccountId = account.providerAccountId;
           token.redirectTo =
-            normalizeRedirectPath(requestedRedirectTo) ?? redirectForAccountType(accountType);
+            normalizeRedirectPath(requestedRedirectTo) ?? redirectForAccountType(accountType, locale);
         }
 
         if (user?.email) {
@@ -183,7 +199,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth((request) => {
         const accountType = resolveAccountType(token.accountType);
         const redirectTo =
           normalizeRedirectPath(typeof token.redirectTo === "string" ? token.redirectTo : null) ??
-          redirectForAccountType(accountType);
+          redirectForAccountType(accountType, request?.cookies.get(localeCookieName)?.value);
 
         session.accountType = accountType;
         session.appRole = token.appRole === "staff" ? "staff" : "user";
@@ -238,6 +254,7 @@ async function validateLiveSession(request: Request, auth: any, accountType: unk
   }
 
   const headers = new Headers({ "Content-Type": "application/json", Accept: "application/json" });
+  const locale = localeFromPath(new URL(request.url).pathname) ?? normalizeLocale(request.headers.get("cookie")?.match(/(?:^|;\s*)homex_locale=([^;]+)/)?.[1]);
   const role = request.headers.get("cookie")?.match(/(?:^|;\s*)homex_role=([^;]+)/)?.[1];
   const userId = request.headers.get("cookie")?.match(/(?:^|;\s*)homex_user_id=([^;]+)/)?.[1];
   const storeId = request.headers.get("cookie")?.match(/(?:^|;\s*)homex_store_id=([^;]+)/)?.[1];
@@ -249,6 +266,8 @@ async function validateLiveSession(request: Request, auth: any, accountType: unk
   if (storeId) headers.set("X-Store-ID", decodeURIComponent(storeId));
   if (profileId) headers.set("X-User-ID", decodeURIComponent(profileId));
   if (technicianId) headers.set("X-Technician-ID", decodeURIComponent(technicianId));
+  headers.set("Accept-Language", locale);
+  headers.set("X-Homex-Locale", locale);
 
   for (const baseUrl of candidateApiBaseUrls()) {
     try {
@@ -276,17 +295,24 @@ async function validateLiveSession(request: Request, auth: any, accountType: unk
   return null;
 }
 
-function redirectToLogin(request: Request) {
-  const url = new URL("/login?reset=1", request.url);
+function redirectToLogin(request: Request, locale?: string | null) {
+  const url = new URL(localizeAppPath("/login?reset=1", locale), request.url);
   const response = NextResponse.redirect(url);
   clearSessionCookies(response);
   return response;
 }
 
-function applyHomexCookies(response: NextResponse, payload: any, accountType: AuthAccountType) {
+function applyHomexCookies(
+  response: NextResponse,
+  payload: any,
+  accountType: AuthAccountType,
+  locale?: string | null,
+) {
   const actor = payload?.actor ?? {};
   const nextPath =
-    typeof payload?.next?.next_path === "string" ? payload.next.next_path : redirectForAccountType(accountType);
+    typeof payload?.next?.next_path === "string"
+      ? localizeAppPath(payload.next.next_path, locale)
+      : redirectForAccountType(accountType, locale);
 
   response.cookies.set("homex_account_type", accountType, cookieOptions());
   response.cookies.set("homex_redirect_to", nextPath, cookieOptions());
@@ -323,4 +349,21 @@ function cookieOptions() {
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
   };
+}
+
+function isLocaleManagedPath(pathname: string) {
+  return (
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname === "/search" ||
+    pathname.startsWith("/search/") ||
+    pathname === "/request" ||
+    pathname.startsWith("/technicians/") ||
+    pathname === "/auth/complete" ||
+    pathname === "/my-requests" ||
+    pathname === "/profile" ||
+    pathname === "/onboarding/staff" ||
+    pathname.startsWith("/portal")
+  );
 }

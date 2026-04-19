@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import type { TechnicianSummary } from "@/lib/api-types";
+import type { Locale } from "@/lib/i18n/config";
+import type { PublicMessages } from "@/lib/i18n/messages";
 
-export function TechnicianCard({ technician }: Readonly<{ technician: TechnicianSummary }>) {
+export function TechnicianCard({
+  technician,
+  locale = "th",
+  messages,
+}: Readonly<{ technician: TechnicianSummary; locale?: Locale; messages: PublicMessages }>) {
   return (
     <Link
-      href={`/technicians/${technician.slug}`}
+      href={`/${locale}/technicians/${technician.slug}`}
       className="group flex gap-4 rounded-2xl bg-white p-4 ring-1 ring-black/[0.04] transition-all hover:shadow-md active:scale-[0.99]"
     >
       {/* Avatar */}
@@ -35,7 +41,7 @@ export function TechnicianCard({ technician }: Readonly<{ technician: Technician
           </h3>
           {technician.rating >= 4.8 && (
             <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-600">
-              TOP
+              {messages.technicianCard.topBadge}
             </span>
           )}
         </div>
@@ -60,10 +66,10 @@ export function TechnicianCard({ technician }: Readonly<{ technician: Technician
         <div className="mt-2 flex items-center justify-between">
           <span className="text-sm font-bold text-on-surface">
             ฿{technician.startingPrice}
-            <span className="text-xs font-normal text-on-surface-variant/40">/ครั้ง</span>
+            <span className="text-xs font-normal text-on-surface-variant/40">{messages.technicianCard.perVisit}</span>
           </span>
           <span className="rounded-lg bg-primary/5 px-3 py-1.5 text-xs font-bold text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-            ดูโปรไฟล์
+            {messages.technicianCard.viewProfile}
           </span>
         </div>
       </div>

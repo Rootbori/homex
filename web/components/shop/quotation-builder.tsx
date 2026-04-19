@@ -1,13 +1,16 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, LoaderCircle, Mail, Plus, Save, Send, Trash2 } from "lucide-react";
 import { InputField } from "@/components/ui/input-field";
 import { SelectField } from "@/components/ui/select-field";
 import { TextareaField } from "@/components/ui/textarea-field";
 import { formatCurrency } from "@/lib/format";
 import type { UserSummary } from "@/lib/api-types";
+import { localeFromPath, normalizeLocale, withLocalePath } from "@/lib/i18n/config";
+import { formatLocalizedText } from "@/lib/i18n/messages";
+import { getStaffFormsDictionary } from "@/lib/i18n/staff-forms";
 
 type QuoteItem = {
   id: string;
@@ -19,6 +22,7 @@ type QuoteItem = {
 type QuotationBuilderProps = {
   customers: UserSummary[];
   storeName: string;
+  locale?: string;
 };
 
 const presetItems = [
@@ -38,8 +42,12 @@ function newItem(label = "", unitPrice = 0): QuoteItem {
   };
 }
 
-export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBuilderProps>) {
+export function QuotationBuilder({ customers, storeName, locale: forcedLocale }: Readonly<QuotationBuilderProps>) {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = normalizeLocale(forcedLocale ?? (pathname ? localeFromPath(pathname) : null));
+  const copy = getStaffFormsDictionary(locale).quotation;
+  const moreHref = locale ? withLocalePath(locale, "/portal/more") : "/portal/more";
   const [selectedUserId, setSelectedUserId] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
@@ -95,7 +103,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
       return;
     }
 
-    router.push("/portal/more");
+    router.push(moreHref);
   }
 
   function submit(sendViaEmail: boolean) {
@@ -110,7 +118,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
     if (!recipientName.trim() || !recipientEmail.trim() || normalizedItems.length === 0) {
       setResult({
         type: "error",
-        message: "กรอกชื่อผู้รับ, อีเมล และรายการอย่างน้อย 1 รายการก่อน",
+        message: copy.validationError,
       });
       return;
     }
@@ -150,7 +158,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
           popup?.close();
           setResult({
             type: "error",
-            message: payload.message ?? payload.error ?? "ยังบันทึกใบเสนอราคาไม่สำเร็จ",
+            message: payload.message ?? payload.error ?? copy.saveError,
           });
           return;
         }
@@ -168,7 +176,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
 
         setResult({
           type: "success",
-          message: payload.message ?? "บันทึกใบเสนอราคาเรียบร้อยแล้ว",
+          message: payload.message ?? copy.saveSuccess,
           code: payload.quotation?.code,
           gmailUrl,
         });
@@ -176,7 +184,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
         popup?.close();
         setResult({
           type: "error",
-          message: "ยังเชื่อมต่อระบบเพื่อสร้างใบเสนอราคาไม่สำเร็จ",
+          message: copy.apiError,
         });
       }
     });
@@ -190,14 +198,14 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             type="button"
             onClick={goBack}
             className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant/50 transition-colors hover:bg-surface-container-low hover:text-on-surface active:bg-surface-container"
-            aria-label="กลับหน้าก่อนหน้า"
+            aria-label={copy.back}
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="text-base font-bold text-on-surface">ใบเสนอราคา</h1>
+            <h1 className="text-base font-bold text-on-surface">{copy.title}</h1>
             <p className="text-[11px] text-on-surface-variant/40">
-              บันทึกรายการของ {storeName} แล้วเปิด Gmail พร้อมเนื้อหาอีเมลให้ทันที
+              {formatLocalizedText(copy.subtitle, { store: storeName })}
             </p>
           </div>
         </div>
@@ -205,7 +213,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
 
       <main className="space-y-6 px-4 py-6">
         <section className="rounded-2xl bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
-          รายชื่อลูกค้าด้านล่างดึงเฉพาะลูกค้าที่อยู่ในร้าน <span className="font-semibold text-on-surface">{storeName}</span> เท่านั้น
+          {formatLocalizedText(copy.customersNotice, { store: storeName })}
         </section>
 
         <section className="rounded-2xl bg-white p-5 ring-1 ring-black/[0.04]">
@@ -213,10 +221,10 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 id="selected_user"
-                label="ลูกค้าในระบบ"
+                label={copy.systemCustomer}
                 value={selectedUserId}
                 onChange={(event) => handleCustomerChange(event.target.value)}
-                placeholder="เลือกจากรายชื่อลูกค้า"
+                placeholder={copy.chooseCustomer}
                 options={customers.map((customer) => ({
                   value: customer.id,
                   label: customer.email ? `${customer.name} • ${customer.email}` : customer.name,
@@ -226,7 +234,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
               <InputField
                 id="recipient_email"
                 type="email"
-                label="อีเมลผู้รับ"
+                label={copy.recipientEmail}
                 required
                 value={recipientEmail}
                 onChange={(event) => setRecipientEmail(event.target.value)}
@@ -237,24 +245,24 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             <InputField
               id="recipient_name"
               type="text"
-              label="ชื่อผู้รับ"
+              label={copy.recipientName}
               required
               value={recipientName}
               onChange={(event) => setRecipientName(event.target.value)}
-              placeholder="ชื่อลูกค้าหรือชื่อผู้ติดต่อ"
+              placeholder={copy.recipientNamePlaceholder}
             />
           </div>
         </section>
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-on-surface">บริการด่วน</h2>
+            <h2 className="text-sm font-bold text-on-surface">{copy.quickServices}</h2>
             <button
               type="button"
               onClick={addCustomItem}
               className="text-xs font-semibold text-primary"
             >
-              + เพิ่มรายการเอง
+              + {copy.addCustomItem}
             </button>
           </div>
 
@@ -275,10 +283,10 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
 
         <section className="space-y-3 rounded-2xl bg-white p-5 ring-1 ring-black/[0.04]">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-on-surface">รายการใบเสนอราคา</h2>
+            <h2 className="text-sm font-bold text-on-surface">{copy.quoteItems}</h2>
             <button type="button" onClick={addCustomItem} className="text-xs font-semibold text-primary">
               <Plus className="mr-1 inline h-3.5 w-3.5" />
-              เพิ่มรายการ
+              {copy.addCustomItem}
             </button>
           </div>
 
@@ -339,9 +347,9 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
               })
             ) : (
               <div className="rounded-2xl bg-surface-container-low px-4 py-8 text-center">
-                <p className="text-sm font-semibold text-on-surface">ยังไม่มีรายการในใบเสนอราคา</p>
+                <p className="text-sm font-semibold text-on-surface">{copy.emptyItemsTitle}</p>
                 <p className="mt-1 text-xs leading-6 text-on-surface-variant">
-                  กดเพิ่มรายการเอง หรือเลือกจากบริการด่วนด้านบนได้เลย
+                  {copy.emptyItemsDescription}
                 </p>
               </div>
             )}
@@ -353,24 +361,24 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             id="discount"
             type="number"
             min={0}
-            label="ส่วนลด (บาท)"
+            label={copy.discount}
             value={String(discount)}
             onChange={(event) => setDiscount(Number(event.target.value || 0))}
           />
           <TextareaField
             id="quotation_note"
-            label="หมายเหตุ"
+            label={copy.note}
             rows={3}
             value={note}
             onChange={(event) => setNote(event.target.value)}
-            placeholder="เช่น ราคานี้รวมค่าแรงแล้ว / รับประกันงาน 30 วัน"
+            placeholder={copy.notePlaceholder}
           />
         </section>
 
         <section className="rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 p-5 text-white">
           <div className="space-y-2 text-sm text-white/80">
             <div className="flex justify-between">
-              <span>ยอดรวมรายการ</span>
+              <span>{copy.subtotal}</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
@@ -379,7 +387,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             </div>
           </div>
           <div className="mt-3 flex items-end justify-between border-t border-white/20 pt-3">
-            <span className="font-bold">ยอดรวมทั้งสิ้น</span>
+            <span className="font-bold">{copy.total}</span>
             <span className="text-2xl font-extrabold">{formatCurrency(total)}</span>
           </div>
         </section>
@@ -393,7 +401,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             }`}
           >
             <p>{result.message}</p>
-            {result.code ? <p className="mt-1 font-semibold">เลขที่ใบเสนอราคา: {result.code}</p> : null}
+            {result.code ? <p className="mt-1 font-semibold">{formatLocalizedText(copy.quotationCode, { code: result.code })}</p> : null}
             {result.type === "success" && result.gmailUrl ? (
               <a
                 href={result.gmailUrl}
@@ -402,7 +410,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
                 className="mt-2 inline-flex items-center gap-2 font-semibold underline"
               >
                 <Mail className="h-4 w-4" />
-                เปิด Gmail อีกครั้ง
+                {copy.openGmailAgain}
               </a>
             ) : null}
           </section>
@@ -416,7 +424,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-surface-container-low text-sm font-bold text-on-surface transition-all hover:bg-surface-container active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            บันทึกร่าง
+            {copy.draft}
           </button>
           <button
             type="button"
@@ -425,7 +433,7 @@ export function QuotationBuilder({ customers, storeName }: Readonly<QuotationBui
             className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-on-surface text-sm font-bold text-white transition-all hover:bg-on-surface/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            บันทึกและเปิด Gmail
+            {copy.saveAndOpenGmail}
           </button>
         </div>
       </main>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, Check, LoaderCircle, MapPin, Plus, Save, Store, Trash2, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { InputField } from "@/components/ui/input-field";
 import { SelectField } from "@/components/ui/select-field";
 import { TextareaField } from "@/components/ui/textarea-field";
 import { TopAppBar } from "@/components/ui/top-app-bar";
+import { localeFromPath, normalizeLocale, withLocalePath } from "@/lib/i18n/config";
+import { getStaffFormsDictionary } from "@/lib/i18n/staff-forms";
 import type {
   Availability,
   ServiceAreaSummary,
@@ -34,6 +36,7 @@ const ALL_SUBDISTRICTS_TEXT = "ทุกตำบล / ทุกแขวง";
 
 type SetupProfileFormProps = {
   initialData: SetupProfile;
+  locale?: string;
 };
 
 type AreaRow = {
@@ -181,8 +184,12 @@ function buildFormState(initialData: SetupProfile) {
   };
 }
 
-export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps>) {
+export function SetupProfileForm({ initialData, locale: forcedLocale }: Readonly<SetupProfileFormProps>) {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = normalizeLocale(forcedLocale ?? (pathname ? localeFromPath(pathname) : null));
+  const copy = getStaffFormsDictionary(locale).setup;
+  const moreHref = locale ? withLocalePath(locale, "/portal/more") : "/portal/more";
   const [form, setForm] = useState(() => buildFormState(initialData));
   const [provinces, setProvinces] = useState<ThaiProvince[]>([]);
   const [districtOptions, setDistrictOptions] = useState<Record<string, ThaiDistrict[]>>({});
@@ -490,10 +497,10 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
   return (
     <div className="mx-auto flex min-h-dvh max-w-3xl flex-col bg-surface-container-lowest pb-20">
       <TopAppBar
-        title="ตั้งค่าร้านและโปรไฟล์ช่าง"
+        title={copy.title}
         left={
           <Link
-            href="/portal/more"
+            href={moreHref}
             className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-surface-container-low active:bg-surface-container"
           >
             <ArrowLeft className="h-5 w-5 text-on-surface" />
@@ -504,7 +511,7 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
       <main className="space-y-6 px-4 py-6">
         <section className="rounded-[1.75rem] bg-white p-5 shadow-sm ring-1 ring-black/[0.04]">
           <p className="text-sm leading-6 text-on-surface-variant">
-            หน้านี้ใช้ตั้งค่าข้อมูลที่จะไปแสดงให้ลูกค้าเห็นในหน้าค้นหาช่างและหน้าโปรไฟล์ช่างของร้านคุณ
+            {copy.intro}
           </p>
         </section>
 
@@ -514,23 +521,23 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
               <Store className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="headline-font text-xl font-bold text-on-surface">ข้อมูลร้าน</h2>
-              <p className="mt-1 text-sm text-on-surface-variant">ข้อมูลส่วนนี้จะช่วยให้ลูกค้ารู้จักร้านของคุณมากขึ้น</p>
+              <h2 className="headline-font text-xl font-bold text-on-surface">{copy.shopTitle}</h2>
+              <p className="mt-1 text-sm text-on-surface-variant">{copy.shopDescription}</p>
             </div>
           </div>
 
           <div className="space-y-4 px-5 py-5">
             <InputField
               id="store_name"
-              label="ชื่อร้าน"
+              label={copy.storeName}
               value={form.storeName}
               onChange={(event) => setForm({ ...form, storeName: event.target.value })}
-              placeholder="เช่น แอร์บ้านพร้อมเซอร์วิส"
+              placeholder={copy.storeNamePlaceholder}
             />
             <div className="grid gap-4 md:grid-cols-2">
               <InputField
                 id="store_phone"
-                label="เบอร์ร้าน"
+                label={copy.storePhone}
                 value={form.storePhone}
                 onChange={(event) => setForm({ ...form, storePhone: event.target.value })}
                 placeholder="08X-XXX-XXXX"
@@ -545,18 +552,18 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
             </div>
             <InputField
               id="store_logo_url"
-              label="ลิงก์รูปโลโก้ร้าน"
+              label={copy.logoUrl}
               value={form.storeLogoUrl}
               onChange={(event) => setForm({ ...form, storeLogoUrl: event.target.value })}
               placeholder="https://..."
             />
             <TextareaField
               id="store_description"
-              label="คำอธิบายร้าน"
+              label={copy.shopDescriptionLabel}
               rows={4}
               value={form.storeDescription}
               onChange={(event) => setForm({ ...form, storeDescription: event.target.value })}
-              placeholder="เล่าให้ลูกค้ารู้ว่าร้านคุณเด่นเรื่องอะไร เช่น รับงานเร็ว ตรงเวลา หรือเชี่ยวชาญงานซ่อม"
+              placeholder={copy.shopDescriptionPlaceholder}
             />
           </div>
         </section>
@@ -567,8 +574,8 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
               <Wrench className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="headline-font text-xl font-bold text-on-surface">โปรไฟล์ช่างหลัก</h2>
-              <p className="mt-1 text-sm text-on-surface-variant">ข้อมูลชุดนี้จะถูกใช้ในหน้าโปรไฟล์ที่ลูกค้าเลือกดู</p>
+              <h2 className="headline-font text-xl font-bold text-on-surface">{copy.technicianTitle}</h2>
+              <p className="mt-1 text-sm text-on-surface-variant">{copy.technicianDescription}</p>
             </div>
           </div>
 
@@ -576,14 +583,14 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
             <div className="grid gap-4 md:grid-cols-2">
               <InputField
                 id="technician_name"
-                label="ชื่อช่าง / ชื่อผู้ดูแลหลัก"
+                label={copy.technicianName}
                 value={form.technicianName}
                 onChange={(event) => setForm({ ...form, technicianName: event.target.value })}
-                placeholder="เช่น ช่างต้น"
+                placeholder={copy.technicianNamePlaceholder}
               />
               <InputField
                 id="technician_phone"
-                label="เบอร์โทรช่าง"
+                label={copy.technicianPhone}
                 value={form.technicianPhone}
                 onChange={(event) => setForm({ ...form, technicianPhone: event.target.value })}
                 placeholder="08X-XXX-XXXX"
@@ -592,7 +599,7 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
 
             <InputField
               id="technician_avatar"
-              label="ลิงก์รูปช่าง"
+              label={copy.avatarUrl}
               value={form.technicianAvatarUrl}
               onChange={(event) => setForm({ ...form, technicianAvatarUrl: event.target.value })}
               placeholder="https://..."
@@ -600,11 +607,11 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
 
             <TextareaField
               id="technician_headline"
-              label="ข้อความแนะนำตัว"
+              label={copy.headline}
               rows={3}
               value={form.technicianHeadline}
               onChange={(event) => setForm({ ...form, technicianHeadline: event.target.value })}
-              placeholder="เช่น รับงานล้าง ซ่อม ติดตั้งแอร์บ้าน เดินทางไวในโซนบางนา"
+              placeholder={copy.headlinePlaceholder}
             />
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -612,13 +619,13 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
                 id="experience_years"
                 type="number"
                 min={0}
-                label="ประสบการณ์ (ปี)"
+                label={copy.experienceYears}
                 value={form.experienceYears}
                 onChange={(event) => setForm({ ...form, experienceYears: event.target.value })}
               />
               <SelectField
                 id="availability"
-                label="สถานะรับงาน"
+                label={copy.availability}
                 value={form.availability}
                 onChange={(event) =>
                   setForm({
@@ -627,13 +634,13 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
                   })
                 }
                 options={[
-                  { value: "available", label: "พร้อมรับงาน" },
-                  { value: "busy", label: "คิวแน่น" },
+                  { value: "available", label: copy.availabilityAvailable },
+                  { value: "busy", label: copy.availabilityBusy },
                 ]}
               />
               <InputField
                 id="line_url"
-                label="ลิงก์ LINE"
+                label={copy.lineUrl}
                 value={form.lineUrl}
                 onChange={(event) => setForm({ ...form, lineUrl: event.target.value })}
                 placeholder="https://line.me/..."
@@ -642,14 +649,14 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
 
             <InputField
               id="working_hours"
-              label="เวลาทำการ"
+              label={copy.workingHours}
               value={form.workingHours}
               onChange={(event) => setForm({ ...form, workingHours: event.target.value })}
-              placeholder="ทุกวัน 08:00 - 18:00"
+              placeholder={copy.workingHoursPlaceholder}
             />
 
             <div className="space-y-3 pt-1">
-              <p className="text-xs font-semibold text-on-surface">บริการที่รับและราคาเริ่มต้น</p>
+              <p className="text-xs font-semibold text-on-surface">{copy.servicesTitle}</p>
               <div className="space-y-3">
                 {servicePresets.map((service) => {
                   const checked = form.serviceLabels.includes(service.label);
@@ -716,12 +723,12 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold text-on-surface">พื้นที่ให้บริการ</p>
-                  <p className="mt-1 text-xs leading-5 text-on-surface-variant">เลือกจังหวัด อำเภอ และตำบลที่คุณรับงานจริง เพื่อให้ลูกค้าค้นหาเจอได้ง่ายขึ้น</p>
+                  <p className="text-xs font-semibold text-on-surface">{copy.areasTitle}</p>
+                  <p className="mt-1 text-xs leading-5 text-on-surface-variant">{copy.areasDescription}</p>
                 </div>
                 <Button type="button" variant="outline" className="h-10 shrink-0 rounded-full px-4" onClick={addAreaRow}>
                   <Plus className="h-4 w-4" />
-                  เพิ่มพื้นที่
+                  {copy.addArea}
                 </Button>
               </div>
 
@@ -803,9 +810,9 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
             </div>
 
             <div className="rounded-2xl bg-surface-container-low p-4 text-sm leading-6 text-on-surface-variant">
-              <span className="font-semibold text-on-surface">ตัวอย่างที่ลูกค้าจะเห็น:</span>{" "}
-              {form.serviceLabels.map(String).join(", ") || "ยังไม่ได้เลือกบริการ"} • {previewAreas.join(" | ") || "ยังไม่ได้ใส่พื้นที่"} •{" "}
-              {form.technicianHeadline.trim() || "ยังไม่ได้ใส่ข้อความแนะนำตัว"}
+              <span className="font-semibold text-on-surface">{copy.customerPreview}</span>{" "}
+              {form.serviceLabels.map(String).join(", ") || copy.noServices} • {previewAreas.join(" | ") || copy.noAreas} •{" "}
+              {form.technicianHeadline.trim() || copy.noHeadline}
             </div>
           </div>
         </section>
@@ -824,12 +831,12 @@ export function SetupProfileForm({ initialData }: Readonly<SetupProfileFormProps
           {isPending ? (
             <>
               <LoaderCircle className="h-4 w-4 animate-spin" />
-              กำลังบันทึกข้อมูล...
+              {copy.saving}
             </>
           ) : (
             <>
               <Save className="h-4 w-4" />
-              บันทึกข้อมูลร้านและโปรไฟล์ช่าง
+              {copy.saveButton}
             </>
           )}
         </Button>

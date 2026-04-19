@@ -13,7 +13,7 @@ import {
   Search,
   Wrench,
 } from "lucide-react";
-import { beginOAuthLogin } from "@/app/login/actions";
+import { beginOAuthLogin } from "@/lib/auth/actions";
 import {
   getSignupOptions,
   submitSignup,

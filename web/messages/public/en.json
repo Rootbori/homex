@@ -1,0 +1,124 @@
+{
+  "languageLabel": "Language",
+  "languageNames": {
+    "th": "ไทย",
+    "en": "English"
+  },
+  "header": {
+    "searchTitle": "Find trusted aircon technicians",
+    "searchSubtitle": "Browse real shop and technician profiles near you"
+  },
+  "search": {
+    "inputPlaceholder": "Search technician, shop, or area",
+    "filtersTitle": "Search Filters",
+    "filtersEmpty": "No extra filters applied",
+    "filtersActive": "{count} active filters",
+    "clearFilters": "Clear filters",
+    "all": "All",
+    "areaLabel": "Area",
+    "areaPlaceholder": "All areas",
+    "priceLabel": "Starting price",
+    "availableNow": "Available now",
+    "busy": "Busy",
+    "resultEyebrow": "Search Result",
+    "resultTitle": "{count} technicians found",
+    "resultSummary": "Search query \"{query}\"",
+    "resultFallback": "Filtered from the latest shop and technician profiles in the system",
+    "emptyTitle": "No technicians matched these filters",
+    "emptyDescription": "Try clearing some filters or changing your search term to see more available shops and technicians",
+    "createRequest": "Create service request",
+    "seoPopularAreas": "Popular areas",
+    "priceOptions": {
+      "all": "All prices",
+      "upto700": "Up to THB 700",
+      "upto1000": "Up to THB 1,000",
+      "upto2000": "Up to THB 2,000",
+      "upto4000": "Up to THB 4,000"
+    }
+  },
+  "home": {
+    "heroTitleFirst": "Find aircon technicians",
+    "heroTitleHighlight": "ready to take real jobs",
+    "heroDescription": "The list below comes from real shops and technicians who have already completed their profile setup. Filter by service, area, starting price, and availability."
+  },
+  "technicianCard": {
+    "topBadge": "TOP",
+    "viewProfile": "View profile",
+    "perVisit": "/visit"
+  },
+  "technician": {
+    "backToSearch": "Back to search",
+    "call": "Call",
+    "line": "LINE",
+    "book": "Book",
+    "about": "About the technician team",
+    "hours": "Working hours",
+    "startingPrice": "Starting price",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "reviews": "Reviews",
+    "noReviews": "No reviews yet",
+    "years": "years",
+    "bookNow": "Book service now"
+  },
+  "seo": {
+    "common": {
+      "homeLabel": "Home",
+      "searchLabel": "Find technicians"
+    },
+    "home": {
+      "pageTitle": "Find aircon technicians near you",
+      "pageDescription": "Find aircon technicians and service shops in Thailand, compare services and starting prices, and send service requests from a mobile-friendly web app.",
+      "itemListName": "Aircon technicians and service shops on Homex",
+      "seoTitle": "Find aircon technicians and service shops across Thailand",
+      "seoDescription": "Homex lists real technician and shop profiles with services, service areas, and starting prices, so customers can compare before sending a request.",
+      "highlights": [
+        "Aircon cleaning",
+        "Repair",
+        "Installation",
+        "Refrigerant refill",
+        "Mobile booking"
+      ],
+      "faq": [
+        {
+          "question": "What can I do on Homex?",
+          "answer": "Homex helps customers find aircon technicians, compare shop profiles, review services and starting prices, and send service requests from mobile devices."
+        },
+        {
+          "question": "Can customers search by area?",
+          "answer": "Yes. Customers can filter by service area, service type, availability, and starting price on the search page."
+        },
+        {
+          "question": "What should a shop set up to appear in search?",
+          "answer": "Shops should complete their shop name, technician profile, services offered, starting prices, and service areas so their public profile appears clearly in search."
+        }
+      ]
+    },
+    "search": {
+      "pageTitle": "Find aircon technicians",
+      "pageTitleWithFocus": "Find aircon technicians {focus}",
+      "pageDescription": "Find aircon technicians and service shops, then filter by area, service type, and starting price.",
+      "pageDescriptionWithFocus": "Find aircon technicians and service shops for {focus}, with service areas and starting prices on Homex.",
+      "itemListName": "Aircon technician search results",
+      "seoTitle": "Aircon technician and service shop search results",
+      "seoTitleWithFocus": "Aircon technician search results for {focus}",
+      "seoDescription": "Find aircon technicians and service shops, then filter by service, area, availability, and starting price.",
+      "seoDescriptionWithFocus": "Search results for {focus}, based on real technician and shop profiles on Homex with service areas, services, and starting prices.",
+      "highlightMatches": "{count} matching profiles",
+      "highlightServiceFallback": "Filter by service",
+      "highlightAreaFallback": "Filter by area",
+      "highlightAvailabilityAvailable": "Available now",
+      "highlightAvailabilityBusy": "Busy",
+      "highlightAvailabilityAll": "All statuses"
+    },
+    "province": {
+      "pageTitle": "Aircon technicians in {province}",
+      "pageDescription": "Find aircon technicians and service shops in {province}, review services offered and starting prices, and compare real profiles before sending a request on Homex.",
+      "seoTitle": "Aircon technicians in {province}",
+      "seoDescription": "Profiles of shops and technicians serving {province}, with services offered, starting prices, and real service areas from Homex profiles.",
+      "highlightMatches": "{count} profiles in this area",
+      "highlightArea": "Main area {province}",
+      "highlightSummary": "Review services and starting prices before booking"
+    }
+  }
+}

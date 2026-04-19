@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { DM_Sans, Plus_Jakarta_Sans } from "next/font/google";
+import { cookies } from "next/headers";
+import { normalizeLocale, localeCookieName } from "@/lib/i18n/config";
 import { absoluteUrl, siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -55,13 +57,16 @@ export const metadata: Metadata = {
   category: "home services",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const locale = normalizeLocale(cookieStore.get(localeCookieName)?.value);
+
   return (
-    <html lang="th">
+    <html lang={locale}>
       <body className={`${bodyFont.variable} ${headlineFont.variable}`}>{children}</body>
     </html>
   );

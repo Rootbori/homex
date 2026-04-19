@@ -11,7 +11,7 @@ import {
   UserRound,
   Wrench,
 } from "lucide-react";
-import { beginOAuthLogin } from "@/app/login/actions";
+import { beginOAuthLogin } from "@/lib/auth/actions";
 import { Logo } from "@/components/ui/logo";
 import {
   authProviderOptions,

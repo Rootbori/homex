@@ -160,6 +160,7 @@ export type SetupProfile = {
 export type ThaiProvince = {
   id: string;
   nameTh: string;
+  nameEn?: string;
 };
 
 export type ThaiDistrict = {

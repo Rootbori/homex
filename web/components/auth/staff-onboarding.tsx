@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
+import { usePathname } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -15,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
 import { staffIntentOptions, type StaffIntent } from "@/lib/auth-flow";
+import { localeFromPath, withLocalePath } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
 type StaffOnboardingProps = {
@@ -22,6 +24,10 @@ type StaffOnboardingProps = {
 };
 
 export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>) {
+  const pathname = usePathname();
+  const locale = pathname ? localeFromPath(pathname) : null;
+  const loginHref = locale ? withLocalePath(locale, "/login") : "/login";
+  const fallbackPortalHref = locale ? withLocalePath(locale, "/portal/dashboard") : "/portal/dashboard";
   const [intent, setIntent] = useState<StaffIntent>("create_store");
   const [storeName, setStoreName] = useState(defaultStoreName(displayName));
   const [result, setResult] = useState<{
@@ -76,7 +82,7 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
           return;
         }
 
-        globalThis.location.replace(payload.next?.next_path ?? "/portal/dashboard");
+        globalThis.location.replace(payload.next?.next_path ?? fallbackPortalHref);
       } catch {
         setResult({
           type: "error",
@@ -99,7 +105,7 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
                 Staff Setup
               </div>
               <Link
-                href="/login"
+                href={loginHref}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -304,7 +310,7 @@ export function StaffOnboarding({ displayName }: Readonly<StaffOnboardingProps>)
                   ตอนนี้คุณยังไม่ต้องกรอกชื่อร้านเอง เพราะระบบจะใช้ข้อมูลจากร้านที่เชิญคุณเข้าไปโดยตรง
                 </p>
                 <Link
-                  href="/login"
+                  href={loginHref}
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-semibold text-on-surface ring-1 ring-black/[0.05] transition-colors hover:bg-slate-50"
                 >
                   กลับไปหน้า Login

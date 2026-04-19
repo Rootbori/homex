@@ -1,3 +1,5 @@
+import { defaultLocale, locales, withLocalePath, type Locale } from "@/lib/i18n/config";
+
 export const siteConfig = {
   name: "Homex",
   title: "Homex - หาช่างแอร์และร้านแอร์ในประเทศไทย",
@@ -34,4 +36,30 @@ export function absoluteUrl(path = "/") {
     return `${getSiteUrl()}/${path}`;
   }
   return `${getSiteUrl()}${path}`;
+}
+
+export function localizedPath(locale: Locale, path = "/") {
+  return withLocalePath(locale, path);
+}
+
+export function localizedAbsoluteUrl(locale: Locale, path = "/") {
+  return absoluteUrl(localizedPath(locale, path));
+}
+
+export function languageAlternates(path = "/") {
+  return Object.fromEntries(
+    locales.map((locale) => [locale, withLocalePath(locale, path)]),
+  ) as Record<Locale, string>;
+}
+
+export function defaultCanonical(path = "/") {
+  return withLocalePath(defaultLocale, path);
+}
+
+export function provinceSlug(nameEn?: string, nameTh?: string) {
+  const source = (nameEn && nameEn.trim()) || (nameTh && nameTh.trim()) || "";
+  return source
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

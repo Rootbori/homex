@@ -32,7 +32,7 @@ type staffOnboardingPayload struct {
 func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
 	var payload oauthSyncPayload
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
 		payload.AvatarURL,
 	)
 	if err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *Handler) handleOAuthSync(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleValidateOAuthSession(w http.ResponseWriter, r *http.Request) {
 	var payload validateOAuthPayload
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 
@@ -79,10 +79,10 @@ func (h *Handler) handleValidateOAuthSession(w http.ResponseWriter, r *http.Requ
 	})
 	if err != nil {
 		if errors.Is(err, domain.ErrUnauthorized) || errors.Is(err, domain.ErrNotFound) {
-			h.errJSON(w, http.StatusUnauthorized, "session invalid")
+			h.errJSONKey(w, r, http.StatusUnauthorized, "session_invalid")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
@@ -92,13 +92,13 @@ func (h *Handler) handleValidateOAuthSession(w http.ResponseWriter, r *http.Requ
 func (h *Handler) handleStaffOnboarding(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
 	if actor.UserID == "" {
-		h.errJSON(w, http.StatusUnauthorized, "login required")
+		h.errJSONKey(w, r, http.StatusUnauthorized, "login_required")
 		return
 	}
 
 	var payload staffOnboardingPayload
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 
@@ -107,7 +107,7 @@ func (h *Handler) handleStaffOnboarding(w http.ResponseWriter, r *http.Request) 
 		StoreName: payload.StoreName,
 	})
 	if err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
@@ -121,13 +121,13 @@ func (h *Handler) handleCompleteSignup(w http.ResponseWriter, r *http.Request) {
 		Phone    string `json:"phone"`
 	}
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 
 	user, mem, store, err := h.authUC.CompleteSignup(r.Context(), payload.Token, payload.FullName, payload.Phone)
 	if err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 

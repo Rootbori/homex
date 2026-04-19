@@ -13,6 +13,7 @@ import type {
   ServiceAreaSummary,
   StoreSummary,
   SetupProfile,
+  ThaiProvince,
   TechnicianDetail,
   TechnicianSummary,
   TimelineItem,
@@ -357,6 +358,16 @@ function normalizeServiceArea(raw: unknown): ServiceAreaSummary {
   };
 }
 
+function normalizeThaiProvince(raw: unknown): ThaiProvince {
+  const item = (raw ?? {}) as Record<string, unknown>;
+
+  return {
+    id: stringValue(item.id),
+    nameTh: stringValue(item.name_th),
+    nameEn: stringValue(item.name_en) || undefined,
+  };
+}
+
 export async function getPublicTechnicians(searchParams?: URLSearchParams | Record<string, string | string[] | undefined>) {
   try {
     const query = new URLSearchParams();
@@ -589,6 +600,15 @@ export async function getSetupProfile(): Promise<SetupProfile> {
     };
   } catch {
     return { store: null, technician: null, technicianServices: [], serviceAreas: [] };
+  }
+}
+
+export async function getThaiProvinces(): Promise<ThaiProvince[]> {
+  try {
+    const payload = await fetchApiJson<{ items?: unknown[] }>("/v1/public/geo/provinces");
+    return Array.isArray(payload.items) ? payload.items.map((item) => normalizeThaiProvince(item)) : [];
+  } catch {
+    return [];
   }
 }
 

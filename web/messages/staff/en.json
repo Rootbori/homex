@@ -1,0 +1,145 @@
+{
+  "common": {
+    "portalTitle": "Homex Portal",
+    "backToMore": "Back to more",
+    "currentStore": "Current store",
+    "currentStoreFallback": "Current store",
+    "storeNotFound": "Store information not found",
+    "customerPrefix": "",
+    "all": "All",
+    "jobs": "Jobs",
+    "customer": "Customers",
+    "technician": "Technicians",
+    "service": "Service",
+    "address": "Address",
+    "symptom": "Symptom",
+    "units": "units",
+    "startingPrice": "Starting price",
+    "timeline": "Timeline",
+    "noItems": "No items yet",
+    "total": "Total",
+    "note": "Note"
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "myRequests": "My requests",
+    "profile": "Profile",
+    "dashboard": "Dashboard",
+    "leads": "Leads",
+    "schedule": "Schedule",
+    "more": "More"
+  },
+  "dashboard": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "summary": "Your business overview for today",
+    "urgentJobs": "Urgent jobs",
+    "todayJobs": "Today's jobs",
+    "latestLeads": "Latest leads",
+    "noTodayJobs": "No jobs scheduled for today",
+    "noLatestLeads": "No new leads yet",
+    "customerPrefix": ""
+  },
+  "leads": {
+    "title": "Leads",
+    "searchPlaceholder": "Search customer name or phone...",
+    "filters": ["All", "New", "Quoted", "LINE OA", "Web"],
+    "empty": "No leads in the system yet",
+    "detailTitle": "Request details",
+    "quantity": "Quantity",
+    "units": "units",
+    "initialSymptom": "Initial symptom",
+    "airconInfo": "Air-conditioner details",
+    "noAirconUnits": "No per-unit data yet",
+    "leadAccepted": "Lead accepted",
+    "serviceArea": "Service area",
+    "createQuotation": "Create quotation",
+    "assignTechnician": "Assign technician",
+    "callOut": "Call",
+    "navigate": "Navigate"
+  },
+  "jobs": {
+    "title": "All jobs",
+    "empty": "No jobs in the system yet",
+    "jobInfo": "Job details",
+    "payment": "Payment",
+    "jobPhotos": "Job photos",
+    "noPhotos": "No photos yet",
+    "quotation": "Quotation",
+    "assignee": "Assigned to",
+    "appointment": "Appointment",
+    "complete": "Complete job",
+    "assignedTechnician": "Technician"
+  },
+  "more": {
+    "title": "More",
+    "defaultName": "Homex Technician Team",
+    "noEmail": "No email connected yet",
+    "logout": "Sign out",
+    "links": {
+      "setup": {
+        "label": "Shop / Technician setup",
+        "description": "Information customers will see"
+      },
+      "quotation": {
+        "label": "Quotation",
+        "description": "Prepare quotations"
+      },
+      "technicians": {
+        "label": "Technicians",
+        "description": "View profiles and performance"
+      },
+      "myJobs": {
+        "label": "My jobs",
+        "description": "Technician view — only your assigned jobs"
+      },
+      "users": {
+        "label": "Customers",
+        "description": "Customer data and service history"
+      }
+    },
+    "stats": {
+      "techniciansDescription": "Only technicians in this store",
+      "usersDescription": "Only customers who have hired this store",
+      "jobsDescriptionTechnician": "Counts only jobs assigned to you",
+      "jobsDescriptionAll": "Counts all jobs in this store"
+    }
+  },
+  "myJobs": {
+    "title": "My jobs",
+    "onTheWay": "On the way",
+    "inProgress": "In progress",
+    "emptyAssigned": "No assigned jobs yet",
+    "emptyUnlinked": "This account is not linked to a technician profile yet"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "jobCount": "{count} jobs",
+    "noJobs": "No jobs",
+    "empty": "No schedule data yet"
+  },
+  "technicians": {
+    "title": "Technicians",
+    "add": "Add technician",
+    "scope": "Showing only technicians in {store}",
+    "empty": "No technicians in the system yet",
+    "rating": "Rating",
+    "reviews": "Reviews",
+    "years": "Years",
+    "jobHistory": "Job history",
+    "info": "Information",
+    "area": "Area",
+    "emptyJobs": "No jobs yet"
+  },
+  "users": {
+    "title": "Customers",
+    "scope": "Showing only customers who have hired {store}",
+    "totalSpend": "Total spend",
+    "averagePerUser": "Avg / customer",
+    "jobHistory": "Job history",
+    "empty": "No customers in the system yet",
+    "emptyHistory": "No job history yet"
+  }
+}

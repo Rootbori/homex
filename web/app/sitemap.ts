@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { locales } from "@/lib/i18n/config";
 import { getApiBaseUrl } from "@/lib/server-api";
-import { absoluteUrl } from "@/lib/site";
+import { localizedAbsoluteUrl } from "@/lib/site";
 
 type PublicTechniciansPayload = {
   items?: Array<{
@@ -9,18 +10,18 @@ type PublicTechniciansPayload = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseEntries: MetadataRoute.Sitemap = [
+  const baseEntries: MetadataRoute.Sitemap = locales.flatMap((locale) => [
     {
-      url: absoluteUrl("/"),
-      changeFrequency: "daily",
-      priority: 1,
+      url: localizedAbsoluteUrl(locale, "/"),
+      changeFrequency: "daily" as const,
+      priority: locale === "th" ? 1 : 0.9,
     },
     {
-      url: absoluteUrl("/search"),
-      changeFrequency: "daily",
+      url: localizedAbsoluteUrl(locale, "/search"),
+      changeFrequency: "daily" as const,
       priority: 0.9,
     },
-  ];
+  ]);
 
   try {
     const response = await fetch(`${getApiBaseUrl()}/v1/public/technicians`, {
@@ -36,13 +37,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!item.slug) {
           return [];
         }
-        return [
-          {
-            url: absoluteUrl(`/technicians/${item.slug}`),
-            changeFrequency: "daily" as const,
-            priority: 0.8,
-          },
-        ];
+        return locales.map((locale) => ({
+          url: localizedAbsoluteUrl(locale, `/technicians/${item.slug}`),
+          changeFrequency: "daily" as const,
+          priority: locale === "th" ? 0.8 : 0.7,
+        }));
       }) ?? [];
 
     return [...baseEntries, ...technicianEntries];

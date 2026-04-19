@@ -35,7 +35,7 @@ func (h *Handler) handleListTechnicians(w http.ResponseWriter, r *http.Request) 
 	}
 	techs, err := h.storeUC.ListTechnicians(r.Context(), filters)
 	if err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
@@ -52,10 +52,10 @@ func (h *Handler) handleGetTechnician(w http.ResponseWriter, r *http.Request) {
 	tech, err := h.storeUC.GetTechnicianDetails(r.Context(), slug)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			h.errJSON(w, http.StatusNotFound, "technician not found")
+			h.errJSONKey(w, r, http.StatusNotFound, "technician_not_found")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{
@@ -71,29 +71,29 @@ func (h *Handler) handleGetTechnician(w http.ResponseWriter, r *http.Request) {
 
 // ── Signup Options ──────────────────────────────────────────────────
 
-func (h *Handler) handleSignupOptions(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) handleSignupOptions(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, map[string]any{
-		"title":    "สมัครใช้งาน Homex",
-		"subtitle": "เข้าใช้งานด้วย LINE หรือ Gmail ก่อน จากนั้นระบบจะพาไปเลือกว่าเป็นลูกค้าหรือฝั่งร้าน และถ้าเป็นฝั่งร้านจะเลือกสร้างร้านใหม่หรือเข้าร่วมทีมต่อได้",
+		"title":    messageFor(r, "signup_title"),
+		"subtitle": messageFor(r, "signup_subtitle"),
 		"account_types": []map[string]any{
 			{
 				"id":          "user",
-				"label":       "ลูกค้า",
-				"description": "สำหรับค้นหาช่างแอร์ ดูโปรไฟล์ และติดตามงาน",
+				"label":       messageFor(r, "signup_user_label"),
+				"description": messageFor(r, "signup_user_description"),
 				"user_type":   domain.UserTypeUser,
 				"next_path":   "/search",
 			},
 			{
 				"id":          "staff",
-				"label":       "ร้าน / ทีมช่าง",
-				"description": "ใช้สำหรับฝั่งหลังบ้าน แล้วค่อยเลือกสร้างร้านใหม่หรือเข้าร่วมทีมหลัง login",
+				"label":       messageFor(r, "signup_staff_label"),
+				"description": messageFor(r, "signup_staff_description"),
 				"user_type":   domain.UserTypeStaff,
 				"next_path":   "/onboarding/staff",
 			},
 		},
 		"providers": []map[string]any{
 			{"id": "line", "label": "LINE", "accent": "#06C755"},
-			{"id": "google", "label": "Gmail", "accent": "#4285F4"},
+			{"id": "google", "label": messageFor(r, "gmail_label"), "accent": "#4285F4"},
 		},
 	})
 }
@@ -104,7 +104,7 @@ func (h *Handler) handleListUserJobs(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
 	jobs, err := h.jobUC.ListJobs(r.Context(), actor)
 	if err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"items": jobs})
@@ -117,10 +117,10 @@ func (h *Handler) handleGetUserJob(w http.ResponseWriter, r *http.Request) {
 	job, err := h.jobUC.GetJobDetail(r.Context(), actor, uint(id))
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			h.errJSON(w, http.StatusNotFound, "job not found")
+			h.errJSONKey(w, r, http.StatusNotFound, "job_not_found")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"job": job})
@@ -132,20 +132,19 @@ func (h *Handler) handleCreateLead(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
 	var lead domain.Lead
 	if err := h.readJSON(r, &lead); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 	lead.StoreID = 1
 
 	if err := h.jobUC.CreateLead(r.Context(), actor, &lead); err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
-	h.writeJSON(w, http.StatusCreated, map[string]any{
+	h.messageJSON(w, r, http.StatusCreated, "lead_created", map[string]any{
 		"id":      lead.ID,
 		"status":  lead.Status,
-		"message": "รับคำขอเรียบร้อย ร้านจะติดต่อกลับพร้อมใบเสนอราคา",
 	})
 }
 
@@ -153,7 +152,7 @@ func (h *Handler) handleCreateLead(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleGetDashboard(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 	// Simplified — full KPI queries belong in a DashboardUsecase later
@@ -165,21 +164,21 @@ func (h *Handler) handleGetDashboard(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleGetCurrentStore(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 
 	store, err := h.storeUC.GetCurrentStore(r.Context(), actor)
 	if err != nil {
 		if errors.Is(err, domain.ErrForbidden) {
-			h.errJSON(w, http.StatusForbidden, "forbidden")
+			h.errJSONKey(w, r, http.StatusForbidden, "forbidden")
 			return
 		}
 		if errors.Is(err, domain.ErrNotFound) {
-			h.errJSON(w, http.StatusNotFound, "store not found")
+			h.errJSONKey(w, r, http.StatusNotFound, "store_not_found")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
@@ -199,21 +198,21 @@ func (h *Handler) handleGetCurrentStore(w http.ResponseWriter, r *http.Request) 
 
 func (h *Handler) handleGetSetupProfile(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 
 	store, technician, err := h.storeUC.GetSetupProfile(r.Context(), actor)
 	if err != nil {
 		if errors.Is(err, domain.ErrForbidden) {
-			h.errJSON(w, http.StatusForbidden, "forbidden")
+			h.errJSONKey(w, r, http.StatusForbidden, "forbidden")
 			return
 		}
 		if errors.Is(err, domain.ErrNotFound) {
-			h.errJSON(w, http.StatusNotFound, "setup profile not found")
+			h.errJSONKey(w, r, http.StatusNotFound, "setup_profile_not_found")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, "ไม่สามารถโหลดข้อมูลตั้งค่าร้านได้")
+		h.errJSONKey(w, r, http.StatusInternalServerError, "unable_load_setup_profile")
 		return
 	}
 
@@ -235,7 +234,7 @@ func (h *Handler) handleGetSetupProfile(w http.ResponseWriter, r *http.Request) 
 
 func (h *Handler) handleUpdateSetupProfile(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 
@@ -269,7 +268,7 @@ func (h *Handler) handleUpdateSetupProfile(w http.ResponseWriter, r *http.Reques
 		} `json:"technician"`
 	}
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 
@@ -310,16 +309,15 @@ func (h *Handler) handleUpdateSetupProfile(w http.ResponseWriter, r *http.Reques
 	})
 	if err != nil {
 		if errors.Is(err, domain.ErrForbidden) {
-			h.errJSON(w, http.StatusForbidden, "forbidden")
+			h.errJSONKey(w, r, http.StatusForbidden, "forbidden")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, "ยังบันทึกข้อมูลร้านและโปรไฟล์ช่างไม่สำเร็จ")
+		h.errJSONKey(w, r, http.StatusInternalServerError, "unable_update_setup_profile")
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, map[string]any{
+	h.messageJSON(w, r, http.StatusOK, "setup_profile_updated", map[string]any{
 		"status":              "updated",
-		"message":             "อัปเดตข้อมูลร้านและโปรไฟล์ช่างเรียบร้อยแล้ว",
 		"store":               store,
 		"technician":          technicianPayload(technician),
 		"technician_services": technicianServiceItemsPayload(technician),
@@ -331,7 +329,7 @@ func (h *Handler) handleUpdateSetupProfile(w http.ResponseWriter, r *http.Reques
 
 func (h *Handler) handleListLeads(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"items": []any{}})
@@ -339,7 +337,7 @@ func (h *Handler) handleListLeads(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleGetLeadDetail(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"lead": nil})
@@ -349,12 +347,12 @@ func (h *Handler) handleGetLeadDetail(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleListJobs(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 	jobs, err := h.jobUC.ListJobs(r.Context(), actor)
 	if err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"items": jobs})
@@ -362,17 +360,17 @@ func (h *Handler) handleListJobs(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleGetJobDetail(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 	id, _ := strconv.ParseUint(r.PathValue("id"), 10, 32)
 	job, err := h.jobUC.GetJobDetail(r.Context(), actor, uint(id))
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			h.errJSON(w, http.StatusNotFound, "job not found")
+			h.errJSONKey(w, r, http.StatusNotFound, "job_not_found")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"job": job})
@@ -380,15 +378,15 @@ func (h *Handler) handleGetJobDetail(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleUpdateJobStatus(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
-	h.writeJSON(w, http.StatusOK, map[string]any{"message": "status updated"})
+	h.messageJSON(w, r, http.StatusOK, "status_updated", map[string]any{})
 }
 
 func (h *Handler) handleCreateQuotation(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 
@@ -405,7 +403,7 @@ func (h *Handler) handleCreateQuotation(w http.ResponseWriter, r *http.Request) 
 		} `json:"items"`
 	}
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 
@@ -428,21 +426,21 @@ func (h *Handler) handleCreateQuotation(w http.ResponseWriter, r *http.Request) 
 	})
 	if err != nil {
 		if errors.Is(err, domain.ErrForbidden) {
-			h.errJSON(w, http.StatusForbidden, "forbidden")
+			h.errJSONKey(w, r, http.StatusForbidden, "forbidden")
 			return
 		}
 		if errors.Is(err, domain.ErrConflict) {
-			h.errJSON(w, http.StatusBadRequest, "กรอกข้อมูลใบเสนอราคาให้ครบก่อนส่ง")
+			h.errJSONKey(w, r, http.StatusBadRequest, "quotation_invalid")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
 	subject, body, gmailURL := quotationEmailPreview(quotation, savedItems)
 	h.writeJSON(w, http.StatusCreated, map[string]any{
 		"status":  "created",
-		"message": quotationMessage(quotation.SharedViaEmail),
+		"message": quotationMessage(r, quotation.SharedViaEmail),
 		"quotation": map[string]any{
 			"id":               quotation.ID,
 			"code":             quotationCode(quotation.ID),
@@ -469,7 +467,7 @@ func (h *Handler) handleCreateQuotation(w http.ResponseWriter, r *http.Request) 
 
 func (h *Handler) handleGetSchedule(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"days": []any{}})
@@ -479,12 +477,12 @@ func (h *Handler) handleGetSchedule(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleListStoreTechnicians(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 	techs, err := h.storeUC.ListStoreTechnicians(r.Context(), actor)
 	if err != nil {
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
@@ -498,7 +496,7 @@ func (h *Handler) handleListStoreTechnicians(w http.ResponseWriter, r *http.Requ
 
 func (h *Handler) handleCreateTechnician(w http.ResponseWriter, r *http.Request) {
 	actor := actorFromRequest(r)
-	if !h.requireStaff(actor, w) {
+	if !h.requireStaff(actor, w, r) {
 		return
 	}
 
@@ -508,11 +506,11 @@ func (h *Handler) handleCreateTechnician(w http.ResponseWriter, r *http.Request)
 		Services []string `json:"services"`
 	}
 	if err := h.readJSON(r, &payload); err != nil {
-		h.errJSON(w, http.StatusBadRequest, errInvalidPayload)
+		h.errJSONKey(w, r, http.StatusBadRequest, errInvalidPayloadKey)
 		return
 	}
 	if payload.Name == "" {
-		h.errJSON(w, http.StatusBadRequest, "name is required")
+		h.errJSONKey(w, r, http.StatusBadRequest, "name_required")
 		return
 	}
 
@@ -523,20 +521,19 @@ func (h *Handler) handleCreateTechnician(w http.ResponseWriter, r *http.Request)
 	})
 	if err != nil {
 		if errors.Is(err, domain.ErrForbidden) {
-			h.errJSON(w, http.StatusForbidden, "forbidden")
+			h.errJSONKey(w, r, http.StatusForbidden, "forbidden")
 			return
 		}
 		if errors.Is(err, domain.ErrConflict) {
-			h.errJSON(w, http.StatusConflict, "ยังไม่สามารถสร้างโปรไฟล์ช่างได้")
+			h.errJSONKey(w, r, http.StatusConflict, "technician_create_failed")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
-	h.writeJSON(w, http.StatusCreated, map[string]any{
+	h.messageJSON(w, r, http.StatusCreated, "technician_created", map[string]any{
 		"status":     "created",
-		"message":    "สร้างโปรไฟล์ช่างเรียบร้อยแล้ว",
 		"technician": technicianPayload(tech),
 	})
 }
@@ -548,10 +545,10 @@ func (h *Handler) handleListUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.userUC.ListUsers(r.Context(), actor)
 	if err != nil {
 		if errors.Is(err, domain.ErrForbidden) {
-			h.errJSON(w, http.StatusForbidden, "forbidden")
+			h.errJSONKey(w, r, http.StatusForbidden, "forbidden")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 	h.writeJSON(w, http.StatusOK, map[string]any{"items": users})
@@ -564,10 +561,10 @@ func (h *Handler) handleListUserJobsForStore(w http.ResponseWriter, r *http.Requ
 	jobs, err := h.jobUC.ListJobsForUser(r.Context(), actor, uint(id))
 	if err != nil {
 		if errors.Is(err, domain.ErrForbidden) {
-			h.errJSON(w, http.StatusForbidden, "forbidden")
+			h.errJSONKey(w, r, http.StatusForbidden, "forbidden")
 			return
 		}
-		h.errJSON(w, http.StatusInternalServerError, err.Error())
+		h.internalErrJSON(w, r)
 		return
 	}
 
@@ -578,11 +575,11 @@ func quotationCode(id uint) string {
 	return fmt.Sprintf("QT-%06d", id)
 }
 
-func quotationMessage(sharedViaEmail bool) string {
+func quotationMessage(r *http.Request, sharedViaEmail bool) string {
 	if sharedViaEmail {
-		return "บันทึกใบเสนอราคาแล้ว พร้อมเปิด Gmail ให้ส่งต่อได้ทันที"
+		return messageFor(r, "quotation_saved_open_gmail")
 	}
-	return "บันทึกร่างใบเสนอราคาเรียบร้อยแล้ว"
+	return messageFor(r, "quotation_saved")
 }
 
 func quotationEmailPreview(quotation *domain.Quotation, items []domain.QuotationItem) (string, string, string) {

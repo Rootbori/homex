@@ -6,7 +6,7 @@
     "dev": "next dev -p 7771",
     "build": "next build",
     "start": "next start -p 7771",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

@@ -1,15 +1,23 @@
 import { NextResponse } from "next/server";
+import { locales } from "@/lib/i18n/config";
 import { absoluteUrl, siteConfig } from "@/lib/site";
 
 export function GET() {
+  const publicPages = locales.flatMap((locale) => {
+    const ucLocale = locale.toUpperCase();
+    return [
+      `- Home (${ucLocale}): ${absoluteUrl("/" + locale)}`,
+      `- Search technicians (${ucLocale}): ${absoluteUrl("/" + locale + "/search")}`,
+    ];
+  });
+
   const body = [
     `# ${siteConfig.name}`,
     "",
     `> ${siteConfig.shortDescription}`,
     "",
     "## Public Pages",
-    `- Home: ${absoluteUrl("/")}`,
-    `- Search technicians: ${absoluteUrl("/search")}`,
+    ...publicPages,
     "",
     "## Scope",
     "- This site helps users in Thailand find air-conditioner technicians and service shops.",

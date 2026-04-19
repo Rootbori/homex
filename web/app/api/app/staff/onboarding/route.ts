@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { isAuthAccountType } from "@/lib/auth-flow";
+import { routeMessage } from "@/lib/i18n/server-errors";
 import { actorHeadersFromCookies } from "@/lib/route-actor";
 import { proxyToApi, readProxyPayload } from "@/lib/server-api";
 
@@ -43,10 +44,12 @@ export async function POST(request: NextRequest) {
 
     return nextResponse;
   } catch (error) {
+    const fallbackError = await routeMessage("unable_complete_staff_onboarding");
+    const fallbackMessage = await routeMessage("unable_reach_api");
     return NextResponse.json(
       {
-        error: "unable to complete staff onboarding",
-        message: error instanceof Error ? error.message : "unable to reach api",
+        error: fallbackError,
+        message: error instanceof Error ? error.message : fallbackMessage,
       },
       { status: 502 },
     );
@@ -67,11 +70,12 @@ async function resolveActorContext(): Promise<
 
   const session = await auth();
   if (!session?.user?.providerAccountId || !session.provider) {
+    const fallbackMessage = await routeMessage("login_required_before_onboarding");
     return {
       errorResponse: NextResponse.json(
         {
           error: "login required",
-          message: "กรุณา login ด้วย LINE หรือ Gmail ก่อนเริ่มตั้งค่าฝั่งร้าน",
+          message: fallbackMessage,
         },
         { status: 401 },
       ),
