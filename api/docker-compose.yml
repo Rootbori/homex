@@ -1,34 +1,10 @@
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: homex-postgres
-    environment:
-      POSTGRES_USER: homex
-      POSTGRES_PASSWORD: homex
-      POSTGRES_DB: homex
-    ports:
-      - "5433:5432"
-    volumes:
-      - homex-postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U homex -d homex"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   api:
     build: .
     container_name: homex-api
-    depends_on:
-      postgres:
-        condition: service_healthy
     ports:
       - "7772:7772"
     environment:
       APP_ENV: development
       PORT: 7772
-      DATABASE_URL: postgres://homex:homex@postgres:5432/homex?sslmode=disable
       MIGRATIONS_PATH: /app/migrations
-
-volumes:
-  homex-postgres-data:
