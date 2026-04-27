@@ -2,10 +2,8 @@ services:
   web:
     build: .
     container_name: homex-web
-    environment:
-      - API_BASE_URL=http://host.docker.internal:7772
-      - AUTH_URL=http://localhost:7771
-      - NODE_ENV=production
+    env_file:
+      - .env
     ports:
       - "7771:7771"
     extra_hosts:

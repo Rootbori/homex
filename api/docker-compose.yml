@@ -4,7 +4,5 @@ services:
     container_name: homex-api
     ports:
       - "7772:7772"
-    environment:
-      APP_ENV: development
-      PORT: 7772
-      MIGRATIONS_PATH: /app/migrations
+    env_file:
+      - .env
